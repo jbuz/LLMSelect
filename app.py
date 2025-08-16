@@ -5,12 +5,22 @@ import requests
 import json
 import os
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
+from dotenv import load_dotenv, find_dotenv, set_key
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Store API keys in memory (in production, use a proper database)
-api_keys = {}
+# Function to get API keys from environment variables
+def get_api_keys_from_env():
+    return {
+        "openai": os.environ.get("OPENAI_API_KEY"),
+        "anthropic": os.environ.get("ANTHROPIC_API_KEY"),
+        "gemini": os.environ.get("GEMINI_API_KEY"),
+        "mistral": os.environ.get("MISTRAL_API_KEY"),
+    }
 
 @app.route('/')
 def index():
@@ -18,13 +28,20 @@ def index():
 
 @app.route('/api/keys', methods=['POST'])
 def save_api_keys():
-    global api_keys
-    api_keys = request.json
+    keys = request.json
+    dotenv_path = find_dotenv()
+    if not dotenv_path:
+        dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+        open(dotenv_path, 'a').close()
+
+    for key, value in keys.items():
+        set_key(dotenv_path, f"{key.upper()}_API_KEY", value)
+    
     return jsonify({"status": "success"})
 
 @app.route('/api/keys', methods=['GET'])
 def get_api_keys():
-    # Return keys without actual values for security
+    api_keys = get_api_keys_from_env()
     return jsonify({key: "***" if value else "" for key, value in api_keys.items()})
 
 @app.route('/api/chat', methods=['POST'])
@@ -33,6 +50,7 @@ def chat():
     provider = data.get('provider')
     model = data.get('model')
     messages = data.get('messages', [])
+    api_keys = get_api_keys_from_env()
     
     if provider not in api_keys or not api_keys[provider]:
         return jsonify({"error": f"API key for {provider} not configured"}), 400
@@ -42,6 +60,36 @@ def chat():
         return jsonify({"response": response})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/compare', methods=['POST'])
+def compare():
+    data = request.json
+    providers = data.get('providers', [])
+    prompt = data.get('prompt')
+    messages = [{'role': 'user', 'content': prompt}]
+    api_keys = get_api_keys_from_env()
+
+    responses = {}
+    
+    def get_response(provider, model):
+        try:
+            api_key = api_keys.get(provider)
+            if not api_key:
+                return f"API key for {provider} not configured"
+            return call_llm_api(provider, model, messages, api_key)
+        except Exception as e:
+            return str(e)
+
+    with ThreadPoolExecutor() as executor:
+        futures = {executor.submit(get_response, p['provider'], p['model']): p['provider'] for p in providers}
+        for future in futures:
+            provider = futures[future]
+            try:
+                responses[provider] = future.result()
+            except Exception as e:
+                responses[provider] = str(e)
+
+    return jsonify(responses)
 
 def call_llm_api(provider, model, messages, api_key):
     if provider == 'openai':

@@ -52,6 +52,50 @@
             background: #f7f7f8;
             height: 100vh;
             display: flex;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #1c1c24;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .new-chat-btn {
+            padding: 12px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .topics-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+        }
+
+        .topic-item {
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .topic-item.active {
+            background: #3a3a4c;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
             flex-direction: column;
         }
 
@@ -110,6 +154,60 @@
             margin: 0 auto;
             width: 100%;
             padding: 0 20px;
+        }
+
+        .compare-container {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .compare-input-container {
+            margin-bottom: 20px;
+        }
+
+        .compare-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .compare-go-btn {
+            padding: 8px 16px;
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .compare-selectors {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .compare-selector {
+            flex: 1;
+        }
+
+        .compare-responses {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .compare-response-column {
+            flex: 1;
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            padding: 12px;
         }
 
         .messages {
@@ -317,40 +415,75 @@
         </div>
     </div>
 
-    <div class="header">
-        <h1>Multi-LLM Chat</h1>
-        <div class="model-selector">
-            <select id="provider-select">
-                <option value="openai">OpenAI</option>
-                <option value="anthropic">Anthropic</option>
-                <option value="gemini">Google Gemini</option>
-                <option value="mistral">Mistral AI</option>
-            </select>
-            <select id="model-select">
-                <option value="gpt-4">GPT-4</option>
-            </select>
-            <button class="api-keys-btn" onclick="openApiKeysModal()">API Keys</button>
-        </div>
+    <div class="sidebar">
+        <button class="new-chat-btn" onclick="createNewTopic()">New Chat</button>
+        <ul class="topics-list" id="topics-list"></ul>
     </div>
 
-    <div class="chat-container">
-        <div class="messages" id="messages"></div>
-        <div class="loading" id="loading">Thinking...</div>
-        
-        <div class="input-container">
-            <div class="input-wrapper">
-                <textarea 
-                    id="message-input" 
-                    placeholder="Type your message here..." 
-                    rows="1"
-                    onkeydown="handleKeyDown(event)"
-                    oninput="autoResize(this)"
-                ></textarea>
-                <button class="send-btn" id="send-btn" onclick="sendMessage()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                    </svg>
-                </button>
+    <div class="main-content">
+        <div class="header">
+            <h1>Multi-LLM Chat</h1>
+            <div class="model-selector">
+                <button class="api-keys-btn" id="compare-btn" onclick="toggleCompareMode()">Compare</button>
+                <select id="provider-select">
+                    <option value="openai">OpenAI</option>
+                    <option value="anthropic">Anthropic</option>
+                    <option value="gemini">Google Gemini</option>
+                    <option value="mistral">Mistral AI</option>
+                </select>
+                <select id="model-select">
+                    <option value="gpt-4">GPT-4</option>
+                </select>
+                <button class="api-keys-btn" onclick="openApiKeysModal()">API Keys</button>
+                <button class="api-keys-btn" onclick="clearLocalStorage()">Clear Cache</button>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chat-container">
+            <div class="messages" id="messages"></div>
+            <div class="loading" id="loading">Thinking...</div>
+            
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="message-input" 
+                        placeholder="Type your message here..." 
+                        rows="1"
+                        onkeydown="handleKeyDown(event)"
+                        oninput="autoResize(this)"
+                    ></textarea>
+                    <button class="send-btn" id="send-btn" onclick="sendMessage()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="compare-container" id="compare-container">
+            <div class="compare-selectors">
+                <div class="compare-selector">
+                    <select class="provider-select-compare"></select>
+                    <select class="model-select-compare"></select>
+                </div>
+                <div class="compare-selector">
+                    <select class="provider-select-compare"></select>
+                    <select class="model-select-compare"></select>
+                </div>
+                <div class="compare-selector">
+                    <select class="provider-select-compare"></select>
+                    <select class="model-select-compare"></select>
+                </div>
+            </div>
+            <div class="compare-input-container">
+                <textarea id="compare-prompt" class="compare-input" placeholder="Enter your prompt for comparison..."></textarea>
+                <button class="compare-go-btn" onclick="runComparison()">Go</button>
+            </div>
+            <div class="compare-responses" id="compare-responses">
+                <div class="compare-response-column"></div>
+                <div class="compare-response-column"></div>
+                <div class="compare-response-column"></div>
             </div>
         </div>
     </div>
@@ -393,7 +526,7 @@
                 }
             }, 500);
         });
-        // Model configurations for each provider
+        
         const providerModels = {
             openai: [
                 { id: 'gpt-4', name: 'GPT-4' },
@@ -406,8 +539,8 @@
                 { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' }
             ],
             gemini: [
-                { id: 'gemini-pro', name: 'Gemini Pro' },
-                { id: 'gemini-pro-vision', name: 'Gemini Pro Vision' }
+                { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' },
+                { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' }
             ],
             mistral: [
                 { id: 'mistral-large-latest', name: 'Mistral Large' },
@@ -416,10 +549,17 @@
             ]
         };
 
-        let messages = [];
+        let chatData = {
+            topics: [],
+            activeTopicId: null
+        };
         let apiKeys = {};
+        let compareMode = false;
 
-        // Load saved API keys and messages from memory
+        function getActiveTopic() {
+            return chatData.topics.find(t => t.id === chatData.activeTopicId);
+        }
+
         function loadSavedData() {
             const savedKeys = localStorage.getItem('llm-chat-api-keys');
             if (savedKeys) {
@@ -427,24 +567,63 @@
                 updateApiKeyInputs();
             }
 
-            const savedMessages = localStorage.getItem('llm-chat-messages');
-            if (savedMessages) {
-                messages = JSON.parse(savedMessages);
-                renderMessages();
+            const savedChatData = localStorage.getItem('llm-chat-data');
+            if (savedChatData) {
+                chatData = JSON.parse(savedChatData);
+            } else {
+                createNewTopic();
             }
+            renderTopics();
+            renderMessages();
+            initCompareSelectors();
         }
 
-        // Save data to localStorage
         function saveData() {
             localStorage.setItem('llm-chat-api-keys', JSON.stringify(apiKeys));
-            localStorage.setItem('llm-chat-messages', JSON.stringify(messages));
+            localStorage.setItem('llm-chat-data', JSON.stringify(chatData));
         }
 
-        // Update model dropdown when provider changes
-        function updateModelSelect() {
-            const provider = document.getElementById('provider-select').value;
-            const modelSelect = document.getElementById('model-select');
-            
+        function createNewTopic() {
+            const newTopic = {
+                id: `topic-${Date.now()}`,
+                name: `Chat ${chatData.topics.length + 1}`,
+                messages: []
+            };
+            chatData.topics.push(newTopic);
+            chatData.activeTopicId = newTopic.id;
+            saveData();
+            renderTopics();
+            renderMessages();
+        }
+
+        function switchTopic(topicId) {
+            chatData.activeTopicId = topicId;
+            saveData();
+            renderTopics();
+            renderMessages();
+        }
+
+        function renderTopics() {
+            const topicsList = document.getElementById('topics-list');
+            topicsList.innerHTML = '';
+            chatData.topics.forEach(topic => {
+                const topicItem = document.createElement('li');
+                topicItem.className = `topic-item ${topic.id === chatData.activeTopicId ? 'active' : ''}`;
+                topicItem.textContent = topic.name;
+                topicItem.onclick = () => switchTopic(topic.id);
+                topicsList.appendChild(topicItem);
+            });
+        }
+
+        function toggleCompareMode() {
+            compareMode = !compareMode;
+            document.getElementById('chat-container').style.display = compareMode ? 'none' : 'flex';
+            document.getElementById('compare-container').style.display = compareMode ? 'flex' : 'none';
+            document.getElementById('compare-btn').textContent = compareMode ? 'Chat Mode' : 'Compare';
+        }
+
+        function updateModelSelect(providerSelect, modelSelect) {
+            const provider = providerSelect.value;
             modelSelect.innerHTML = '';
             providerModels[provider].forEach(model => {
                 const option = document.createElement('option');
@@ -454,7 +633,28 @@
             });
         }
 
-        // Modal functions
+        function initCompareSelectors() {
+            const providerSelects = document.querySelectorAll('.provider-select-compare');
+            const modelSelects = document.querySelectorAll('.model-select-compare');
+
+            providerSelects.forEach((select, index) => {
+                for (const provider in providerModels) {
+                    const option = document.createElement('option');
+                    option.value = provider;
+                    option.textContent = provider;
+                    select.appendChild(option);
+                }
+                select.addEventListener('change', () => updateModelSelect(select, modelSelects[index]));
+                updateModelSelect(select, modelSelects[index]);
+            });
+        }
+
+        function clearLocalStorage() {
+            localStorage.removeItem('llm-chat-api-keys');
+            localStorage.removeItem('llm-chat-data');
+            location.reload();
+        }
+
         function openApiKeysModal() {
             document.getElementById('api-keys-modal').style.display = 'flex';
         }
@@ -482,39 +682,42 @@
             alert('API keys saved successfully!');
         }
 
-        // Message handling
         function addMessage(role, content, isError = false) {
-            messages.push({ role, content, isError });
-            renderMessages();
-            saveData();
+            const activeTopic = getActiveTopic();
+            if (activeTopic) {
+                activeTopic.messages.push({ role, content, isError });
+                renderMessages();
+                saveData();
+            }
         }
 
         function renderMessages() {
             const messagesContainer = document.getElementById('messages');
             messagesContainer.innerHTML = '';
+            const activeTopic = getActiveTopic();
 
-            messages.forEach(message => {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${message.role}`;
+            if (activeTopic) {
+                activeTopic.messages.forEach(message => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message ${message.role}`;
 
-                const contentDiv = document.createElement('div');
-                contentDiv.className = `message-content ${message.isError ? 'error-message' : ''}`;
-                contentDiv.textContent = message.content;
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = `message-content ${message.isError ? 'error-message' : ''}`;
+                    contentDiv.textContent = message.content;
 
-                messageDiv.appendChild(contentDiv);
-                messagesContainer.appendChild(messageDiv);
-            });
+                    messageDiv.appendChild(contentDiv);
+                    messagesContainer.appendChild(messageDiv);
+                });
+            }
 
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // Auto-resize textarea
         function autoResize(textarea) {
             textarea.style.height = 'auto';
             textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
         }
 
-        // Handle keyboard shortcuts
         function handleKeyDown(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -522,13 +725,11 @@
             }
         }
 
-        // Show/hide loading indicator
         function setLoading(loading) {
             document.getElementById('loading').style.display = loading ? 'block' : 'none';
             document.getElementById('send-btn').disabled = loading;
         }
 
-        // Send message to LLM
         async function sendMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
@@ -559,9 +760,61 @@
             }
         }
 
-        // Call LLM API based on provider
+        async function runComparison() {
+            const prompt = document.getElementById('compare-prompt').value.trim();
+            if (!prompt) return;
+
+            const providerSelects = document.querySelectorAll('.provider-select-compare');
+            const modelSelects = document.querySelectorAll('.model-select-compare');
+            const providers = [];
+
+            providerSelects.forEach((select, index) => {
+                const provider = select.value;
+                const model = modelSelects[index].value;
+                if (provider && model) {
+                    providers.push({ provider, model });
+                }
+            });
+
+            if (providers.length === 0) {
+                alert('Please select at least one model for comparison.');
+                return;
+            }
+
+            const responseColumns = document.querySelectorAll('.compare-response-column');
+            responseColumns.forEach(column => column.innerHTML = 'Loading...');
+
+            try {
+                const response = await fetch('/api/compare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ providers, prompt })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.statusText}`);
+                }
+
+                const results = await response.json();
+                
+                responseColumns.forEach((column, index) => {
+                    const provider = providers[index];
+                    if (provider) {
+                        column.innerHTML = results[provider.provider] || 'No response';
+                    }
+                });
+
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+                responseColumns.forEach(column => column.innerHTML = 'Error');
+            }
+        }
+
         async function callLLMAPI(provider, model, userMessage) {
-            const conversationHistory = messages.filter(m => !m.isError);
+            const activeTopic = getActiveTopic();
+            const conversationHistory = activeTopic ? activeTopic.messages.filter(m => !m.isError) : [];
             
             switch (provider) {
                 case 'openai':
@@ -577,7 +830,6 @@
             }
         }
 
-        // OpenAI API call
         async function callOpenAI(model, conversationHistory) {
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
@@ -600,9 +852,7 @@
             return data.choices[0].message.content;
         }
 
-        // Anthropic API call
         async function callAnthropic(model, conversationHistory) {
-            // Convert messages format for Anthropic
             const systemMessage = conversationHistory.find(m => m.role === 'system');
             const messages = conversationHistory.filter(m => m.role !== 'system');
 
@@ -632,7 +882,6 @@
             return data.content[0].text;
         }
 
-        // Google Gemini API call
         async function callGemini(model, conversationHistory) {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKeys.gemini}`, {
                 method: 'POST',
@@ -655,7 +904,6 @@
             return data.candidates[0].content.parts[0].text;
         }
 
-        // Mistral API call
         async function callMistral(model, conversationHistory) {
             const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
                 method: 'POST',
@@ -678,12 +926,10 @@
             return data.choices[0].message.content;
         }
 
-        // Initialize app
-        document.getElementById('provider-select').addEventListener('change', updateModelSelect);
+        document.getElementById('provider-select').addEventListener('change', () => updateModelSelect(document.getElementById('provider-select'), document.getElementById('model-select')));
         
-        // Load data and set up initial state
         loadSavedData();
-        updateModelSelect();
+        updateModelSelect(document.getElementById('provider-select'), document.getElementById('model-select'));
     </script>
 </body>
 </html>
