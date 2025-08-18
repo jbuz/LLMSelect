@@ -27,7 +27,7 @@ COPY . .
 RUN npm run build
 
 # Expose port
-EXPOSE 5000
+EXPOSE 3044
 
 # Run the application
 CMD ["python", "app.py"]

@@ -2,11 +2,23 @@ services:
   llm-chat:
     build: .
     ports:
-      - "5000:5000"
+      - "3044:3044"
     environment:
       - FLASK_ENV=production
     volumes:
       - ./:/app
     restart: unless-stopped
+  
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    env_file: .env
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    restart: unless-stopped
+    depends_on:
+      - llm-chat
+    networks:
+      - default
+
+
 
 

@@ -26,7 +26,7 @@ cd multichat
 docker-compose up --build
 ```
 
-3. Open your browser to `http://localhost:5000`
+3. Open your browser to `http://localhost:3044`
 
 4. Configure your API keys and start chatting!
 
@@ -112,7 +112,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ### Manual Production Setup
 ```bash
 pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 app:app
+gunicorn -w 4 -b 0.0.0.0:3044 app:app
 ```
 
 ## Environment Variables
