@@ -583,6 +583,59 @@ textarea:focus-visible {
   pointer-events: none;
 }
 
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.form-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  font-size: 13px;
+}
+
+.global-error {
+  margin: 16px auto 0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: var(--error);
+  max-width: 640px;
+  width: calc(100% - 48px);
+  text-align: center;
+  font-size: 13px;
+}
+
+.error-boundary {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px;
+  display: grid;
+  gap: 12px;
+  text-align: center;
+}
+
+.error-boundary h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.error-boundary p {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
 /* Smooth Animations */
 * {
   scroll-behavior: smooth;

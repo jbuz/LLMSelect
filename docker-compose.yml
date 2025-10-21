@@ -3,6 +3,8 @@ services:
     build: .
     ports:
       - "3044:3044"
+    env_file:
+      - .env
     environment:
       - FLASK_ENV=production
     volumes:
