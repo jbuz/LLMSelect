@@ -10,7 +10,10 @@ export const authApi = {
 
 export const chatApi = {
   sendMessage: (data) => http.post('/chat', data),
-  compare: (data) => http.post('/compare', data)
+  compare: (data) => http.post('/compare', data),
+  voteComparison: (comparisonId, preferredIndex) => 
+    http.post(`/comparisons/${comparisonId}/vote`, { preferred_index: preferredIndex }),
+  getComparisons: (params) => http.get('/comparisons', { params })
 };
 
 export const keyApi = {
