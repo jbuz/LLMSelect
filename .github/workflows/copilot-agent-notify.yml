@@ -1,9 +1,9 @@
 name: Copilot Agent Notification
 
-# Trigger when Copilot coding agent creates or updates a pull request
+# Trigger when Copilot coding agent completes work (PR closed/merged)
 on:
   pull_request:
-    types: [opened, synchronize, closed]
+    types: [opened, closed]  # Only notify on start and completion
 
 jobs:
   notify-pushover:
@@ -13,30 +13,28 @@ jobs:
       contains(github.event.pull_request.title, 'Copilot') || 
       contains(github.event.pull_request.title, 'copilot') ||
       contains(github.event.pull_request.head.ref, 'copilot') ||
-      github.event.pull_request.user.login == 'github-actions[bot]'
+      contains(github.event.pull_request.head.ref, 'agent') ||
+      github.event.pull_request.user.login == 'github-actions[bot]' ||
+      github.event.pull_request.user.login == 'copilot-workspace[bot]'
     
     steps:
       - name: Determine PR Status and Message
         id: pr_status
         run: |
-          if [ "${{ github.event.action }}" == "closed" ]; then
+          if [ "${{ github.event.action }}" == "opened" ]; then
+            echo "title=✅ Copilot Agent Finished - Ready for Review!" >> $GITHUB_OUTPUT
+            echo "priority=1" >> $GITHUB_OUTPUT
+            echo "sound=cashregister" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.action }}" == "closed" ]; then
             if [ "${{ github.event.pull_request.merged }}" == "true" ]; then
-              echo "title=✅ Copilot PR Merged" >> $GITHUB_OUTPUT
+              echo "title=🎉 Copilot PR Merged" >> $GITHUB_OUTPUT
               echo "priority=0" >> $GITHUB_OUTPUT
-              echo "sound=cashregister" >> $GITHUB_OUTPUT
+              echo "sound=magic" >> $GITHUB_OUTPUT
             else
-              echo "title=❌ Copilot PR Closed" >> $GITHUB_OUTPUT
-              echo "priority=0" >> $GITHUB_OUTPUT
-              echo "sound=falling" >> $GITHUB_OUTPUT
+              echo "title=❌ Copilot PR Closed Without Merge" >> $GITHUB_OUTPUT
+              echo "priority=-1" >> $GITHUB_OUTPUT
+              echo "sound=none" >> $GITHUB_OUTPUT
             fi
-          elif [ "${{ github.event.action }}" == "opened" ]; then
-            echo "title=🚀 Copilot Work Started" >> $GITHUB_OUTPUT
-            echo "priority=0" >> $GITHUB_OUTPUT
-            echo "sound=pushover" >> $GITHUB_OUTPUT
-          else
-            echo "title=🔄 Copilot PR Updated" >> $GITHUB_OUTPUT
-            echo "priority=-1" >> $GITHUB_OUTPUT
-            echo "sound=none" >> $GITHUB_OUTPUT
           fi
 
       - name: Send Pushover Notification
