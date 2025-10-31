@@ -18,7 +18,9 @@ class ChatRequestSchema(Schema):
         required=True,
         validate=validate.Length(min=1, max=25),
     )
-    conversation_id = fields.UUID(load_default=None, data_key="conversationId", allow_none=True)
+    conversation_id = fields.UUID(
+        load_default=None, data_key="conversationId", allow_none=True
+    )
 
 
 class CompareProviderSchema(Schema):

@@ -29,9 +29,14 @@ class LLMService:
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
 
-    def invoke(self, provider: str, model: str, messages: List[Mapping[str, str]], api_key: str) -> str:
+    def invoke(
+        self, provider: str, model: str, messages: List[Mapping[str, str]], api_key: str
+    ) -> str:
         sanitized = [
-            {"role": message["role"], "content": _sanitize_message_content(message["content"])}
+            {
+                "role": message["role"],
+                "content": _sanitize_message_content(message["content"]),
+            }
             for message in messages
         ]
 

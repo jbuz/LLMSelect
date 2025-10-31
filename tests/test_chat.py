@@ -2,7 +2,9 @@ from llmselect.models import APIKey, Conversation
 
 
 def register_and_login(client, username="chatuser", password="chat-password"):
-    client.post("/api/v1/auth/register", json={"username": username, "password": password})
+    client.post(
+        "/api/v1/auth/register", json={"username": username, "password": password}
+    )
     client.post("/api/v1/auth/login", json={"username": username, "password": password})
 
 
@@ -62,4 +64,3 @@ def test_api_key_storage(client, app):
     with app.app_context():
         stored = APIKey.query.filter_by(provider="openai").one()
         assert stored.user.username == "keyuser"
-

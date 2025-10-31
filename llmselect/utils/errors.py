@@ -5,6 +5,7 @@ from flask import g, jsonify
 from marshmallow import ValidationError as MarshmallowValidationError
 from werkzeug.exceptions import HTTPException
 
+
 def _attach_conversation_context(payload: Dict[str, Any]) -> Dict[str, Any]:
     conversation_id = getattr(g, "conversation_id", None)
     if conversation_id:
@@ -12,7 +13,6 @@ def _attach_conversation_context(payload: Dict[str, Any]) -> Dict[str, Any]:
         if isinstance(details, dict):
             details.setdefault("conversationId", conversation_id)
     return payload
-
 
 
 class AppError(Exception):
@@ -57,7 +57,11 @@ def register_error_handlers(app):
     @app.errorhandler(MarshmallowValidationError)
     def handle_validation_error(err: MarshmallowValidationError):
         payload = _attach_conversation_context(
-            {"error": "validation_error", "message": "Invalid request payload", "details": err.messages}
+            {
+                "error": "validation_error",
+                "message": "Invalid request payload",
+                "details": err.messages,
+            }
         )
         response = jsonify(payload)
         response.status_code = HTTPStatus.UNPROCESSABLE_ENTITY

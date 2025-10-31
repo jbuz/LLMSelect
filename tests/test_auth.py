@@ -13,13 +13,19 @@ def test_registration_and_login_flow(client):
 
     login_response = client.post(
         "/api/v1/auth/login",
-        json={"username": register_payload["username"], "password": register_payload["password"]},
+        json={
+            "username": register_payload["username"],
+            "password": register_payload["password"],
+        },
     )
     assert login_response.status_code == 200
     data = login_response.get_json()
     assert data["message"] == "Login successful"
     assert data["user"]["username"] == register_payload["username"]
-    assert any(cookie.startswith("access_token_cookie") for cookie in login_response.headers.getlist("Set-Cookie"))
+    assert any(
+        cookie.startswith("access_token_cookie")
+        for cookie in login_response.headers.getlist("Set-Cookie")
+    )
 
     me_response = client.get("/api/v1/auth/me")
     assert me_response.status_code == 200

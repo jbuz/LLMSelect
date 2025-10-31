@@ -47,7 +47,9 @@ def chat():
     if messages:
         latest_message = messages[-1]
         if latest_message.get("role") == "user":
-            conversation_service.append_message(conversation, "user", latest_message["content"])
+            conversation_service.append_message(
+                conversation, "user", latest_message["content"]
+            )
 
     api_key = get_api_key(current_user, provider, encryption_service)
 
