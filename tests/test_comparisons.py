@@ -17,20 +17,15 @@ def register_and_login(client, username="testuser", password="testpassword"):
         json={"username": unique_username, "password": password},
     )
     
-    # Extract CSRF token from cookie for future requests
+    # Extract and store CSRF token for authenticated requests
     csrf_token = None
     for cookie_header in response.headers.getlist('Set-Cookie'):
         if cookie_header.startswith('csrf_access_token='):
             csrf_token = cookie_header.split('=')[1].split(';')[0]
             break
     
-    # Store CSRF token on client for use in authenticated requests
-    if hasattr(client, 'csrf_token'):
-        client.csrf_token = csrf_token
-    else:
-        # Use environ_base to store it
-        client.environ_base = client.environ_base or {}
-        client.environ_base['HTTP_X_CSRF_TOKEN'] = csrf_token
+    # Store CSRF token as client attribute
+    client.csrf_token = csrf_token
     
     return response
 
@@ -38,7 +33,7 @@ def register_and_login(client, username="testuser", password="testpassword"):
 def make_authenticated_post(client, url, json=None):
     """Make an authenticated POST request with CSRF token."""
     headers = {}
-    # Try to get CSRF token from client's stored location
+    # Get CSRF token from client's stored attribute
     csrf_token = getattr(client, 'csrf_token', None)
     if csrf_token:
         headers['X-CSRF-Token'] = csrf_token

@@ -99,9 +99,7 @@ class ComparisonService:
 
         # Validate preferred_index
         if preferred_index < 0 or preferred_index >= len(comparison.results):
-            raise AppError(
-                f"Invalid preferred_index: must be between 0 and {len(comparison.results) - 1}"
-            )
+            raise AppError("Invalid preferred_index: out of valid range")
 
         comparison.preferred_index = preferred_index
         try:

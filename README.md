@@ -3,10 +3,12 @@
 Secure multi-provider LLM comparison tool built with Flask and React. LLMSelect enables teams to experiment with multiple language model providers in a single interface while keeping API credentials encrypted at rest, enforcing strong authentication, and providing observability for every interaction.
 
 ## Highlights
+- **Side-by-side model comparison** for 2-4 LLM models simultaneously
 - **Per-user encrypted API keys** stored in the database using Fernet encryption with a master key supplied via environment variables.
 - **Session-based authentication** powered by JWT cookies with automatic CSRF protection and refresh token rotation.
 - **Zero-trust defaults** including strict rate limiting, request sanitisation, structured error responses, and hardened HTTP security headers.
 - **Comprehensive logging** with JSON-formatted request/response traces and retry logic for outbound LLM requests.
+- **Comparison history persistence** with voting and preference tracking for analysis.
 - **Conversation history persistence** stored per user/provider in the database for auditing and retrieval.
 - **Versioned REST API** served under `/api/v1` for forward compatibility.
 - **Health monitoring** via `/health` for uptime checks and container orchestration probes.
@@ -81,8 +83,26 @@ The service will start on `http://localhost:3044` by default.
 | GET | /api/v1/auth/me | Return the authenticated user's profile. |
 | POST | /api/v1/keys | Persist provider API keys for the current user. |
 | POST | /api/v1/chat | Submit a chat turn and receive a provider response plus `conversationId`. |
-| POST | /api/v1/compare | Request side-by-side responses from multiple providers. |
+| POST | /api/v1/compare | Request side-by-side responses from multiple providers. Returns comparison ID. |
+| GET | /api/v1/comparisons | Retrieve user's comparison history with pagination. |
+| POST | /api/v1/comparisons/:id/vote | Vote for preferred model response in a comparison. |
 | GET | /health | Lightweight health check for infrastructure probes. |
+
+## Features
+
+### Chat Mode
+- Single-model conversational interface
+- Support for OpenAI, Anthropic, Google, and Mistral models
+- Conversation history persistence
+- Model and provider selection
+
+### Comparison Mode
+- **Multi-Model Selection**: Choose 2-4 models to compare simultaneously
+- **Side-by-Side Display**: View responses in a responsive grid layout
+- **Performance Metrics**: See response time and token counts for each model
+- **Voting**: Mark your preferred response for future reference
+- **History**: Access past comparisons with full results
+- **Error Handling**: Graceful degradation when individual providers fail
 
 ## Error Handling & Observability
 - Requests and responses are logged in structured JSON, making it easy to ship logs to systems such as ELK, Datadog, or CloudWatch.

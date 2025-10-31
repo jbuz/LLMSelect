@@ -20,7 +20,15 @@ def _rate_limit():
 
 
 def _estimate_tokens(text: str) -> int:
-    """Rough token estimation: ~4 characters per token for English text."""
+    """Rough token estimation: ~4 characters per token for English text.
+    
+    Note: This is a simple heuristic that may be less accurate for:
+    - Non-English languages (especially CJK languages)
+    - Code and technical content
+    - Text with many special characters
+    
+    For production use, consider using provider-specific tokenizers.
+    """
     return max(1, len(text) // 4)
 
 
@@ -115,11 +123,16 @@ def compare():
                     }
                 )
             except Exception as exc:  # noqa: PERF203
+                # Log the full exception for debugging but don't expose details to user
+                current_app.logger.error(
+                    f"Provider {provider_name} failed",
+                    extra={"provider": provider_name, "model": model, "error": str(exc)},
+                )
                 results.append(
                     {
                         "provider": provider_name,
                         "model": model,
-                        "response": str(exc),
+                        "response": "Provider request failed. Please check your API key and try again.",
                         "time": 0,
                         "tokens": 0,
                         "error": True,
