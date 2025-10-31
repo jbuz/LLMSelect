@@ -51,7 +51,7 @@ jobs:
           node-version: '16'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Lint JavaScript
         run: npm run lint || echo "::warning::No lint script found in package.json"
@@ -102,7 +102,7 @@ jobs:
           node-version: '16'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Run tests
         run: npm test || echo "::warning::No test script found or tests failed"
@@ -131,15 +131,15 @@ jobs:
           pip install -r requirements.txt
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build frontend
         run: npm run build
 
       - name: Verify build artifacts
         run: |
-          if [ ! -d "dist" ]; then
-            echo "::error::Build failed - dist directory not created"
+          if [ ! -f "static/js/bundle.js" ]; then
+            echo "::error::Build failed - bundle.js not created"
             exit 1
           fi
           echo "Build successful!"
@@ -148,7 +148,7 @@ jobs:
         uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: build-artifacts
-          path: dist/
+          path: static/js/
           retention-days: 7
 
   docker-build:
