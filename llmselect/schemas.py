@@ -53,3 +53,7 @@ class RegistrationSchema(Schema):
 class LoginSchema(Schema):
     username = fields.String(required=True)
     password = fields.String(required=True)
+
+
+class VotePreferenceSchema(Schema):
+    preferred_index = fields.Integer(required=True, validate=validate.Range(min=0))
