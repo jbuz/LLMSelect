@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from time import time
 from typing import Dict, Optional
 
 from flask import Blueprint, current_app, g, jsonify, request
@@ -16,6 +17,11 @@ compare_schema = CompareRequestSchema()
 
 def _rate_limit():
     return current_app.config["RATE_LIMIT"]
+
+
+def _estimate_tokens(text: str) -> int:
+    """Rough token estimation: ~4 characters per token for English text."""
+    return max(1, len(text) // 4)
 
 
 @bp.post("/chat")
@@ -70,9 +76,10 @@ def compare():
 
     services = current_app.extensions["services"]
     llm_service = services.llm
+    comparison_service = services.comparisons
     encryption_service = current_app.extensions["key_encryption"]
 
-    results: Dict[str, str] = {}
+    results = []
     messages = [{"role": "user", "content": prompt}]
 
     user = current_user
@@ -84,7 +91,7 @@ def compare():
             model = entry["model"]
             futures[
                 executor.submit(
-                    _invoke_provider,
+                    _invoke_provider_with_timing,
                     encryption_service,
                     llm_service,
                     user,
@@ -92,18 +99,47 @@ def compare():
                     model,
                     messages,
                 )
-            ] = provider_name
+            ] = (provider_name, model)
 
         for future in as_completed(futures):
-            provider_name = futures[future]
+            provider_name, model = futures[future]
             try:
-                results[provider_name] = future.result()
+                response_text, elapsed_time = future.result()
+                results.append(
+                    {
+                        "provider": provider_name,
+                        "model": model,
+                        "response": response_text,
+                        "time": elapsed_time,
+                        "tokens": _estimate_tokens(response_text),
+                    }
+                )
             except Exception as exc:  # noqa: PERF203
-                results[provider_name] = str(exc)
+                results.append(
+                    {
+                        "provider": provider_name,
+                        "model": model,
+                        "response": str(exc),
+                        "time": 0,
+                        "tokens": 0,
+                        "error": True,
+                    }
+                )
 
-    return jsonify(results)
+    # Save comparison to database
+    comparison = comparison_service.save_comparison(
+        user_id=user.id, prompt=prompt, results=results
+    )
+
+    return jsonify({"id": comparison.id, "results": results, "prompt": prompt})
 
 
-def _invoke_provider(encryption_service, llm_service, user, provider, model, messages):
+def _invoke_provider_with_timing(
+    encryption_service, llm_service, user, provider, model, messages
+):
+    """Invoke provider and measure elapsed time."""
     api_key = get_api_key(user, provider, encryption_service)
-    return llm_service.invoke(provider, model, messages, api_key)
+    start_time = time()
+    response = llm_service.invoke(provider, model, messages, api_key)
+    elapsed_time = time() - start_time
+    return response, elapsed_time
