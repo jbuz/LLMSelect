@@ -46,13 +46,14 @@ def create_app() -> Flask:
 
     services = create_service_container()
     app.extensions["services"] = services
-    app.extensions["key_encryption"] = KeyEncryptionService(app.config["ENCRYPTION_KEY"])
-
+    app.extensions["key_encryption"] = KeyEncryptionService(
+        app.config["ENCRYPTION_KEY"]
+    )
 
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         identity = jwt_data["sub"]
-        return User.query.get(identity)
+        return User.query.get(int(identity))
 
     @jwt.unauthorized_loader
     def unauthorized_callback(reason):
@@ -68,7 +69,9 @@ def create_app() -> Flask:
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_data):
-        response = jsonify({"error": "token_expired", "message": "Authentication token has expired"})
+        response = jsonify(
+            {"error": "token_expired", "message": "Authentication token has expired"}
+        )
         response.status_code = 401
         return response
 

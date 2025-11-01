@@ -19,7 +19,7 @@ def _validate_encryption_key(key: str) -> None:
     except (InvalidToken, ValueError, TypeError):
         raise ConfigError(
             "ENCRYPTION_KEY must be a valid Fernet key. "
-            "Generate one with `python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\"`"
+            'Generate one with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`'
         )
 
 
@@ -59,10 +59,14 @@ class BaseConfig:
     @classmethod
     def validate(cls) -> None:
         missing = [
-            key for key in ("SECRET_KEY", "JWT_SECRET_KEY", "ENCRYPTION_KEY") if not getattr(cls, key)
+            key
+            for key in ("SECRET_KEY", "JWT_SECRET_KEY", "ENCRYPTION_KEY")
+            if not getattr(cls, key)
         ]
         if missing:
-            raise ConfigError(f"Missing required environment variables: {', '.join(missing)}")
+            raise ConfigError(
+                f"Missing required environment variables: {', '.join(missing)}"
+            )
         _validate_encryption_key(cls.ENCRYPTION_KEY)
 
 

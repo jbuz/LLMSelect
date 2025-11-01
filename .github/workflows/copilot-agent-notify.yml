@@ -1,0 +1,70 @@
+name: Copilot Agent Notification
+
+# Trigger when Copilot coding agent completes work (PR closed/merged)
+on:
+  pull_request:
+    types: [opened, closed]  # Only notify on start and completion
+
+jobs:
+  notify-pushover:
+    runs-on: ubuntu-latest
+    # Only run if the PR is from Copilot (contains 'copilot' or 'agent' in title/branch)
+    if: |
+      contains(github.event.pull_request.title, 'Copilot') || 
+      contains(github.event.pull_request.title, 'copilot') ||
+      contains(github.event.pull_request.head.ref, 'copilot') ||
+      contains(github.event.pull_request.head.ref, 'agent') ||
+      github.event.pull_request.user.login == 'github-actions[bot]' ||
+      github.event.pull_request.user.login == 'copilot-workspace[bot]'
+    
+    steps:
+      - name: Determine PR Status and Message
+        id: pr_status
+        run: |
+          if [ "${{ github.event.action }}" == "opened" ]; then
+            echo "title=✅ Copilot Agent Finished - Ready for Review!" >> $GITHUB_OUTPUT
+            echo "priority=1" >> $GITHUB_OUTPUT
+            echo "sound=cashregister" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.action }}" == "closed" ]; then
+            if [ "${{ github.event.pull_request.merged }}" == "true" ]; then
+              echo "title=🎉 Copilot PR Merged" >> $GITHUB_OUTPUT
+              echo "priority=0" >> $GITHUB_OUTPUT
+              echo "sound=magic" >> $GITHUB_OUTPUT
+            else
+              echo "title=❌ Copilot PR Closed Without Merge" >> $GITHUB_OUTPUT
+              echo "priority=-1" >> $GITHUB_OUTPUT
+              echo "sound=none" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Send Pushover Notification
+        env:
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER_KEY }}
+        run: |
+          # Send notification with secrets loaded from environment
+          response=$(curl -s -w "\n%{http_code}" \
+            --form-string "token=${PUSHOVER_TOKEN}" \
+            --form-string "user=${PUSHOVER_USER}" \
+            --form-string "title=${{ steps.pr_status.outputs.title }}" \
+            --form-string "message=PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
+
+          Branch: ${{ github.event.pull_request.head.ref }}
+          Files: ${{ github.event.pull_request.changed_files }} changed
+          Lines: +${{ github.event.pull_request.additions }} / -${{ github.event.pull_request.deletions }}" \
+            --form-string "priority=${{ steps.pr_status.outputs.priority }}" \
+            --form-string "sound=${{ steps.pr_status.outputs.sound }}" \
+            --form-string "url=${{ github.event.pull_request.html_url }}" \
+            --form-string "url_title=View Pull Request" \
+            https://api.pushover.net/1/messages.json)
+          
+          # Extract HTTP status code
+          http_code=$(echo "$response" | tail -n1)
+          
+          # Check if successful (2xx status code)
+          if [[ $http_code -ge 200 && $http_code -lt 300 ]]; then
+            echo "✅ Notification sent successfully (HTTP $http_code)"
+          else
+            echo "❌ Notification failed with HTTP $http_code"
+            exit 1
+          fi

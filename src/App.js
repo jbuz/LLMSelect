@@ -6,6 +6,7 @@ import MessageInput from './components/MessageInput';
 import ApiKeyModal from './components/ApiKeyModal';
 import LoginModal from './components/LoginModal';
 import ErrorBoundary from './components/ErrorBoundary';
+import ComparisonMode from './components/ComparisonMode';
 import { authApi, chatApi, keyApi } from './services/api';
 
 const PROVIDER_MODELS = {
@@ -33,6 +34,7 @@ const PROVIDER_MODELS = {
 const STORAGE_KEY = 'chat-session';
 
 const App = () => {
+  const [mode, setMode] = useState('chat'); // 'chat' or 'compare'
   const [messages, setMessages] = useState([]);
   const [selectedProvider, setSelectedProvider] = useState('openai');
   const [selectedModel, setSelectedModel] = useState('gpt-4');
@@ -222,14 +224,22 @@ const App = () => {
         onLoginClick={() => setAuthModal((modal) => ({ ...modal, open: true }))}
         onLogout={handleLogout}
         user={user}
+        mode={mode}
+        onModeChange={setMode}
       />
 
       {globalError && <div className="global-error">{globalError}</div>}
 
       <ErrorBoundary onReset={clearChat}>
         <main className="main-content">
-          <MessageList messages={messages} isLoading={isLoading} />
-          <MessageInput onSendMessage={sendMessage} isLoading={isLoading || !user} />
+          {mode === 'chat' ? (
+            <>
+              <MessageList messages={messages} isLoading={isLoading} />
+              <MessageInput onSendMessage={sendMessage} isLoading={isLoading || !user} />
+            </>
+          ) : (
+            <ComparisonMode chatApi={chatApi} />
+          )}
         </main>
       </ErrorBoundary>
 

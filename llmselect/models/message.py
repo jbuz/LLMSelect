@@ -9,5 +9,7 @@ class Message(db.Model, TimestampMixin):
     role = db.Column(db.String(20), nullable=False)
     content = db.Column(db.Text, nullable=False)
 
-    conversation_id = db.Column(db.String(36), db.ForeignKey("conversations.id"), nullable=False)
+    conversation_id = db.Column(
+        db.String(36), db.ForeignKey("conversations.id"), nullable=False
+    )
     conversation = db.relationship("Conversation", back_populates="messages")

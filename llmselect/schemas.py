@@ -18,7 +18,9 @@ class ChatRequestSchema(Schema):
         required=True,
         validate=validate.Length(min=1, max=25),
     )
-    conversation_id = fields.UUID(load_default=None, data_key="conversationId", allow_none=True)
+    conversation_id = fields.UUID(
+        load_default=None, data_key="conversationId", allow_none=True
+    )
 
 
 class CompareProviderSchema(Schema):
@@ -51,3 +53,7 @@ class RegistrationSchema(Schema):
 class LoginSchema(Schema):
     username = fields.String(required=True)
     password = fields.String(required=True)
+
+
+class VotePreferenceSchema(Schema):
+    preferred_index = fields.Integer(required=True, validate=validate.Range(min=0))
