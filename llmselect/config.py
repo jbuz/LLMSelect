@@ -78,6 +78,9 @@ class TestingConfig(BaseConfig):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False
+    JWT_COOKIE_CSRF_PROTECT = False  # Disable CSRF for testing
+    JWT_COOKIE_SECURE = False  # Allow non-HTTPS in tests
+    RATELIMIT_ENABLED = False  # Disable rate limiting in tests
 
 
 class ProductionConfig(BaseConfig):
