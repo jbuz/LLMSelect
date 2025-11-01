@@ -4,13 +4,12 @@ import tempfile
 import pytest
 
 # Set environment variables BEFORE importing app modules
-os.environ.setdefault("FLASK_ENV", "development")
+os.environ.setdefault("FLASK_ENV", "testing")  # Use testing environment
 os.environ.setdefault("SECRET_KEY", "test-secret-key")  # pragma: allowlist secret
+os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret")  # pragma: allowlist secret
 os.environ.setdefault(
-    "JWT_SECRET_KEY", "test-jwt-secret"
-)  # pragma: allowlist secret
-os.environ.setdefault(
-    "ENCRYPTION_KEY", "V9itAn6qCAdzBsZIxwQhO_coouCcjn0H0vCv2UEd8hY="  # pragma: allowlist secret
+    "ENCRYPTION_KEY",
+    "V9itAn6qCAdzBsZIxwQhO_coouCcjn0H0vCv2UEd8hY=",  # pragma: allowlist secret
 )
 os.environ.setdefault("ALLOW_OPEN_REGISTRATION", "true")
 

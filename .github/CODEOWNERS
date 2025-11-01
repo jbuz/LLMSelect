@@ -1,0 +1,32 @@
+# CODEOWNERS - Define code ownership for sensitive paths
+# These paths require review from designated owners before merging
+
+# Default owners for everything in the repo
+* @jbuz
+
+# Security-sensitive files require explicit review
+/SECURITY.md @jbuz
+/.github/workflows/ @jbuz
+/.github/CODEOWNERS @jbuz
+/llmselect/security.py @jbuz
+/llmselect/config.py @jbuz
+
+# Authentication and authorization
+/llmselect/routes/auth.py @jbuz
+/llmselect/services/api_keys.py @jbuz
+/llmselect/models/user.py @jbuz
+/llmselect/models/api_key.py @jbuz
+
+# CI/CD and infrastructure
+/.github/ @jbuz
+/Dockerfile @jbuz
+/docker-compose.yml @jbuz
+/.env.example @jbuz
+
+# Documentation that affects security
+/CONTRIBUTING.md @jbuz
+/CODE_OF_CONDUCT.md @jbuz
+/DECISIONS.md @jbuz
+
+# Database migrations (when added)
+# /migrations/ @jbuz

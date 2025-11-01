@@ -1,5 +1,8 @@
 # LLMSelect
 
+[![CI](https://github.com/jbuz/LLMSelect/actions/workflows/ci.yml/badge.svg)](https://github.com/jbuz/LLMSelect/actions/workflows/ci.yml)
+[![Security Scan](https://github.com/jbuz/LLMSelect/actions/workflows/security-scan.yml/badge.svg)](https://github.com/jbuz/LLMSelect/actions/workflows/security-scan.yml)
+
 Secure multi-provider LLM comparison tool built with Flask and React. LLMSelect enables teams to experiment with multiple language model providers in a single interface while keeping API credentials encrypted at rest, enforcing strong authentication, and providing observability for every interaction.
 
 ## Highlights
@@ -119,6 +122,39 @@ The service will start on `http://localhost:3044` by default.
 - The database schema is created automatically on startup. For production, run migrations or manage schema with your preferred tooling before deploying.
 - Default rate limits can be tuned via the `API_RATE_LIMIT` environment variable (e.g., `30 per minute` or `100 per hour`).
 - The frontend bundles are produced by Webpack and served from the `dist` directory referenced by Flask.
+
+## Security & CI/CD
+
+This project follows security-first development practices:
+
+### Pre-commit Hooks (Required for Contributors)
+Install pre-commit hooks to prevent committing secrets locally:
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Hooks will automatically run on every commit to:
+- Scan for secrets (Gitleaks, detect-secrets)
+- Format code (Black for Python, Prettier for JS)
+- Lint code (Flake8)
+- Check for common issues
+
+### CI/CD Pipeline
+All code changes trigger automated checks:
+- **Secret Scanning**: Gitleaks and TruffleHog scan for exposed credentials
+- **Security Analysis**: CodeQL analyzes Python and JavaScript for vulnerabilities
+- **Dependency Auditing**: Safety (Python) and npm audit check for vulnerable dependencies
+- **Linting & Testing**: Code quality checks and test suites
+- **Container Scanning**: Trivy scans Docker images for vulnerabilities
+- **SBOM Generation**: Software Bill of Materials generated for supply chain security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed security guidelines and [SECURITY.md](SECURITY.md) for vulnerability reporting.
+
+### Supply Chain Security
+- All GitHub Actions are pinned to commit SHAs (not tags)
+- Dependencies are scanned for vulnerabilities on every PR
+- SBOM published with releases for transparency
 
 ## Contributing
 1. Fork and clone the repository.

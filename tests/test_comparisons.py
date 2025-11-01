@@ -1,4 +1,5 @@
 """Tests for comparison functionality."""
+
 import time
 
 import pytest
@@ -16,17 +17,17 @@ def register_and_login(client, username="testuser", password="testpassword"):
         "/api/v1/auth/login",
         json={"username": unique_username, "password": password},
     )
-    
+
     # Extract and store CSRF token for authenticated requests
     csrf_token = None
-    for cookie_header in response.headers.getlist('Set-Cookie'):
-        if cookie_header.startswith('csrf_access_token='):
-            csrf_token = cookie_header.split('=')[1].split(';')[0]
+    for cookie_header in response.headers.getlist("Set-Cookie"):
+        if cookie_header.startswith("csrf_access_token="):
+            csrf_token = cookie_header.split("=")[1].split(";")[0]
             break
-    
+
     # Store CSRF token as client attribute
     client.csrf_token = csrf_token
-    
+
     return response
 
 
@@ -34,10 +35,10 @@ def make_authenticated_post(client, url, json=None):
     """Make an authenticated POST request with CSRF token."""
     headers = {}
     # Get CSRF token from client's stored attribute
-    csrf_token = getattr(client, 'csrf_token', None)
+    csrf_token = getattr(client, "csrf_token", None)
     if csrf_token:
-        headers['X-CSRF-Token'] = csrf_token
-    
+        headers["X-CSRF-Token"] = csrf_token
+
     return client.post(url, json=json, headers=headers)
 
 
@@ -68,27 +69,27 @@ def test_compare_saves_to_database(client, app, monkeypatch):
 
     assert response.status_code == 200
     data = response.get_json()
-    
+
     # Check new response format
     assert "id" in data
     assert "results" in data
     assert "prompt" in data
     assert data["prompt"] == "Test prompt for comparison"
-    
+
     # Check results structure
     results = data["results"]
     assert len(results) == 2
-    
+
     # Check first result
     assert results[0]["provider"] in ["openai", "anthropic"]
     assert "model" in results[0]
     assert "response" in results[0]
     assert "time" in results[0]
     assert "tokens" in results[0]
-    
+
     # Verify saved to database
     from llmselect.models import ComparisonResult
-    
+
     with app.app_context():
         comparison = ComparisonResult.query.get(data["id"])
         assert comparison is not None
@@ -103,10 +104,10 @@ def test_get_comparison_history(client, app, monkeypatch):
     # Create some comparisons
     def fake_invoke(provider, model, messages, api_key):
         return "Mock response"
-    
+
     services = app.extensions["services"]
     monkeypatch.setattr(services.llm, "invoke", fake_invoke)
-    
+
     for i in range(3):
         make_authenticated_post(
             client,
@@ -122,11 +123,11 @@ def test_get_comparison_history(client, app, monkeypatch):
     # Get history
     response = client.get("/api/v1/comparisons")
     assert response.status_code == 200
-    
+
     data = response.get_json()
     assert "comparisons" in data
     assert len(data["comparisons"]) == 3
-    
+
     # Check ordering (newest first)
     assert data["comparisons"][0]["prompt"] == "Test prompt 2"
     assert data["comparisons"][1]["prompt"] == "Test prompt 1"
@@ -142,10 +143,10 @@ def test_vote_on_comparison(client, app, monkeypatch):
         if provider == "openai":
             return "Response from GPT-4"
         return "Response from Claude"
-    
+
     services = app.extensions["services"]
     monkeypatch.setattr(services.llm, "invoke", fake_invoke)
-    
+
     compare_response = make_authenticated_post(
         client,
         "/api/v1/compare",
@@ -157,7 +158,7 @@ def test_vote_on_comparison(client, app, monkeypatch):
             "prompt": "Which is better?",
         },
     )
-    
+
     comparison_id = compare_response.get_json()["id"]
 
     # Vote for first response
@@ -166,7 +167,7 @@ def test_vote_on_comparison(client, app, monkeypatch):
         f"/api/v1/comparisons/{comparison_id}/vote",
         json={"preferred_index": 0},
     )
-    
+
     assert vote_response.status_code == 200
     data = vote_response.get_json()
     assert data["preferred_index"] == 0
@@ -177,7 +178,7 @@ def test_vote_on_comparison(client, app, monkeypatch):
         f"/api/v1/comparisons/{comparison_id}/vote",
         json={"preferred_index": 1},
     )
-    
+
     assert vote_response2.status_code == 200
     data2 = vote_response2.get_json()
     assert data2["preferred_index"] == 1
@@ -190,10 +191,10 @@ def test_vote_invalid_index(client, app, monkeypatch):
     # Create comparison with 2 results
     def fake_invoke(provider, model, messages, api_key):
         return f"Response from {provider}"
-    
+
     services = app.extensions["services"]
     monkeypatch.setattr(services.llm, "invoke", fake_invoke)
-    
+
     compare_response = make_authenticated_post(
         client,
         "/api/v1/compare",
@@ -205,7 +206,7 @@ def test_vote_invalid_index(client, app, monkeypatch):
             "prompt": "Test",
         },
     )
-    
+
     comparison_id = compare_response.get_json()["id"]
 
     # Try to vote with invalid index
@@ -214,7 +215,7 @@ def test_vote_invalid_index(client, app, monkeypatch):
         f"/api/v1/comparisons/{comparison_id}/vote",
         json={"preferred_index": 5},  # Out of range
     )
-    
+
     assert vote_response.status_code == 400
 
 
@@ -223,9 +224,11 @@ def test_comparison_requires_auth(client):
     # Try to get history without auth
     response = client.get("/api/v1/comparisons")
     assert response.status_code == 401
-    
+
     # Try to vote without auth
-    response = make_authenticated_post(client, "/api/v1/comparisons/1/vote", json={"preferred_index": 0})
+    response = make_authenticated_post(
+        client, "/api/v1/comparisons/1/vote", json={"preferred_index": 0}
+    )
     assert response.status_code == 401
 
 
@@ -236,10 +239,10 @@ def test_comparison_pagination(client, app, monkeypatch):
     # Create 10 comparisons
     def fake_invoke(provider, model, messages, api_key):
         return "Mock response"
-    
+
     services = app.extensions["services"]
     monkeypatch.setattr(services.llm, "invoke", fake_invoke)
-    
+
     for i in range(10):
         make_authenticated_post(
             client,
@@ -262,7 +265,7 @@ def test_comparison_pagination(client, app, monkeypatch):
     response2 = client.get("/api/v1/comparisons?limit=5&offset=5")
     data2 = response2.get_json()
     assert len(data2["comparisons"]) == 5
-    
+
     # Ensure different results
     assert data["comparisons"][0]["id"] != data2["comparisons"][0]["id"]
 
@@ -274,16 +277,16 @@ def test_comparison_with_error_handling(client, app, monkeypatch):
     # Mock one success and one failure
     responses = iter(["Successful response", None])
     errors = iter([None, Exception("Provider failed")])
-    
+
     def fake_invoke(provider, model, messages, api_key):
         error = next(errors)
         if error:
             raise error
         return next(responses)
-    
+
     services = app.extensions["services"]
     monkeypatch.setattr(services.llm, "invoke", fake_invoke)
-    
+
     response = make_authenticated_post(
         client,
         "/api/v1/compare",
@@ -295,14 +298,14 @@ def test_comparison_with_error_handling(client, app, monkeypatch):
             "prompt": "Test error handling",
         },
     )
-    
+
     assert response.status_code == 200
     data = response.get_json()
     results = data["results"]
-    
+
     # Both providers should return a result (one success, one error)
     assert len(results) == 2
-    
+
     # At least one should have the error flag
     has_error = any(r.get("error") for r in results)
     assert has_error

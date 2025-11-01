@@ -26,9 +26,7 @@ class ComparisonService:
         Raises:
             AppError: If the comparison cannot be saved
         """
-        comparison = ComparisonResult(
-            user_id=user_id, prompt=prompt, results=results
-        )
+        comparison = ComparisonResult(user_id=user_id, prompt=prompt, results=results)
         try:
             db.session.add(comparison)
             db.session.commit()

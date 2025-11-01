@@ -27,7 +27,11 @@ def list_comparisons():
     )
 
     return jsonify(
-        {"comparisons": [c.to_dict() for c in comparisons], "limit": limit, "offset": offset}
+        {
+            "comparisons": [c.to_dict() for c in comparisons],
+            "limit": limit,
+            "offset": offset,
+        }
     )
 
 
