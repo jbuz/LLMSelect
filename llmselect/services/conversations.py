@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -46,7 +47,7 @@ class ConversationService:
         user_id: int,
         provider: str,
         model: str,
-        conversation_id: str | None,
+        conversation_id: Optional[str],
     ) -> Conversation:
         if conversation_id:
             conversation = self.get_conversation(conversation_id, user_id)

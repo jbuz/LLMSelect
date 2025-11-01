@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from flask import g, jsonify
 from marshmallow import ValidationError as MarshmallowValidationError
@@ -19,7 +19,7 @@ class AppError(Exception):
     status_code = HTTPStatus.BAD_REQUEST
     error_code = "bad_request"
 
-    def __init__(self, message: str, *, extra: Dict[str, Any] | None = None):
+    def __init__(self, message: str, *, extra: Optional[Dict[str, Any]] = None):
         super().__init__(message)
         self.message = message
         self.extra = extra or {}
