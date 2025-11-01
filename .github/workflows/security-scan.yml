@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run TruffleHog
-        uses: trufflesecurity/trufflehog@c107b06bafaf8d8b7bc72e4ac8a4c8b9f6d77c49 # v3.63.2
+        uses: trufflesecurity/trufflehog@main
         with:
           path: ./
           base: ${{ github.event.repository.default_branch }}
@@ -65,16 +65,16 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
+        uses: github/codeql-action/autobuild@v3
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@cdcdbb579706841c47f7063dda365e292e5cad7a # v2.13.4
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{matrix.language}}"
 
