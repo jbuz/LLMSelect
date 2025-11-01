@@ -38,12 +38,10 @@ def create_app() -> Flask:
     )
 
     db.init_app(app)
-    
-    # Configure rate limiting based on app config
-    app.config.setdefault("RATELIMIT_ENABLED", True)
-    limiter.enabled = app.config["RATELIMIT_ENABLED"]
+    # Configure limiter with testing support
     limiter.init_app(app)
-    
+    if app.config.get('RATELIMIT_ENABLED') is False:
+        limiter.enabled = False
     jwt.init_app(app)
 
     register_blueprints(app)
