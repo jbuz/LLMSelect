@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import MarkdownMessage from './MarkdownMessage';
 
 const MessageList = ({ messages, isLoading }) => {
   const messagesEndRef = useRef(null);
@@ -22,7 +23,11 @@ const MessageList = ({ messages, isLoading }) => {
             {message.role === 'user' ? '👤' : '🤖'}
           </div>
           <div className="message-content">
-            <div className="message-text">{message.content}</div>
+            {message.role === 'assistant' ? (
+              <MarkdownMessage content={message.content} />
+            ) : (
+              <div className="message-text">{message.content}</div>
+            )}
           </div>
         </div>
       ))}

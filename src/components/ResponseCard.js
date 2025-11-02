@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import MarkdownMessage from './MarkdownMessage';
 
 export default function ResponseCard({ 
   provider, 
@@ -73,8 +74,8 @@ export default function ResponseCard({
             {response}
           </div>
         ) : (
-          <>
-            <pre>{response}</pre>
+          <div>
+            <MarkdownMessage content={response} />
             {isStreaming && (
               <span 
                 className="streaming-cursor"
@@ -88,7 +89,7 @@ export default function ResponseCard({
                 }}
               />
             )}
-          </>
+          </div>
         )}
       </div>
       
