@@ -185,6 +185,7 @@ export const useStreamingComparison = (chatApi) => {
       abortControllerRef.current = null;
     }
     setIsStreaming(false);
+    setError('Streaming cancelled');
   }, []);
 
   return {

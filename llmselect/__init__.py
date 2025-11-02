@@ -47,7 +47,7 @@ def create_app() -> Flask:
     register_blueprints(app)
     register_error_handlers(app)
 
-    services = create_service_container()
+    services = create_service_container(app)
     app.extensions["services"] = services
     app.extensions["key_encryption"] = KeyEncryptionService(
         app.config["ENCRYPTION_KEY"]

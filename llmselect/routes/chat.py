@@ -314,8 +314,13 @@ def _stream_provider(encryption_service, llm_service, user, provider, model, mes
         }
 
     except Exception as exc:
+        # Log error type but not full exception message to avoid leaking sensitive data
         current_app.logger.error(
-            f"Provider {provider} streaming failed: {exc}",
-            extra={"provider": provider, "model": model, "error": str(exc)},
+            f"Provider {provider} streaming failed",
+            extra={
+                "provider": provider,
+                "model": model,
+                "error_type": type(exc).__name__,
+            },
         )
         raise

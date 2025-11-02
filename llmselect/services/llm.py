@@ -16,7 +16,7 @@ def _sanitize_message_content(content: str) -> str:
 
 
 class LLMService:
-    def __init__(self):
+    def __init__(self, max_tokens=1000):
         self.session = requests.Session()
         retry = Retry(
             total=3,
@@ -28,7 +28,7 @@ class LLMService:
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
-        self.max_tokens = 1000
+        self.max_tokens = max_tokens
 
     def invoke(
         self, provider: str, model: str, messages: List[Mapping[str, str]], api_key: str

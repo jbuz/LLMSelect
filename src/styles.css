@@ -354,6 +354,26 @@ body {
   transform: none;
 }
 
+.cancel-button {
+  background: var(--error);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.cancel-button:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
