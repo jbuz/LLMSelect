@@ -55,7 +55,7 @@ def test_chat_creates_and_reuses_conversation(client, app, monkeypatch):
 
 
 def test_api_key_storage(client, app):
-    register_and_login(client, username="keyuser", password="keypass")
+    register_and_login(client, username="keyuser", password="keypass123")
     payload = {"openai": "sk-test-123", "anthropic": "", "gemini": "", "mistral": ""}
     response = client.post("/api/v1/keys", json=payload)
     assert response.status_code == 200
