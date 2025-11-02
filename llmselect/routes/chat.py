@@ -35,7 +35,7 @@ def _estimate_tokens(text: str) -> int:
 @bp.post("/chat")
 @jwt_required()
 @limiter.limit(_rate_limit)
-def chat():
+def send_chat_message():
     payload = chat_schema.load(request.get_json() or {})
     provider = payload["provider"]
     model = payload["model"]
