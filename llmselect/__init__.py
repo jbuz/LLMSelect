@@ -40,7 +40,7 @@ def create_app() -> Flask:
     db.init_app(app)
     # Configure limiter with testing support
     limiter.init_app(app)
-    if app.config.get('RATELIMIT_ENABLED') is False:
+    if app.config.get("RATELIMIT_ENABLED") is False:
         limiter.enabled = False
     jwt.init_app(app)
 
