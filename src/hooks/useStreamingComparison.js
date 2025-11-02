@@ -100,7 +100,7 @@ export const useStreamingComparison = (chatApi) => {
         console.log('Stream cancelled by user');
         setError('Streaming cancelled');
       } else {
-        console.error('Streaming error:', err);
+        console.error('Streaming error:', err.name);
         setError('Streaming failed. Please try again.');
       }
       setIsStreaming(false);

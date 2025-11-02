@@ -224,7 +224,7 @@ def compare_stream():
                         extra={
                             "provider": provider_name,
                             "model": model,
-                            "error": str(exc),
+                            "error_type": type(exc).__name__,
                         },
                     )
                     yield f"data: {json.dumps({'event': 'error', 'provider': provider_name, 'model': model, 'error': 'Streaming failed. Please check your API key and try again.'})}\n\n"

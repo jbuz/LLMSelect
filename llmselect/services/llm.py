@@ -1,4 +1,5 @@
 import html
+import json
 import re
 from typing import List, Mapping
 
@@ -7,14 +8,10 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from ..utils.errors import AppError
-
-
 def _sanitize_message_content(content: str) -> str:
     content = content.strip()
     content = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", content)
     return content
-
-
 class LLMService:
     def __init__(self, max_tokens=1000):
         self.session = requests.Session()
@@ -210,8 +207,6 @@ class LLMService:
                 if data_str == "[DONE]":
                     break
                 try:
-                    import json
-
                     data = json.loads(data_str)
                     if (
                         data.get("choices")
@@ -258,8 +253,6 @@ class LLMService:
             if line_str.startswith("data: "):
                 data_str = line_str[6:]
                 try:
-                    import json
-
                     data = json.loads(data_str)
                     if data.get("type") == "content_block_delta":
                         if data.get("delta", {}).get("text"):
@@ -299,8 +292,6 @@ class LLMService:
             if line_str.startswith("data: "):
                 data_str = line_str[6:]
                 try:
-                    import json
-
                     data = json.loads(data_str)
                     if (
                         data.get("candidates")
@@ -342,8 +333,6 @@ class LLMService:
                 if data_str == "[DONE]":
                     break
                 try:
-                    import json
-
                     data = json.loads(data_str)
                     if (
                         data.get("choices")
