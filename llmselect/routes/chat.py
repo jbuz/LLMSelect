@@ -1,8 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import json
 from time import time
 from typing import Dict, Optional
 
-from flask import Blueprint, current_app, g, jsonify, request
+from flask import Blueprint, current_app, g, jsonify, request, Response, stream_with_context
 from flask_jwt_extended import current_user, jwt_required
 
 from ..extensions import limiter
@@ -160,3 +161,161 @@ def _invoke_provider_with_timing(
     response = llm_service.invoke(provider, model, messages, api_key)
     elapsed_time = time() - start_time
     return response, elapsed_time
+
+
+@bp.post("/compare/stream")
+@jwt_required()
+@limiter.limit(_rate_limit)
+def compare_stream():
+    """Stream comparison results from multiple providers in real-time using SSE."""
+    payload = compare_schema.load(request.get_json() or {})
+    prompt = payload["prompt"]
+    providers = payload["providers"]
+
+    services = current_app.extensions["services"]
+    llm_service = services.llm
+    comparison_service = services.comparisons
+    encryption_service = current_app.extensions["key_encryption"]
+    user = current_user
+
+    def generate():
+        """Generator function for SSE stream."""
+        results = {}
+        completed_count = 0
+        total_providers = len(providers)
+
+        # Send initial event
+        yield f"data: {json.dumps({'event': 'start', 'total': total_providers})}\n\n"
+
+        with ThreadPoolExecutor(max_workers=len(providers)) as executor:
+            futures = {}
+            for entry in providers:
+                provider_name = entry["provider"]
+                model = entry["model"]
+                futures[
+                    executor.submit(
+                        _stream_provider,
+                        encryption_service,
+                        llm_service,
+                        user,
+                        provider_name,
+                        model,
+                        [{"role": "user", "content": prompt}],
+                    )
+                ] = (provider_name, model)
+
+            # Process results as they complete
+            for future in as_completed(futures):
+                provider_name, model = futures[future]
+                try:
+                    for chunk_data in future.result():
+                        # Stream each chunk
+                        yield f"data: {json.dumps(chunk_data)}\n\n"
+
+                        # Track completion
+                        if chunk_data.get("event") == "complete":
+                            completed_count += 1
+                            if provider_name not in results:
+                                results[provider_name] = chunk_data.get("data", {})
+
+                except Exception as exc:  # noqa: PERF203
+                    current_app.logger.error(
+                        f"Provider {provider_name} streaming failed",
+                        extra={
+                            "provider": provider_name,
+                            "model": model,
+                            "error": str(exc),
+                        },
+                    )
+                    yield f"data: {json.dumps({'event': 'error', 'provider': provider_name, 'model': model, 'error': 'Streaming failed. Please check your API key and try again.'})}\n\n"
+                    completed_count += 1
+
+        # Save comparison to database after all streams complete
+        comparison_id = None
+        if results:
+            comparison = comparison_service.save_comparison(
+                user_id=user.id,
+                prompt=prompt,
+                results=[
+                    {
+                        "provider": provider,
+                        "model": data.get("model", ""),
+                        "response": data.get("response", ""),
+                        "time": data.get("time", 0),
+                        "tokens": data.get("tokens", 0),
+                    }
+                    for provider, data in results.items()
+                ],
+            )
+            comparison_id = comparison.id
+
+        # Send completion event
+        done_data = {"event": "done"}
+        if comparison_id:
+            done_data["comparisonId"] = comparison_id
+        yield f"data: {json.dumps(done_data)}\n\n"
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+def _stream_provider(encryption_service, llm_service, user, provider, model, messages):
+    """Stream results from a single provider."""
+    try:
+        api_key = get_api_key(user, provider, encryption_service)
+        start_time = time()
+
+        # Send start event for this provider
+        yield {
+            "event": "chunk",
+            "provider": provider,
+            "model": model,
+            "chunk": "",
+            "time": 0,
+        }
+
+        full_response = ""
+        first_chunk = True
+
+        # Stream from provider
+        for chunk in llm_service.invoke_stream(provider, model, messages, api_key):
+            full_response += chunk
+            elapsed = time() - start_time
+
+            yield {
+                "event": "chunk",
+                "provider": provider,
+                "model": model,
+                "chunk": chunk,
+                "time": elapsed,
+                "first_chunk": first_chunk,
+            }
+            first_chunk = False
+
+        # Send completion event
+        elapsed_time = time() - start_time
+        yield {
+            "event": "complete",
+            "provider": provider,
+            "model": model,
+            "data": {
+                "provider": provider,
+                "model": model,
+                "response": full_response,
+                "time": elapsed_time,
+                "tokens": _estimate_tokens(full_response),
+            },
+        }
+
+    except Exception as exc:
+        current_app.logger.error(
+            f"Provider {provider} streaming failed: {exc}",
+            extra={"provider": provider, "model": model, "error": str(exc)},
+        )
+        raise
