@@ -106,3 +106,23 @@ class ComparisonService:
         except SQLAlchemyError as exc:
             db.session.rollback()
             raise AppError("Unable to save vote") from exc
+
+    def delete_comparison(self, comparison_id: int, user_id: int) -> None:
+        """Delete a comparison from user's history.
+
+        Args:
+            comparison_id: The ID of the comparison to delete
+            user_id: The ID of the user (for authorization)
+
+        Raises:
+            NotFoundError: If the comparison doesn't exist or doesn't belong to the user
+            AppError: If the deletion fails
+        """
+        comparison = self.get_comparison(comparison_id, user_id)
+
+        try:
+            db.session.delete(comparison)
+            db.session.commit()
+        except SQLAlchemyError as exc:
+            db.session.rollback()
+            raise AppError("Unable to delete comparison") from exc

@@ -41,6 +41,14 @@ const Header = ({
           >
             🔄 Compare
           </button>
+          <button
+            className={`mode-btn ${mode === 'history' ? 'active' : ''}`}
+            onClick={() => onModeChange('history')}
+            title="View comparison history"
+            disabled={!user}
+          >
+            📋 History
+          </button>
         </div>
 
         {/* Only show provider/model selects in chat mode */}

@@ -1,16 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import ModelSelector from './ModelSelector';
 import ResponseCard from './ResponseCard';
 import MessageInput from './MessageInput';
 import { useStreamingComparison } from '../hooks/useStreamingComparison';
 
-export default function ComparisonMode({ chatApi }) {
-  const [selectedModels, setSelectedModels] = useState([
-    { provider: 'openai', model: 'gpt-4', label: 'GPT-4', color: '#10a37f' },
-    { provider: 'anthropic', model: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet', color: '#d97757' },
-  ]);
+// Provider colors for visual distinction
+const PROVIDER_COLORS = {
+  openai: '#10a37f',
+  anthropic: '#d97757',
+  gemini: '#4285f4',
+  mistral: '#f2a73b',
+};
+
+export default function ComparisonMode({ chatApi, providerModels = {} }) {
+  // Convert providerModels to flat list with colors for initialization
+  const availableModels = useMemo(() => {
+    const models = [];
+    Object.keys(providerModels).forEach(provider => {
+      const color = PROVIDER_COLORS[provider] || '#666666';
+      providerModels[provider].forEach(model => {
+        models.push({
+          provider,
+          model: model.id,
+          label: model.name,
+          color,
+        });
+      });
+    });
+    return models;
+  }, [providerModels]);
+
+  // Initialize with first available models from different providers
+  const [selectedModels, setSelectedModels] = useState(() => {
+    const defaults = [];
+    // Try to get one from openai and one from anthropic
+    if (availableModels.length > 0) {
+      const openaiModel = availableModels.find(m => m.provider === 'openai');
+      const anthropicModel = availableModels.find(m => m.provider === 'anthropic');
+      
+      if (openaiModel) defaults.push(openaiModel);
+      if (anthropicModel) defaults.push(anthropicModel);
+      
+      // If we don't have 2 yet, add more
+      if (defaults.length < 2) {
+        availableModels.slice(0, 2 - defaults.length).forEach(m => {
+          if (!defaults.find(d => d.provider === m.provider && d.model === m.model)) {
+            defaults.push(m);
+          }
+        });
+      }
+    }
+    return defaults;
+  });
+
   const [prompt, setPrompt] = useState('');
   const [preferredIndex, setPreferredIndex] = useState(null);
+  
+  // Convert providerModels to flat list with colors
+  const allAvailableModels = useMemo(() => {
+    const models = [];
+    Object.keys(providerModels).forEach(provider => {
+      const color = PROVIDER_COLORS[provider] || '#666666';
+      providerModels[provider].forEach(model => {
+        models.push({
+          provider,
+          model: model.id,
+          label: model.name,
+          color,
+        });
+      });
+    });
+    return models;
+  }, [providerModels]);
   
   // Use streaming hook
   const {
@@ -47,6 +108,7 @@ export default function ComparisonMode({ chatApi }) {
           <ModelSelector
             selected={selectedModels}
             onChange={setSelectedModels}
+            availableModels={allAvailableModels}
             maxModels={4}
             minModels={2}
           />

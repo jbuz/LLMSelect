@@ -51,3 +51,17 @@ def vote_on_comparison(comparison_id: int):
     )
 
     return jsonify(comparison.to_dict())
+
+
+@bp.delete("/<int:comparison_id>")
+@jwt_required()
+@limiter.limit(_rate_limit)
+def delete_comparison(comparison_id: int):
+    """Delete a comparison from user's history."""
+    services = current_app.extensions["services"]
+    services.comparisons.delete_comparison(
+        comparison_id=comparison_id,
+        user_id=current_user.id,
+    )
+
+    return jsonify({"message": "Comparison deleted successfully"}), 200

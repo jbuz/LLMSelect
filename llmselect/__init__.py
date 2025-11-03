@@ -31,7 +31,7 @@ def create_app() -> Flask:
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     static_folder = os.path.join(project_root, "static")
     template_folder = os.path.join(project_root, "templates")
-    
+
     app = Flask(__name__, static_folder=static_folder, template_folder=template_folder)
     app.config.from_object(config_class)
     config_class.validate()

@@ -309,3 +309,41 @@ def test_comparison_with_error_handling(client, app, monkeypatch):
     # At least one should have the error flag
     has_error = any(r.get("error") for r in results)
     assert has_error
+
+
+def test_delete_comparison(client, app, monkeypatch):
+    """Test deleting a comparison from history."""
+    register_and_login(client)
+
+    # Mock LLM service
+    def fake_invoke(provider, model, messages, api_key):
+        return "Test response"
+
+    services = app.extensions["services"]
+    monkeypatch.setattr(services.llm, "invoke", fake_invoke)
+
+    # Create a comparison
+    response = make_authenticated_post(
+        client,
+        "/api/v1/compare",
+        json={
+            "providers": [{"provider": "openai", "model": "gpt-4o"}],
+            "prompt": "Test prompt to delete",
+        },
+    )
+    assert response.status_code == 200
+    comparison_id = response.get_json()["id"]
+
+    # Verify it exists
+    list_response = client.get("/api/v1/comparisons")
+    assert list_response.status_code == 200
+    assert len(list_response.get_json()["comparisons"]) == 1
+
+    # Delete it
+    delete_response = client.delete(f"/api/v1/comparisons/{comparison_id}")
+    assert delete_response.status_code == 200
+
+    # Verify it's gone
+    list_response2 = client.get("/api/v1/comparisons")
+    assert list_response2.status_code == 200
+    assert len(list_response2.get_json()["comparisons"]) == 0
