@@ -7,13 +7,14 @@ import ApiKeyModal from './components/ApiKeyModal';
 import LoginModal from './components/LoginModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import ComparisonMode from './components/ComparisonMode';
+import ComparisonHistory from './components/ComparisonHistory';
 import { authApi, chatApi, keyApi } from './services/api';
 import { useModels } from './hooks/useModels';
 
 const STORAGE_KEY = 'chat-session';
 
 const App = () => {
-  const [mode, setMode] = useState('chat'); // 'chat' or 'compare'
+  const [mode, setMode] = useState('chat'); // 'chat', 'compare', or 'history'
   const [messages, setMessages] = useState([]);
   const [selectedProvider, setSelectedProvider] = useState('openai');
   const [selectedModel, setSelectedModel] = useState('gpt-4o');
@@ -190,6 +191,13 @@ const App = () => {
     localStorage.removeItem(STORAGE_KEY);
   };
 
+  const handleLoadComparison = (comparison) => {
+    // Switch to comparison mode and load the comparison
+    setMode('compare');
+    // The comparison will be loaded via ComparisonMode state
+    // You could pass the comparison data as a prop if needed
+  };
+
   const currentModels = useMemo(() => providerModels[selectedProvider] || [], [providerModels, selectedProvider]);
   const availableProviders = useMemo(() => Object.keys(providerModels), [providerModels]);
 
@@ -221,9 +229,14 @@ const App = () => {
               <MessageList messages={messages} isLoading={isLoading} />
               <MessageInput onSendMessage={sendMessage} isLoading={isLoading || !user || modelsLoading} />
             </>
-          ) : (
+          ) : mode === 'compare' ? (
             <ComparisonMode chatApi={chatApi} providerModels={providerModels} />
-          )}
+          ) : mode === 'history' ? (
+            <ComparisonHistory
+              onLoadComparison={handleLoadComparison}
+              onClose={() => setMode('compare')}
+            />
+          ) : null}
         </main>
       </ErrorBoundary>
 

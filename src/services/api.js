@@ -13,7 +13,8 @@ export const chatApi = {
   compare: (data) => http.post('/compare', data),
   voteComparison: (comparisonId, preferredIndex) => 
     http.post(`/comparisons/${comparisonId}/vote`, { preferred_index: preferredIndex }),
-  getComparisons: (params) => http.get('/comparisons', { params })
+  getComparisons: (params) => http.get('/comparisons', { params }),
+  deleteComparison: (comparisonId) => http.delete(`/comparisons/${comparisonId}`)
 };
 
 export const keyApi = {
