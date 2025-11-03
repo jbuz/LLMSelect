@@ -18,6 +18,101 @@ from ..utils.errors import AppError
 
 # Static model definitions for providers
 OPENAI_MODELS = [
+    # GPT-5 Series (2025)
+    {
+        "id": "gpt-5",
+        "name": "GPT-5",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 16384,
+    },
+    {
+        "id": "gpt-5-mini",
+        "name": "GPT-5 Mini",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 16384,
+    },
+    {
+        "id": "gpt-5-nano",
+        "name": "GPT-5 Nano",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 8192,
+    },
+    {
+        "id": "gpt-5-pro",
+        "name": "GPT-5 Pro",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 32768,
+    },
+    # GPT-4.1 Series (2025)
+    {
+        "id": "gpt-4.1",
+        "name": "GPT-4.1",
+        "provider": "openai",
+        "contextWindow": 150000,
+        "maxTokens": 16384,
+    },
+    {
+        "id": "gpt-4.1-mini",
+        "name": "GPT-4.1 Mini",
+        "provider": "openai",
+        "contextWindow": 150000,
+        "maxTokens": 8192,
+    },
+    {
+        "id": "gpt-4.1-nano",
+        "name": "GPT-4.1 Nano",
+        "provider": "openai",
+        "contextWindow": 150000,
+        "maxTokens": 4096,
+    },
+    # o3/o4 Series (2025 reasoning models)
+    {
+        "id": "o3",
+        "name": "o3",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 100000,
+    },
+    {
+        "id": "o3-mini",
+        "name": "o3-mini",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 65536,
+    },
+    {
+        "id": "o3-pro",
+        "name": "o3-pro",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 100000,
+    },
+    {
+        "id": "o4-mini",
+        "name": "o4-mini",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 65536,
+    },
+    {
+        "id": "o3-deep-research",
+        "name": "o3-deep-research",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 100000,
+    },
+    {
+        "id": "o4-mini-deep-research",
+        "name": "o4-mini-deep-research",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 65536,
+    },
+    # GPT-4 Series (2024 - legacy but still supported)
     {
         "id": "gpt-4o",
         "name": "GPT-4o",
@@ -70,6 +165,29 @@ OPENAI_MODELS = [
 ]
 
 ANTHROPIC_MODELS = [
+    # Claude 4 Series (2025)
+    {
+        "id": "claude-sonnet-4-5-20250929",
+        "name": "Claude Sonnet 4.5",
+        "provider": "anthropic",
+        "contextWindow": 200000,
+        "maxTokens": 8192,
+    },
+    {
+        "id": "claude-haiku-4-5-20251001",
+        "name": "Claude Haiku 4.5",
+        "provider": "anthropic",
+        "contextWindow": 200000,
+        "maxTokens": 8192,
+    },
+    {
+        "id": "claude-opus-4-1-20250805",
+        "name": "Claude Opus 4.1",
+        "provider": "anthropic",
+        "contextWindow": 200000,
+        "maxTokens": 8192,
+    },
+    # Claude 3 Series (2024 - legacy but still supported)
     {
         "id": "claude-3-5-sonnet-20241022",
         "name": "Claude 3.5 Sonnet",
@@ -94,6 +212,29 @@ ANTHROPIC_MODELS = [
 ]
 
 GEMINI_MODELS = [
+    # Gemini 2.5 Series (2025)
+    {
+        "id": "gemini-2.5-pro",
+        "name": "Gemini 2.5 Pro",
+        "provider": "gemini",
+        "contextWindow": 2000000,
+        "maxTokens": 8192,
+    },
+    {
+        "id": "gemini-2.5-flash",
+        "name": "Gemini 2.5 Flash",
+        "provider": "gemini",
+        "contextWindow": 1000000,
+        "maxTokens": 8192,
+    },
+    {
+        "id": "gemini-2.5-flash-lite",
+        "name": "Gemini 2.5 Flash-Lite",
+        "provider": "gemini",
+        "contextWindow": 1000000,
+        "maxTokens": 8192,
+    },
+    # Gemini 2.0 Series (2024 - legacy but still supported)
     {
         "id": "gemini-2.0-flash-exp",
         "name": "Gemini 2.0 Flash (Experimental)",
@@ -101,6 +242,7 @@ GEMINI_MODELS = [
         "contextWindow": 1000000,
         "maxTokens": 8192,
     },
+    # Gemini 1.5 Series (2024 - legacy but still supported)
     {
         "id": "gemini-1.5-pro",
         "name": "Gemini 1.5 Pro",
