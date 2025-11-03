@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from .services.comparisons import ComparisonService
 from .services.conversations import ConversationService
 from .services.llm import LLMService
+from .services.model_registry import ModelRegistryService
 
 
 @dataclass
@@ -10,6 +11,7 @@ class ServiceContainer:
     llm: LLMService
     conversations: ConversationService
     comparisons: ComparisonService
+    model_registry: ModelRegistryService
 
 
 def create_service_container(app=None) -> ServiceContainer:
@@ -21,4 +23,5 @@ def create_service_container(app=None) -> ServiceContainer:
         llm=LLMService(max_tokens=max_tokens),
         conversations=ConversationService(),
         comparisons=ComparisonService(),
+        model_registry=ModelRegistryService(),
     )
