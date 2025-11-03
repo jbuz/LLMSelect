@@ -27,7 +27,12 @@ def create_app() -> Flask:
 
     configure_logging()
 
-    app = Flask(__name__, static_folder="dist", template_folder="templates")
+    # Use absolute paths for static and template folders relative to project root
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    static_folder = os.path.join(project_root, "static")
+    template_folder = os.path.join(project_root, "templates")
+    
+    app = Flask(__name__, static_folder=static_folder, template_folder=template_folder)
     app.config.from_object(config_class)
     config_class.validate()
 
@@ -96,7 +101,14 @@ def create_app() -> Flask:
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers["Content-Security-Policy"] = "default-src 'self'"
+        # Allow inline styles for webpack style-loader, fonts from Google, and inline scripts
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "script-src 'self' 'unsafe-inline'; "
+            "connect-src 'self'"
+        )
         app.logger.info(
             "response_sent",
             extra={
@@ -110,7 +122,7 @@ def create_app() -> Flask:
 
     @app.get("/")
     def index():
-        return render_template("multi-llm-chat.html")
+        return render_template("index.html")
 
     @app.get("/health")
     def health_check():
