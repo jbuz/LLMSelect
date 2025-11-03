@@ -33,10 +33,6 @@ def test_chat_creates_and_reuses_conversation(client, app, monkeypatch):
         "messages": [{"role": "user", "content": "Hello there"}],
     }
     first_response = client.post("/api/v1/chat", json=payload)
-    if first_response.status_code != 200:
-        print(f"DEBUG: Status code: {first_response.status_code}")
-        print(f"DEBUG: Response body: {first_response.get_json()}")
-        print(f"DEBUG: Response data: {first_response.data}")
     assert first_response.status_code == 200
     first_data = first_response.get_json()
     assert first_data["response"] == "First reply"

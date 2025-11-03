@@ -327,7 +327,7 @@ def test_delete_comparison(client, app, monkeypatch):
         client,
         "/api/v1/compare",
         json={
-            "providers": [{"provider": "openai", "model": "gpt-4"}],
+            "providers": [{"provider": "openai", "model": "gpt-4o"}],
             "prompt": "Test prompt to delete",
         },
     )

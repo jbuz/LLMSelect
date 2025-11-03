@@ -3,6 +3,7 @@
 import pytest
 
 from llmselect.models import User
+from llmselect.services.model_registry import ModelRegistryService
 
 
 def register_and_login(client, username="modeluser", password="model-password"):
@@ -112,8 +113,6 @@ def test_models_requires_auth(client):
 
 def test_model_registry_caching(app):
     """Test that model registry caches results."""
-    from llmselect.services.model_registry import ModelRegistryService
-    
     registry = ModelRegistryService(cache_ttl_seconds=60)
     
     # First call should populate cache
