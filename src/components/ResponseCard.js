@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
+import MarkdownMessage from './MarkdownMessage';
 
 export default function ResponseCard({ 
   provider, 
-  model, 
+  model,
+  label,
+  color,
   response, 
   metadata, 
   onVote,
   isPreferred,
+  isStreaming,
+  hasError,
   index
 }) {
   const [copied, setCopied] = useState(false);
@@ -21,21 +26,36 @@ export default function ResponseCard({
     }
   };
   
+  // Display label if provided, otherwise fall back to model name
+  const displayName = label || model;
+  
   return (
-    <div className={`response-card ${isPreferred ? 'preferred' : ''}`}>
+    <div 
+      className={`response-card ${isPreferred ? 'preferred' : ''} ${isStreaming ? 'streaming' : ''} ${hasError ? 'error' : ''}`}
+      style={{
+        borderColor: isPreferred ? color : undefined,
+      }}
+    >
       <div className="response-header">
         <div className="model-info">
-          <h3 className="model-name">{model}</h3>
+          <h3 className="model-name" style={{ color: color || undefined }}>
+            {displayName}
+          </h3>
           <span className="provider-badge">{provider}</span>
         </div>
         
         <div className="metadata">
-          {metadata.time !== undefined && (
+          {isStreaming && (
+            <span className="meta-item streaming-indicator" title="Streaming in progress">
+              ⚡ Streaming...
+            </span>
+          )}
+          {!isStreaming && metadata.time !== undefined && (
             <span className="meta-item" title="Response time">
               ⏱️ {metadata.time.toFixed(2)}s
             </span>
           )}
-          {metadata.tokens && (
+          {metadata.tokens > 0 && (
             <span className="meta-item" title="Estimated tokens">
               📊 {metadata.tokens}
             </span>
@@ -49,7 +69,28 @@ export default function ResponseCard({
       </div>
       
       <div className="response-content">
-        <pre>{response}</pre>
+        {hasError ? (
+          <div className="error-message" style={{ color: '#ff6b6b' }}>
+            {response}
+          </div>
+        ) : (
+          <div>
+            <MarkdownMessage content={response} />
+            {isStreaming && (
+              <span 
+                className="streaming-cursor"
+                style={{
+                  display: 'inline-block',
+                  width: '0.5rem',
+                  height: '1rem',
+                  backgroundColor: color || '#10a37f',
+                  marginLeft: '0.25rem',
+                  animation: 'blink 1s infinite',
+                }}
+              />
+            )}
+          </div>
+        )}
       </div>
       
       <div className="response-actions">
@@ -57,17 +98,20 @@ export default function ResponseCard({
           onClick={handleCopy}
           className="action-btn copy-btn"
           title="Copy response"
+          disabled={isStreaming || hasError || !response}
         >
           {copied ? '✓ Copied' : '📋 Copy'}
         </button>
         
-        <button
-          onClick={() => onVote(index)}
-          className={`action-btn vote-btn ${isPreferred ? 'active' : ''}`}
-          title="Mark as preferred"
-        >
-          {isPreferred ? '⭐ Preferred' : '👍 Prefer'}
-        </button>
+        {!isStreaming && !hasError && onVote && (
+          <button
+            onClick={() => onVote(index)}
+            className={`action-btn vote-btn ${isPreferred ? 'active' : ''}`}
+            title="Mark as preferred"
+          >
+            {isPreferred ? '⭐ Preferred' : '👍 Prefer'}
+          </button>
+        )}
       </div>
     </div>
   );

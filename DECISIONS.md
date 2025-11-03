@@ -562,4 +562,268 @@ Key takeaways
 
 ---
 
+# Architectural Decision Records (Phase 3)
+
+## ADR-006: Server-Sent Events for Streaming Comparisons
+
+**Date**: 2025-11-02  
+**Status**: Accepted  
+**Context**: Users experience 20-60 second wait times for comparison results. Real-time streaming is needed for better UX.
+
+### Decision
+Implement Server-Sent Events (SSE) for streaming comparison results from multiple providers simultaneously.
+
+### Implementation
+- New endpoint: `POST /api/v1/compare/stream`
+- Flask `stream_with_context()` for SSE generation
+- ThreadPoolExecutor for parallel provider streaming
+- SSE event types: `start`, `chunk`, `complete`, `error`, `done`
+- Frontend uses Fetch API with ReadableStream (not EventSource for POST support)
+
+### Alternatives Considered
+
+1. **WebSockets**: 
+   - Rejected: More complex, bidirectional communication unnecessary
+   - Higher overhead for unidirectional data flow
+   - Requires separate WebSocket server management
+
+2. **HTTP Long Polling**:
+   - Rejected: Inefficient, higher latency
+   - Multiple request/response cycles
+   - Not truly real-time
+
+3. **HTTP/2 Server Push**:
+   - Rejected: Limited browser support
+   - Requires HTTP/2 infrastructure
+   - Less control over data flow
+
+4. **EventSource API**:
+   - Rejected for initial implementation: Only supports GET requests
+   - Would require passing prompt and models via query params or session
+   - Fetch API with ReadableStream provides more flexibility
+
+### Rationale
+
+**Why SSE?**
+- Simple unidirectional data flow (server → client)
+- Native browser support via Fetch API
+- HTTP/1.1 compatible (no infrastructure changes)
+- Automatic reconnection possible
+- Lower overhead than WebSockets
+- Standard text/event-stream format
+
+**Why Fetch over EventSource?**
+- EventSource only supports GET requests
+- POST needed for secure parameter passing
+- Fetch API with ReadableStream gives full control
+- Easier to add Authorization headers
+- Better error handling capabilities
+
+**Why Parallel Streaming?**
+- No blocking between providers
+- True sub-second time to first token
+- Better user experience
+- Efficient use of server resources
+
+### Consequences
+
+**Positive**:
+- ✅ Sub-second time to first token
+- ✅ Better perceived performance
+- ✅ Parallel streaming from multiple providers
+- ✅ Native browser support
+- ✅ Graceful degradation on provider failures
+- ✅ Simple server implementation
+
+**Negative**:
+- ⚠️ Keep-alive connections consume server resources
+- ⚠️ Need proper cleanup on errors
+- ⚠️ No support in Internet Explorer (acceptable tradeoff)
+- ⚠️ Must manually parse SSE format (not using EventSource)
+
+**Security**:
+- ✅ JWT authentication required
+- ✅ Rate limiting applied
+- ✅ CSRF protection via JWT
+- ✅ Input validation
+- ✅ Error messages sanitized
+
+### Implementation Notes
+
+**Backend**:
+```python
+# SSE format: "data: {json}\n\n"
+yield f"data: {json.dumps(event_data)}\n\n"
+```
+
+**Frontend**:
+```javascript
+// Parse SSE stream manually
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+for await (const chunk of readStream(reader)) {
+  if (line.startsWith('data: ')) {
+    const data = JSON.parse(line.slice(6));
+    handleEvent(data);
+  }
+}
+```
+
+### Performance Metrics
+- **Time to first token**: < 1 second (target achieved)
+- **Previous**: 20-60 seconds blocking wait
+- **Improvement**: 20-60x faster perceived performance
+
+### Reversibility
+**Moderate**: 
+- SSE endpoint can coexist with batch endpoint
+- Frontend can fallback to batch mode
+- No database schema changes
+- Can remove if needed without data loss
+
+### Follow-ups
+- [ ] Add connection limit per user (prevent abuse)
+- [ ] Add stream timeout (60 seconds max)
+- [ ] Monitor connection count metrics
+- [ ] Consider WebSocket upgrade for bidirectional features (future)
+- [ ] Add stream resume capability (if connection drops)
+
+---
+
+## ADR-007: React-Markdown with Syntax Highlighting
+
+**Date**: 2025-11-02  
+**Status**: Accepted  
+**Context**: LLM responses often contain markdown, code blocks, and formatted text. Plain text rendering provides poor UX.
+
+### Decision
+Use `react-markdown` with `react-syntax-highlighter` for rich message rendering in both chat and comparison modes.
+
+### Implementation
+- **react-markdown** ^9.0.1: Markdown parsing and rendering
+- **remark-gfm** ^4.0.0: GitHub Flavored Markdown support
+- **react-syntax-highlighter** ^15.5.0: Code highlighting with Prism
+- **Theme**: VS Code Dark Plus for consistent dark mode
+- **Languages**: 277+ language definitions included
+
+### Alternatives Considered
+
+1. **marked.js + highlight.js**:
+   - Rejected: Manual HTML rendering (security risk)
+   - Need to sanitize HTML output
+   - Less React-friendly
+
+2. **Custom markdown parser**:
+   - Rejected: Reinventing the wheel
+   - Missing edge cases
+   - No GFM support out of box
+
+3. **Monaco Editor for code blocks**:
+   - Rejected: Too heavy (full editor)
+   - Overkill for display-only
+   - Large bundle size impact
+
+4. **Server-side markdown rendering**:
+   - Rejected: Less flexible
+   - No copy buttons without extra work
+   - Harder to customize styling
+
+### Rationale
+
+**Why react-markdown?**
+- Well-maintained, popular library (11k+ stars)
+- React-native rendering (no dangerouslySetInnerHTML)
+- Plugin system for extensibility
+- GFM support via remark-gfm
+- Safe by default
+
+**Why react-syntax-highlighter?**
+- Wide language support (277 languages)
+- Multiple themes available
+- Prism backend (lighter than highlight.js full)
+- Copy-paste friendly output
+- Customizable styles
+
+**Why Client-Side?**
+- Real-time rendering during streaming
+- No server round-trip needed
+- Easier to customize per-user preferences (future)
+- Better for progressive enhancement
+
+### Consequences
+
+**Positive**:
+- ✅ Beautiful code rendering with syntax highlighting
+- ✅ Support for tables, lists, task lists (GFM)
+- ✅ Copy buttons on code blocks
+- ✅ Safe HTML rendering (XSS protection)
+- ✅ Consistent styling across app
+
+**Negative**:
+- ⚠️ Bundle size increased significantly (246 KB → 1020 KB)
+- ⚠️ Includes 277 language definitions (could optimize)
+- ⚠️ Initial render slightly slower (negligible in practice)
+- ⚠️ No LaTeX math support (could add plugin if needed)
+
+**Bundle Impact**:
+- Previous: 246 KB
+- Current: 1020 KB
+- Increase: 774 KB (4.2x)
+- Main contributors:
+  - refractor (language definitions): 851 KB
+  - react-markdown + plugins: ~100 KB
+  - hastscript + utilities: ~75 KB
+
+### Optimization Options (Future)
+
+1. **Lazy Load Languages**:
+   - Only load common languages by default
+   - Load additional on-demand
+   - Could reduce bundle to ~400 KB
+
+2. **Code Splitting**:
+   - Separate markdown component chunk
+   - Load on first use
+   - Better for users who don't use comparison mode
+
+3. **Alternative Highlighter**:
+   - Use lighter library (highlight.js minimal)
+   - Trade coverage for size
+   - Manual language loading
+
+4. **Server-Side Pre-render**:
+   - Render markdown server-side for initial load
+   - Hydrate client-side for interactivity
+   - More complex architecture
+
+### Current Decision
+Accept bundle size increase for comprehensive language support. Users get excellent UX out of the box. Can optimize later if needed based on usage metrics.
+
+### Performance Metrics
+- **Bundle size**: 1020 KB (gzipped: ~350 KB)
+- **Time to Interactive**: No noticeable impact
+- **Rendering performance**: Smooth on modern devices
+
+### Security
+- ✅ No dangerouslySetInnerHTML usage
+- ✅ React components sanitize output
+- ✅ XSS-safe by design
+- ✅ No eval() or Function() usage
+
+### Reversibility
+**Easy**: 
+- Can switch back to plain text rendering
+- No database impact
+- Frontend-only change
+- Users might complain (downgrade UX)
+
+### Follow-ups
+- [ ] Monitor bundle size impact on mobile users
+- [ ] Consider lazy loading for code highlighter
+- [ ] Add LaTeX support if users request it (remark-math)
+- [ ] Add copy button for entire messages (not just code)
+- [ ] Consider server-side rendering for SEO (if needed)
+
+---
+
 **Note**: This file is append-only. Do not modify or delete existing entries. Always add new entries at the bottom.

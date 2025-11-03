@@ -87,6 +87,7 @@ The service will start on `http://localhost:3044` by default.
 | POST | /api/v1/keys | Persist provider API keys for the current user. |
 | POST | /api/v1/chat | Submit a chat turn and receive a provider response plus `conversationId`. |
 | POST | /api/v1/compare | Request side-by-side responses from multiple providers. Returns comparison ID. |
+| POST | /api/v1/compare/stream | Stream comparison results in real-time via Server-Sent Events (SSE). |
 | GET | /api/v1/comparisons | Retrieve user's comparison history with pagination. |
 | POST | /api/v1/comparisons/:id/vote | Vote for preferred model response in a comparison. |
 | GET | /health | Lightweight health check for infrastructure probes. |
@@ -98,14 +99,29 @@ The service will start on `http://localhost:3044` by default.
 - Support for OpenAI, Anthropic, Google, and Mistral models
 - Conversation history persistence
 - Model and provider selection
+- **Markdown Rendering**: Rich text formatting with syntax highlighting
+- **Code Blocks**: Syntax highlighting for 277+ programming languages
+- **Copy Buttons**: One-click copying of code blocks
 
 ### Comparison Mode
+- **Real-Time Streaming**: See all models respond simultaneously with <1s time to first token
 - **Multi-Model Selection**: Choose 2-4 models to compare simultaneously
 - **Side-by-Side Display**: View responses in a responsive grid layout
 - **Performance Metrics**: See response time and token counts for each model
+- **Markdown Rendering**: Rich text formatting with GitHub Flavored Markdown support
+- **Syntax Highlighting**: Beautiful code blocks with copy buttons
+- **Streaming Indicators**: Visual feedback as models generate responses
 - **Voting**: Mark your preferred response for future reference
 - **History**: Access past comparisons with full results
 - **Error Handling**: Graceful degradation when individual providers fail
+- **Cancellation**: Stop streaming mid-response if needed
+
+### Message Rendering
+- **Markdown Support**: Tables, lists, blockquotes, links, and images
+- **GitHub Flavored Markdown**: Task lists, strikethrough, and autolinks
+- **Syntax Highlighting**: VS Code Dark Plus theme for code blocks
+- **Copy Functionality**: Copy entire messages or individual code blocks
+- **Responsive Design**: Mobile-friendly layouts
 
 ## Error Handling & Observability
 - Requests and responses are logged in structured JSON, making it easy to ship logs to systems such as ELK, Datadog, or CloudWatch.

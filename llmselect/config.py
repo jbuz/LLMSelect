@@ -55,6 +55,7 @@ class BaseConfig:
     }
 
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+    LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "1000"))
 
     @classmethod
     def validate(cls) -> None:
