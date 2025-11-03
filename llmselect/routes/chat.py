@@ -3,7 +3,15 @@ import json
 from time import time
 from typing import Dict, Optional
 
-from flask import Blueprint, current_app, g, jsonify, request, Response, stream_with_context
+from flask import (
+    Blueprint,
+    current_app,
+    g,
+    jsonify,
+    request,
+    Response,
+    stream_with_context,
+)
 from flask_jwt_extended import current_user, jwt_required
 
 from ..extensions import limiter

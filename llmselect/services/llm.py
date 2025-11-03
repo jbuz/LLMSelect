@@ -8,10 +8,14 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from ..utils.errors import AppError
+
+
 def _sanitize_message_content(content: str) -> str:
     content = content.strip()
     content = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", content)
     return content
+
+
 class LLMService:
     def __init__(self, max_tokens=1000):
         self.session = requests.Session()
@@ -293,10 +297,9 @@ class LLMService:
                 data_str = line_str[6:]
                 try:
                     data = json.loads(data_str)
-                    if (
-                        data.get("candidates")
-                        and data["candidates"][0].get("content", {}).get("parts")
-                    ):
+                    if data.get("candidates") and data["candidates"][0].get(
+                        "content", {}
+                    ).get("parts"):
                         text = data["candidates"][0]["content"]["parts"][0].get("text")
                         if text:
                             yield text
