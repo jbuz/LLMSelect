@@ -1108,19 +1108,64 @@ module.exports = {
 
 ---
 
-### 9. Model Management
-**Priority:** P2 - Medium  
-**Category:** Features
+### 9. Dynamic Model Management (UPDATED - Nov 2025)
+**Priority:** P1 - High  
+**Category:** Features  
+**Status:** NOT STARTED ⏸️  
+**Duration:** 1-2 weeks
 
 **Issues:**
-- Hardcoded model lists in frontend
+- Hardcoded model lists in frontend (outdated models)
+- Missing latest models: GPT-4o, GPT-4o-mini, o1-preview, o1-mini, Gemini 1.5 Pro/Flash, Gemini 2.0 Flash
 - No model capabilities information
 - Can't adjust model parameters (temperature, max_tokens, etc.)
 - No token usage tracking
 - No cost estimation
 
-**Action Items:**
-- [ ] Create backend endpoint to fetch available models
+**Phase 1: Dynamic Model Discovery (Priority: HIGH)**
+- [ ] **Backend: Model Registry Service**
+  - [ ] Create `ModelRegistryService` class to query provider APIs for available models
+  - [ ] Add caching layer (Redis/memory) to reduce API calls
+  - [ ] Implement fallback to static model lists if API fails
+  - [ ] Query OpenAI models API: `GET https://api.openai.com/v1/models`
+  - [ ] Query Anthropic models (use static list with version check)
+  - [ ] Query Google AI models: `GET https://generativelanguage.googleapis.com/v1beta/models`
+  - [ ] Query Mistral models API
+  
+- [ ] **Backend: Models Endpoint**
+  - [ ] Create `GET /api/v1/models` endpoint
+  - [ ] Return structured model data: `{provider, id, name, contextWindow, maxTokens, capabilities, pricing}`
+  - [ ] Add filtering by provider: `GET /api/v1/models?provider=openai`
+  - [ ] Add caching headers (1 hour TTL)
+  
+- [ ] **Frontend: Dynamic Model Loading**
+  - [ ] Create `useModels()` hook to fetch from backend
+  - [ ] Replace hardcoded `PROVIDER_MODELS` in App.js
+  - [ ] Update ModelSelector component to use dynamic data
+  - [ ] Add loading states while fetching models
+  - [ ] Handle errors gracefully (fallback to cached/default models)
+
+**Phase 2: Latest Models Addition (Priority: HIGH)**
+- [ ] **Add OpenAI models:**
+  - [ ] `gpt-4o` (GPT-4 Optimized - 128k context)
+  - [ ] `gpt-4o-mini` (cost-effective, 128k context)
+  - [ ] `o1-preview` (reasoning model, 128k context)
+  - [ ] `o1-mini` (faster reasoning, 128k context)
+  
+- [ ] **Add Google models:**
+  - [ ] `gemini-1.5-pro` (2M token context)
+  - [ ] `gemini-1.5-flash` (1M token context, faster)
+  - [ ] `gemini-2.0-flash-exp` (newest experimental)
+  
+- [ ] **Update Anthropic:**
+  - [ ] `claude-3-5-sonnet-20241022` (already present ✅)
+  - [ ] Verify version is latest (check for newer releases)
+  
+- [ ] **Update Mistral:**
+  - [ ] Keep `-latest` suffix but add specific version IDs
+  - [ ] Add `mistral-small-2409`, `mistral-large-2411`
+
+**Phase 3: Model Capabilities & Settings (Priority: MEDIUM)**
 - [ ] Add model information cards (capabilities, pricing, limits)
 - [ ] Implement advanced settings panel:
   - Temperature control
@@ -1131,6 +1176,66 @@ module.exports = {
 - [ ] Implement cost tracking and estimation
 - [ ] Add model comparison features
 - [ ] Support for custom model endpoints (Azure OpenAI, etc.)
+
+**Technical Design:**
+```python
+# Backend: llmselect/services/model_registry.py
+class ModelRegistryService:
+    def __init__(self, cache_ttl=3600):
+        self._cache = {}
+        self._cache_ttl = cache_ttl
+    
+    async def get_available_models(self, provider=None):
+        """Fetch models from provider APIs with caching"""
+        if provider:
+            return await self._fetch_provider_models(provider)
+        
+        all_models = {}
+        for p in ['openai', 'anthropic', 'gemini', 'mistral']:
+            all_models[p] = await self._fetch_provider_models(p)
+        return all_models
+    
+    async def _fetch_openai_models(self):
+        """Query OpenAI API for latest models"""
+        # Implementation with error handling and fallback
+```
+
+```javascript
+// Frontend: src/hooks/useModels.js
+export const useModels = (provider = null) => {
+  const [models, setModels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const endpoint = provider 
+          ? `/api/v1/models?provider=${provider}`
+          : '/api/v1/models';
+        const response = await http.get(endpoint);
+        setModels(response.data);
+      } catch (err) {
+        setError(err);
+        // Fallback to default models
+        setModels(DEFAULT_MODELS);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchModels();
+  }, [provider]);
+  
+  return { models, loading, error };
+};
+```
+
+**Success Criteria:**
+- [ ] Models list updates automatically when providers release new models
+- [ ] All latest models (as of Nov 2025) are available in UI
+- [ ] Fallback mechanism works if API calls fail
+- [ ] Performance: models load in <500ms (with caching)
+- [ ] No breaking changes to existing functionality
 
 ---
 
