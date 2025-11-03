@@ -17,18 +17,22 @@ def _rate_limit():
 @limiter.limit(_rate_limit)
 def list_models():
     """Get list of available models from all providers.
-    
+
     Query Parameters:
         provider (str, optional): Filter by provider (openai, anthropic, gemini, mistral)
-    
+
     Returns:
         JSON response with list of models
     """
     provider = request.args.get("provider")
-    
+
     services = current_app.extensions["services"]
     models = services.model_registry.get_models(provider=provider)
-    
-    return jsonify({"models": models}), 200, {
-        "Cache-Control": "max-age=3600",  # Cache for 1 hour
-    }
+
+    return (
+        jsonify({"models": models}),
+        200,
+        {
+            "Cache-Control": "max-age=3600",  # Cache for 1 hour
+        },
+    )

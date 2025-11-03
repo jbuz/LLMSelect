@@ -310,7 +310,7 @@ class ModelRegistryService:
         self.cache_ttl_seconds = cache_ttl_seconds
         self._cache: Dict[str, List[Dict]] = {}
         self._cache_timestamp: Dict[str, float] = {}
-        
+
         # HTTP session with retries
         self.session = requests.Session()
         retry = Retry(
@@ -335,7 +335,7 @@ class ModelRegistryService:
         """
         if provider:
             return self._get_provider_models(provider)
-        
+
         # Return all models from all providers
         all_models = []
         for p in ["openai", "anthropic", "gemini", "mistral"]:
@@ -384,7 +384,7 @@ class ModelRegistryService:
         """
         if provider not in self._cache:
             return False
-        
+
         cache_age = time.time() - self._cache_timestamp[provider]
         return cache_age < self.cache_ttl_seconds
 

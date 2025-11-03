@@ -10,9 +10,14 @@ def register_and_login(client, username="chatuser", password="chat-password"):
 
 def test_chat_creates_and_reuses_conversation(client, app, monkeypatch):
     register_and_login(client)
-    
-    # Set up fake API key  
-    payload = {"openai": "sk-test-fake-key", "anthropic": "", "gemini": "", "mistral": ""}
+
+    # Set up fake API key
+    payload = {
+        "openai": "sk-test-fake-key",
+        "anthropic": "",
+        "gemini": "",
+        "mistral": "",
+    }
     response = client.post("/api/v1/keys", json=payload)
     assert response.status_code == 200
 
