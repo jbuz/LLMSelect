@@ -8,28 +8,7 @@ import LoginModal from './components/LoginModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import ComparisonMode from './components/ComparisonMode';
 import { authApi, chatApi, keyApi } from './services/api';
-
-const PROVIDER_MODELS = {
-  openai: [
-    { id: 'gpt-4', name: 'GPT-4' },
-    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
-    { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' }
-  ],
-  anthropic: [
-    { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
-    { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' },
-    { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' }
-  ],
-  gemini: [
-    { id: 'gemini-pro', name: 'Gemini Pro' },
-    { id: 'gemini-pro-vision', name: 'Gemini Pro Vision' }
-  ],
-  mistral: [
-    { id: 'mistral-large-latest', name: 'Mistral Large' },
-    { id: 'mistral-medium-latest', name: 'Mistral Medium' },
-    { id: 'mistral-small-latest', name: 'Mistral Small' }
-  ]
-};
+import { useModels } from './hooks/useModels';
 
 const STORAGE_KEY = 'chat-session';
 
@@ -37,7 +16,7 @@ const App = () => {
   const [mode, setMode] = useState('chat'); // 'chat' or 'compare'
   const [messages, setMessages] = useState([]);
   const [selectedProvider, setSelectedProvider] = useState('openai');
-  const [selectedModel, setSelectedModel] = useState('gpt-4');
+  const [selectedModel, setSelectedModel] = useState('gpt-4o');
   const [isLoading, setIsLoading] = useState(false);
   const [showApiModal, setShowApiModal] = useState(false);
   const [user, setUser] = useState(null);
@@ -49,6 +28,9 @@ const App = () => {
     error: '',
     submitting: false
   });
+
+  // Fetch models dynamically
+  const { models: providerModels, loading: modelsLoading, error: modelsError } = useModels();
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -208,12 +190,13 @@ const App = () => {
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const currentModels = useMemo(() => PROVIDER_MODELS[selectedProvider] || [], [selectedProvider]);
+  const currentModels = useMemo(() => providerModels[selectedProvider] || [], [providerModels, selectedProvider]);
+  const availableProviders = useMemo(() => Object.keys(providerModels), [providerModels]);
 
   return (
     <div className="app">
       <Header
-        providers={Object.keys(PROVIDER_MODELS)}
+        providers={availableProviders}
         models={currentModels}
         selectedProvider={selectedProvider}
         selectedModel={selectedModel}
@@ -229,16 +212,17 @@ const App = () => {
       />
 
       {globalError && <div className="global-error">{globalError}</div>}
+      {modelsError && <div className="global-error">Failed to load models: {modelsError}</div>}
 
       <ErrorBoundary onReset={clearChat}>
         <main className="main-content">
           {mode === 'chat' ? (
             <>
               <MessageList messages={messages} isLoading={isLoading} />
-              <MessageInput onSendMessage={sendMessage} isLoading={isLoading || !user} />
+              <MessageInput onSendMessage={sendMessage} isLoading={isLoading || !user || modelsLoading} />
             </>
           ) : (
-            <ComparisonMode chatApi={chatApi} />
+            <ComparisonMode chatApi={chatApi} providerModels={providerModels} />
           )}
         </main>
       </ErrorBoundary>

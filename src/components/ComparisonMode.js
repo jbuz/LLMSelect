@@ -1,16 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import ModelSelector from './ModelSelector';
 import ResponseCard from './ResponseCard';
 import MessageInput from './MessageInput';
 import { useStreamingComparison } from '../hooks/useStreamingComparison';
 
-export default function ComparisonMode({ chatApi }) {
+// Provider colors for visual distinction
+const PROVIDER_COLORS = {
+  openai: '#10a37f',
+  anthropic: '#d97757',
+  gemini: '#4285f4',
+  mistral: '#f2a73b',
+};
+
+export default function ComparisonMode({ chatApi, providerModels = {} }) {
   const [selectedModels, setSelectedModels] = useState([
-    { provider: 'openai', model: 'gpt-4', label: 'GPT-4', color: '#10a37f' },
+    { provider: 'openai', model: 'gpt-4o', label: 'GPT-4o', color: '#10a37f' },
     { provider: 'anthropic', model: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet', color: '#d97757' },
   ]);
   const [prompt, setPrompt] = useState('');
   const [preferredIndex, setPreferredIndex] = useState(null);
+  
+  // Convert providerModels to flat list with colors
+  const availableModels = useMemo(() => {
+    const models = [];
+    Object.keys(providerModels).forEach(provider => {
+      const color = PROVIDER_COLORS[provider] || '#666666';
+      providerModels[provider].forEach(model => {
+        models.push({
+          provider,
+          model: model.id,
+          label: model.name,
+          color,
+        });
+      });
+    });
+    return models;
+  }, [providerModels]);
   
   // Use streaming hook
   const {
@@ -47,6 +72,7 @@ export default function ComparisonMode({ chatApi }) {
           <ModelSelector
             selected={selectedModels}
             onChange={setSelectedModels}
+            availableModels={availableModels}
             maxModels={4}
             minModels={2}
           />
