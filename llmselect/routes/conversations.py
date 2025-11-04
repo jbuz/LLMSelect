@@ -4,7 +4,6 @@ from marshmallow import Schema, fields, validate
 
 from ..extensions import limiter, db
 from ..models import Conversation, Message
-from ..utils.errors import NotFoundError
 
 bp = Blueprint("conversations", __name__, url_prefix="/api/v1/conversations")
 
