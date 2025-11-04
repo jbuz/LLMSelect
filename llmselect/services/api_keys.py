@@ -23,6 +23,8 @@ def set_api_keys(
                 user_id=user.id, provider=provider
             ).one_or_none()
 
+            # Only update if a non-empty value is provided
+            # Empty/blank values are ignored (keeps existing key)
             if normalized:
                 encrypted = encryptor.encrypt(normalized)
                 if existing:
@@ -33,8 +35,8 @@ def set_api_keys(
                             user_id=user.id, provider=provider, key_encrypted=encrypted
                         )
                     )
-            elif existing:
-                db.session.delete(existing)
+            # If blank value provided, keep existing key (do nothing)
+            # To delete a key, user would need to use a separate delete endpoint
 
         db.session.commit()
     except SQLAlchemyError as exc:

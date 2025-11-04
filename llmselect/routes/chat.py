@@ -302,13 +302,19 @@ def compare_stream():
                                 results[provider_name] = chunk_data.get("data", {})
 
                 except Exception as exc:  # noqa: PERF203
+                    error_details = {
+                        "provider": provider_name,
+                        "model": model,
+                        "error_type": type(exc).__name__,
+                        "error_message": str(exc),
+                    }
+                    # Try to extract API error details if available
+                    if hasattr(exc, 'extra'):
+                        error_details["api_error"] = exc.extra
+                    
                     current_app.logger.error(
                         f"Provider {provider_name} streaming failed",
-                        extra={
-                            "provider": provider_name,
-                            "model": model,
-                            "error_type": type(exc).__name__,
-                        },
+                        extra=error_details,
                     )
                     yield f"data: {json.dumps({'event': 'error', 'provider': provider_name, 'model': model, 'error': 'Streaming failed. Please check your API key and try again.'})}\n\n"
                     completed_count += 1

@@ -28,9 +28,15 @@ export const useConversations = () => {
       setConversations(data.conversations || []);
       setTotalPages(data.totalPages || 0);
     } catch (err) {
-      console.error('Failed to fetch conversations:', err);
-      setError(err.response?.data?.message || 'Failed to load conversations');
-      setConversations([]);
+      // Don't show error for 401 (not authenticated) - this is expected on page load
+      if (err.response?.status === 401) {
+        console.log('Not authenticated - conversations will load after login');
+        setConversations([]);
+      } else {
+        console.error('Failed to fetch conversations:', err);
+        setError(err.response?.data?.message || 'Failed to load conversations');
+        setConversations([]);
+      }
     } finally {
       setLoading(false);
     }

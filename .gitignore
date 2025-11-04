@@ -103,7 +103,6 @@ Thumbs.db
 *.swp
 
 # Docker
-.dockerignore
 
 # Backup files
 *.bak

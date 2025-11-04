@@ -30,11 +30,15 @@ export const useModels = (provider = null) => {
       
       setModels(groupedModels);
     } catch (err) {
-      console.error('Failed to fetch models:', err);
-      setError(err.response?.data?.message || 'Failed to fetch models');
-      
-      // Return empty object on error so components don't break
-      setModels({});
+      // Don't show error for 401 (not authenticated) - this is expected on page load
+      if (err.response?.status === 401) {
+        console.log('Not authenticated - models will load after login');
+        setModels({});
+      } else {
+        console.error('Failed to fetch models:', err);
+        setError(err.response?.data?.message || 'Failed to fetch models');
+        setModels({});
+      }
     } finally {
       setLoading(false);
     }

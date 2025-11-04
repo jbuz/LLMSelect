@@ -18,6 +18,7 @@ export const chatApi = {
 };
 
 export const keyApi = {
+  get: () => http.get('/keys'),
   save: (keys) => http.post('/keys', keys)
 };
 

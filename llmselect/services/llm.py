@@ -73,13 +73,16 @@ class LLMService:
         raise AppError(f"Unsupported provider '{provider}'")
 
     def _call_openai(self, model: str, messages, api_key: str) -> str:
+        # GPT-5+ models use max_completion_tokens, older models use max_tokens
+        token_param = "max_completion_tokens" if model.startswith(("gpt-5", "o3", "o4")) else "max_tokens"
+        
         response = self.session.post(
             "https://api.openai.com/v1/chat/completions",
             headers={
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
             },
-            json={"model": model, "messages": messages, "max_tokens": 1000},
+            json={"model": model, "messages": messages, token_param: 1000},
             timeout=30,
         )
         return self._handle_response(response, "OpenAI")
@@ -208,6 +211,9 @@ class LLMService:
 
     def _stream_openai(self, model: str, messages, api_key: str):
         """Stream response from OpenAI API."""
+        # GPT-5+ models use max_completion_tokens, older models use max_tokens
+        token_param = "max_completion_tokens" if model.startswith(("gpt-5", "o3", "o4")) else "max_tokens"
+        
         response = self.session.post(
             "https://api.openai.com/v1/chat/completions",
             headers={
@@ -217,7 +223,7 @@ class LLMService:
             json={
                 "model": model,
                 "messages": messages,
-                "max_tokens": self.max_tokens,
+                token_param: self.max_tokens,
                 "stream": True,
             },
             timeout=30,

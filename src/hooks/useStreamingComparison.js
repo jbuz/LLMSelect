@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import Cookies from 'js-cookie';
 
 export const useStreamingComparison = (chatApi) => {
   const [streamingResults, setStreamingResults] = useState({});
@@ -44,17 +45,25 @@ export const useStreamingComparison = (chatApi) => {
       // Create AbortController for cancellation
       abortControllerRef.current = new AbortController();
       
-      // Get access token
-      const token = localStorage.getItem('access_token');
+      // Get CSRF token from cookie for JWT protection
+      const csrfToken = Cookies.get('csrf_access_token');
       const url = new URL('/api/v1/compare/stream', window.location.origin);
+      
+      // Prepare headers
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add CSRF token if available
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
       
       // Send POST request to initiate stream
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: headers,
+        credentials: 'include', // Include cookies for JWT authentication
         body: JSON.stringify({
           prompt,
           providers: selectedModels.map(m => ({
