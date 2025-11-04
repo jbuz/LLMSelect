@@ -83,6 +83,81 @@ def send_chat_message():
     return jsonify({"response": response_text, "conversationId": conversation.id})
 
 
+@bp.post("/chat/stream")
+@jwt_required()
+@limiter.limit(_rate_limit)
+def stream_chat():
+    """Stream single-model chat response via SSE."""
+    payload = chat_schema.load(request.get_json() or {})
+    provider = payload["provider"]
+    model = payload["model"]
+
+    services = current_app.extensions["services"]
+    conversation_service = services.conversations
+    llm_service = services.llm
+    encryption_service = current_app.extensions["key_encryption"]
+
+    conversation_id_value: Optional[str] = None
+    if payload.get("conversation_id"):
+        conversation_id_value = str(payload["conversation_id"])
+
+    conversation = conversation_service.ensure_conversation(
+        user_id=current_user.id,
+        provider=provider,
+        model=model,
+        conversation_id=conversation_id_value,
+    )
+    g.conversation_id = conversation.id
+
+    messages = payload["messages"]
+    if messages:
+        latest_message = messages[-1]
+        if latest_message.get("role") == "user":
+            conversation_service.append_message(
+                conversation, "user", latest_message["content"]
+            )
+
+    api_key = get_api_key(current_user, provider, encryption_service)
+
+    def generate():
+        """Generator function for SSE stream."""
+        try:
+            full_response = ""
+
+            # Stream from provider
+            for chunk in llm_service.invoke_stream(provider, model, messages, api_key):
+                full_response += chunk
+                yield f"data: {json.dumps({'content': chunk})}\n\n"
+
+            # Save assistant response after streaming completes
+            conversation_service.append_message(
+                conversation, "assistant", full_response
+            )
+
+            # Send completion event
+            yield f"data: {json.dumps({'done': True, 'conversationId': str(conversation.id)})}\n\n"
+
+        except Exception as exc:
+            current_app.logger.error(
+                f"Chat streaming failed",
+                extra={
+                    "provider": provider,
+                    "model": model,
+                    "error_type": type(exc).__name__,
+                },
+            )
+            yield f"data: {json.dumps({'error': 'Streaming failed. Please check your API key and try again.'})}\n\n"
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
 @bp.post("/compare")
 @jwt_required()
 @limiter.limit(_rate_limit)

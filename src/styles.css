@@ -287,6 +287,20 @@ body {
   }
 }
 
+/* Streaming Cursor */
+.streaming-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: blink 1s infinite;
+  color: var(--accent-primary);
+  font-weight: bold;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
 /* Message Input */
 .message-input-form {
   padding: 24px 0;

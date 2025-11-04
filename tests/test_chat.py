@@ -74,3 +74,48 @@ def test_api_key_storage(client, app):
     with app.app_context():
         stored = APIKey.query.filter_by(provider="openai").one()
         assert stored.user.username == "keyuser"
+
+
+def test_chat_stream_endpoint(client, app, monkeypatch):
+    """Test SSE streaming chat endpoint."""
+    register_and_login(client)
+
+    # Set up fake API key
+    payload = {
+        "openai": "sk-test-fake-key",
+        "anthropic": "",
+        "gemini": "",
+        "mistral": "",
+    }
+    response = client.post("/api/v1/keys", json=payload)
+    assert response.status_code == 200
+
+    # Mock LLM service to return chunks
+    def fake_stream_invoke(provider, model, messages, api_key):
+        yield "Hello"
+        yield " "
+        yield "world"
+        yield "!"
+
+    services = app.extensions["services"]
+    monkeypatch.setattr(services.llm, "invoke_stream", fake_stream_invoke)
+
+    # Make streaming request
+    response = client.post(
+        "/api/v1/chat/stream",
+        json={
+            "provider": "openai",
+            "model": "gpt-4",
+            "messages": [{"role": "user", "content": "Test message"}],
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.content_type == "text/event-stream; charset=utf-8"
+
+    # Verify chunks received
+    data = response.get_data(as_text=True)
+    assert "Hello" in data
+    assert "world" in data
+    assert '"done": true' in data
+    assert '"conversationId"' in data

@@ -10,6 +10,7 @@ import ComparisonMode from './components/ComparisonMode';
 import ComparisonHistory from './components/ComparisonHistory';
 import { authApi, chatApi, keyApi } from './services/api';
 import { useModels } from './hooks/useModels';
+import { useStreamingChat } from './hooks/useStreamingChat';
 
 const STORAGE_KEY = 'chat-session';
 
@@ -32,6 +33,27 @@ const App = () => {
 
   // Fetch models dynamically
   const { models: providerModels, loading: modelsLoading, error: modelsError } = useModels();
+
+  // Streaming chat hook
+  const {
+    streamMessage,
+    currentMessage,
+    isStreaming,
+    error: streamError,
+    conversationId: streamConversationId,
+    cancelStream
+  } = useStreamingChat();
+
+  // When streaming completes, add the message to the list
+  useEffect(() => {
+    if (!isStreaming && currentMessage && streamConversationId) {
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: currentMessage
+      }]);
+      setConversationId(streamConversationId);
+    }
+  }, [isStreaming, currentMessage, streamConversationId]);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -83,48 +105,15 @@ const App = () => {
 
   const sendMessage = async (content) => {
     const userMessage = { role: 'user', content };
-    const pendingMessages = [...messages, userMessage];
-    setMessages(pendingMessages);
-    setIsLoading(true);
+    setMessages(prev => [...prev, userMessage]);
     setGlobalError('');
 
-    try {
-      const response = await chatApi.sendMessage({
-        provider: selectedProvider,
-        model: selectedModel,
-        messages: pendingMessages,
-        conversationId
-      });
-
-      const assistantMessage = {
-        role: 'assistant',
-        content: response.data.response
-      };
-      const nextMessages = [...pendingMessages, assistantMessage];
-      setMessages(nextMessages);
-      if (response.data.conversationId) {
-        setConversationId(response.data.conversationId);
-      }
-    } catch (error) {
-      if (error.response?.status === 401) {
-        handleUnauthorized();
-        return;
-      }
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        'An unexpected error occurred';
-
-      const assistantMessage = { role: 'assistant', content: message, isError: true };
-      const nextMessages = [...pendingMessages, assistantMessage];
-      setMessages(nextMessages);
-      const conversationFromError = error.response?.data?.details?.conversationId || error.response?.data?.conversationId;
-      if (conversationFromError) {
-        setConversationId(conversationFromError);
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    await streamMessage({
+      conversationId,
+      message: content,
+      provider: selectedProvider,
+      model: selectedModel
+    });
   };
 
   const saveApiKeys = async (keys) => {
@@ -221,13 +210,23 @@ const App = () => {
 
       {globalError && <div className="global-error">{globalError}</div>}
       {modelsError && <div className="global-error">Failed to load models: {modelsError}</div>}
+      {streamError && <div className="global-error">{streamError}</div>}
 
       <ErrorBoundary onReset={clearChat}>
         <main className="main-content">
           {mode === 'chat' ? (
             <>
-              <MessageList messages={messages} isLoading={isLoading} />
-              <MessageInput onSendMessage={sendMessage} isLoading={isLoading || !user || modelsLoading} />
+              <MessageList 
+                messages={messages} 
+                isLoading={isLoading} 
+                isStreaming={isStreaming}
+                currentMessage={currentMessage}
+              />
+              <MessageInput 
+                onSendMessage={sendMessage} 
+                isLoading={isStreaming || !user || modelsLoading}
+                onCancel={cancelStream}
+              />
             </>
           ) : mode === 'compare' ? (
             <ComparisonMode chatApi={chatApi} providerModels={providerModels} />
