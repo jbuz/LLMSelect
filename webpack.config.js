@@ -1,5 +1,4 @@
 const path = require('path');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -58,7 +57,8 @@ module.exports = (env, argv) => {
       hints: isProduction ? 'warning' : false,
     },
     plugins: [
-      // Uncomment to analyze bundle size
+      // Uncomment to analyze bundle size (requires webpack-bundle-analyzer package)
+      // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
       // new BundleAnalyzerPlugin({ analyzerMode: 'static' }),
     ],
   };
