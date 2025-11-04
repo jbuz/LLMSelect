@@ -1,20 +1,35 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, Suspense, lazy } from 'react';
 
 import Header from './components/Header';
 import MessageList from './components/MessageList';
 import MessageInput from './components/MessageInput';
-import ApiKeyModal from './components/ApiKeyModal';
-import LoginModal from './components/LoginModal';
 import ErrorBoundary from './components/ErrorBoundary';
-import ComparisonMode from './components/ComparisonMode';
-import ComparisonHistory from './components/ComparisonHistory';
-import ConversationSidebar from './components/ConversationSidebar';
+import LoginModal from './components/LoginModal';
 import { authApi, chatApi, keyApi } from './services/api';
 import { useModels } from './hooks/useModels';
 import { useStreamingChat } from './hooks/useStreamingChat';
 import { useConversations } from './hooks/useConversations';
 
+// Lazy load heavy components
+const ComparisonMode = lazy(() => import('./components/ComparisonMode'));
+const ComparisonHistory = lazy(() => import('./components/ComparisonHistory'));
+const ConversationSidebar = lazy(() => import('./components/ConversationSidebar'));
+const ApiKeyModal = lazy(() => import('./components/ApiKeyModal'));
+
 const STORAGE_KEY = 'chat-session';
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div style={{ 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    padding: '2rem',
+    color: '#666'
+  }}>
+    Loading...
+  </div>
+);
 
 const App = () => {
   const [mode, setMode] = useState('chat'); // 'chat', 'compare', or 'history'
@@ -256,18 +271,20 @@ const App = () => {
       {conversationsError && <div className="global-error">{conversationsError}</div>}
 
       <div className="app-layout">
-        <ConversationSidebar
-          conversations={conversations}
-          activeConversationId={activeConversationId}
-          onSelectConversation={handleSelectConversation}
-          onNewConversation={handleNewConversation}
-          onRenameConversation={renameConversation}
-          onDeleteConversation={deleteConversation}
-          onExportConversation={exportConversation}
-          onSearch={fetchConversations}
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <ConversationSidebar
+            conversations={conversations}
+            activeConversationId={activeConversationId}
+            onSelectConversation={handleSelectConversation}
+            onNewConversation={handleNewConversation}
+            onRenameConversation={renameConversation}
+            onDeleteConversation={deleteConversation}
+            onExportConversation={exportConversation}
+            onSearch={fetchConversations}
+            isOpen={sidebarOpen}
+            onToggle={() => setSidebarOpen(!sidebarOpen)}
+          />
+        </Suspense>
         
         <ErrorBoundary onReset={clearChat}>
           <main className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
@@ -286,22 +303,28 @@ const App = () => {
                 />
               </>
             ) : mode === 'compare' ? (
-              <ComparisonMode chatApi={chatApi} providerModels={providerModels} />
+              <Suspense fallback={<LoadingFallback />}>
+                <ComparisonMode chatApi={chatApi} providerModels={providerModels} />
+              </Suspense>
             ) : mode === 'history' ? (
-              <ComparisonHistory
-                onLoadComparison={handleLoadComparison}
-                onClose={() => setMode('compare')}
-              />
+              <Suspense fallback={<LoadingFallback />}>
+                <ComparisonHistory
+                  onLoadComparison={handleLoadComparison}
+                  onClose={() => setMode('compare')}
+                />
+              </Suspense>
             ) : null}
           </main>
         </ErrorBoundary>
       </div>
 
       {showApiModal && (
-        <ApiKeyModal
-          onSave={saveApiKeys}
-          onClose={() => setShowApiModal(false)}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <ApiKeyModal
+            onSave={saveApiKeys}
+            onClose={() => setShowApiModal(false)}
+          />
+        </Suspense>
       )}
 
       {authModal.open && (

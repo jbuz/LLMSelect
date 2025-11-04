@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 import MarkdownMessage from './MarkdownMessage';
 
-export default function ResponseCard({ 
+const ResponseCard = memo(({ 
   provider, 
   model,
   label,
@@ -13,10 +13,10 @@ export default function ResponseCard({
   isStreaming,
   hasError,
   index
-}) {
+}) => {
   const [copied, setCopied] = useState(false);
   
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(response);
       setCopied(true);
@@ -24,7 +24,11 @@ export default function ResponseCard({
     } catch (err) {
       console.error('Failed to copy:', err);
     }
-  };
+  }, [response]);
+  
+  const handleVote = useCallback(() => {
+    if (onVote) onVote(index);
+  }, [onVote, index]);
   
   // Display label if provided, otherwise fall back to model name
   const displayName = label || model;
@@ -105,7 +109,7 @@ export default function ResponseCard({
         
         {!isStreaming && !hasError && onVote && (
           <button
-            onClick={() => onVote(index)}
+            onClick={handleVote}
             className={`action-btn vote-btn ${isPreferred ? 'active' : ''}`}
             title="Mark as preferred"
           >
@@ -115,4 +119,8 @@ export default function ResponseCard({
       </div>
     </div>
   );
-}
+});
+
+ResponseCard.displayName = 'ResponseCard';
+
+export default ResponseCard;

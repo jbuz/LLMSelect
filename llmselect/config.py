@@ -30,6 +30,13 @@ class BaseConfig:
 
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///llmselect.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Connection pooling configuration (only for non-SQLite databases)
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_size": int(os.getenv("DB_POOL_SIZE", "10")),
+        "pool_timeout": int(os.getenv("DB_POOL_TIMEOUT", "30")),
+        "pool_recycle": 3600,  # Recycle connections after 1 hour
+        "pool_pre_ping": True,  # Verify connections before using them
+    } if not os.getenv("DATABASE_URL", "sqlite:///llmselect.db").startswith("sqlite") else {}
 
     JWT_TOKEN_LOCATION = ["cookies"]
     JWT_COOKIE_SECURE = os.getenv("JWT_COOKIE_SECURE", "false").lower() == "true"

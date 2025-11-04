@@ -2,6 +2,7 @@ from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_sqlalchemy import SQLAlchemy
+from flask_caching import Cache
 
 db = SQLAlchemy()
 jwt = JWTManager()
@@ -11,3 +12,8 @@ limiter = Limiter(
     default_limits=[],
     enabled=True,  # Default to enabled, will be overridden by app config
 )
+# Cache for model registry and conversation lists
+cache = Cache(config={
+    'CACHE_TYPE': 'SimpleCache',  # In-memory for demo
+    'CACHE_DEFAULT_TIMEOUT': 3600,  # 1 hour default
+})
