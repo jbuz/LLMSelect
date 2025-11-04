@@ -8,9 +8,11 @@ import LoginModal from './components/LoginModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import ComparisonMode from './components/ComparisonMode';
 import ComparisonHistory from './components/ComparisonHistory';
+import ConversationSidebar from './components/ConversationSidebar';
 import { authApi, chatApi, keyApi } from './services/api';
 import { useModels } from './hooks/useModels';
 import { useStreamingChat } from './hooks/useStreamingChat';
+import { useConversations } from './hooks/useConversations';
 
 const STORAGE_KEY = 'chat-session';
 
@@ -24,6 +26,8 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [conversationId, setConversationId] = useState(null);
   const [globalError, setGlobalError] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeConversationId, setActiveConversationId] = useState(null);
 
   const [authModal, setAuthModal] = useState({
     open: false,
@@ -44,7 +48,19 @@ const App = () => {
     cancelStream
   } = useStreamingChat();
 
-  // When streaming completes, add the message to the list
+  // Conversations hook
+  const {
+    conversations,
+    loading: conversationsLoading,
+    error: conversationsError,
+    fetchConversations,
+    loadConversation,
+    renameConversation,
+    deleteConversation,
+    exportConversation
+  } = useConversations();
+
+  // When streaming completes, add the message to the list and refresh conversations
   useEffect(() => {
     if (!isStreaming && currentMessage && streamConversationId) {
       setMessages(prev => [...prev, {
@@ -52,8 +68,11 @@ const App = () => {
         content: currentMessage
       }]);
       setConversationId(streamConversationId);
+      setActiveConversationId(streamConversationId);
+      // Refresh conversations list to show updated conversation
+      fetchConversations();
     }
-  }, [isStreaming, currentMessage, streamConversationId]);
+  }, [isStreaming, currentMessage, streamConversationId, fetchConversations]);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -177,7 +196,30 @@ const App = () => {
   const clearChat = () => {
     setMessages([]);
     setConversationId(null);
+    setActiveConversationId(null);
     localStorage.removeItem(STORAGE_KEY);
+  };
+
+  const handleSelectConversation = async (conversationId) => {
+    const conversation = await loadConversation(conversationId);
+    if (conversation) {
+      setMessages(conversation.messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      })));
+      setConversationId(conversationId);
+      setActiveConversationId(conversationId);
+      setSelectedProvider(conversation.provider);
+      setSelectedModel(conversation.model);
+      setMode('chat');
+    }
+  };
+
+  const handleNewConversation = () => {
+    setMessages([]);
+    setConversationId(null);
+    setActiveConversationId(null);
+    setMode('chat');
   };
 
   const handleLoadComparison = (comparison) => {
@@ -211,33 +253,49 @@ const App = () => {
       {globalError && <div className="global-error">{globalError}</div>}
       {modelsError && <div className="global-error">Failed to load models: {modelsError}</div>}
       {streamError && <div className="global-error">{streamError}</div>}
+      {conversationsError && <div className="global-error">{conversationsError}</div>}
 
-      <ErrorBoundary onReset={clearChat}>
-        <main className="main-content">
-          {mode === 'chat' ? (
-            <>
-              <MessageList 
-                messages={messages} 
-                isLoading={isLoading} 
-                isStreaming={isStreaming}
-                currentMessage={currentMessage}
+      <div className="app-layout">
+        <ConversationSidebar
+          conversations={conversations}
+          activeConversationId={activeConversationId}
+          onSelectConversation={handleSelectConversation}
+          onNewConversation={handleNewConversation}
+          onRenameConversation={renameConversation}
+          onDeleteConversation={deleteConversation}
+          onExportConversation={exportConversation}
+          onSearch={fetchConversations}
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+        />
+        
+        <ErrorBoundary onReset={clearChat}>
+          <main className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
+            {mode === 'chat' ? (
+              <>
+                <MessageList 
+                  messages={messages} 
+                  isLoading={isLoading} 
+                  isStreaming={isStreaming}
+                  currentMessage={currentMessage}
+                />
+                <MessageInput 
+                  onSendMessage={sendMessage} 
+                  isLoading={isStreaming || !user || modelsLoading}
+                  onCancel={cancelStream}
+                />
+              </>
+            ) : mode === 'compare' ? (
+              <ComparisonMode chatApi={chatApi} providerModels={providerModels} />
+            ) : mode === 'history' ? (
+              <ComparisonHistory
+                onLoadComparison={handleLoadComparison}
+                onClose={() => setMode('compare')}
               />
-              <MessageInput 
-                onSendMessage={sendMessage} 
-                isLoading={isStreaming || !user || modelsLoading}
-                onCancel={cancelStream}
-              />
-            </>
-          ) : mode === 'compare' ? (
-            <ComparisonMode chatApi={chatApi} providerModels={providerModels} />
-          ) : mode === 'history' ? (
-            <ComparisonHistory
-              onLoadComparison={handleLoadComparison}
-              onClose={() => setMode('compare')}
-            />
-          ) : null}
-        </main>
-      </ErrorBoundary>
+            ) : null}
+          </main>
+        </ErrorBoundary>
+      </div>
 
       {showApiModal && (
         <ApiKeyModal
