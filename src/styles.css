@@ -1526,8 +1526,13 @@ a {
 
 /* Mobile Responsive - Base styles for mobile-first approach */
 @media (max-width: 768px) {
-  body {
-    font-size: 16px; /* Prevent zoom on input focus */
+  /* Prevent zoom on input focus on iOS */
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  textarea,
+  select {
+    font-size: 16px;
   }
 
   .header {
