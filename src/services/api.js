@@ -20,3 +20,14 @@ export const chatApi = {
 export const keyApi = {
   save: (keys) => http.post('/keys', keys)
 };
+
+export const conversationsApi = {
+  list: (params) => http.get('/conversations', { params }),
+  get: (id) => http.get(`/conversations/${id}`),
+  update: (id, data) => http.patch(`/conversations/${id}`, data),
+  delete: (id) => http.delete(`/conversations/${id}`),
+  export: (id, format = 'markdown') => http.get(`/conversations/${id}/export`, { 
+    params: { format },
+    responseType: format === 'markdown' ? 'blob' : 'json'
+  })
+};
