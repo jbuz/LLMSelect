@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import MarkdownMessage from './MarkdownMessage';
 
-const MessageList = ({ messages, isLoading }) => {
+const MessageList = ({ messages, isLoading, isStreaming, currentMessage }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+  }, [messages, isLoading, currentMessage]);
 
   return (
     <div className="messages-container">
@@ -32,7 +32,17 @@ const MessageList = ({ messages, isLoading }) => {
         </div>
       ))}
       
-      {isLoading && (
+      {isStreaming && currentMessage && (
+        <div className="message assistant streaming">
+          <div className="message-avatar">🤖</div>
+          <div className="message-content">
+            <MarkdownMessage content={currentMessage} />
+            <span className="streaming-cursor">▊</span>
+          </div>
+        </div>
+      )}
+      
+      {isLoading && !isStreaming && (
         <div className="message assistant">
           <div className="message-avatar">🤖</div>
           <div className="message-content">
