@@ -101,7 +101,9 @@ def get_conversation(conversation_id):
     services = current_app.extensions["services"]
     conversation_service = services.conversations
 
-    conversation = conversation_service.get_conversation(conversation_id, current_user.id)
+    conversation = conversation_service.get_conversation(
+        conversation_id, current_user.id
+    )
 
     messages = [
         {
@@ -115,7 +117,8 @@ def get_conversation(conversation_id):
     return jsonify(
         {
             "id": conversation.id,
-            "title": conversation.title or f"{conversation.provider} - {conversation.model}",
+            "title": conversation.title
+            or f"{conversation.provider} - {conversation.model}",
             "provider": conversation.provider,
             "model": conversation.model,
             "lastMessageAt": conversation.last_message_at.isoformat() + "Z",
@@ -135,7 +138,9 @@ def update_conversation(conversation_id):
     services = current_app.extensions["services"]
     conversation_service = services.conversations
 
-    conversation = conversation_service.get_conversation(conversation_id, current_user.id)
+    conversation = conversation_service.get_conversation(
+        conversation_id, current_user.id
+    )
     conversation.title = payload["title"]
 
     try:
@@ -164,7 +169,9 @@ def delete_conversation(conversation_id):
     services = current_app.extensions["services"]
     conversation_service = services.conversations
 
-    conversation = conversation_service.get_conversation(conversation_id, current_user.id)
+    conversation = conversation_service.get_conversation(
+        conversation_id, current_user.id
+    )
 
     try:
         db.session.delete(conversation)
@@ -190,7 +197,9 @@ def export_conversation(conversation_id):
     services = current_app.extensions["services"]
     conversation_service = services.conversations
 
-    conversation = conversation_service.get_conversation(conversation_id, current_user.id)
+    conversation = conversation_service.get_conversation(
+        conversation_id, current_user.id
+    )
 
     if format_type == "json":
         # Export as JSON
@@ -206,7 +215,8 @@ def export_conversation(conversation_id):
         return jsonify(
             {
                 "id": conversation.id,
-                "title": conversation.title or f"{conversation.provider} - {conversation.model}",
+                "title": conversation.title
+                or f"{conversation.provider} - {conversation.model}",
                 "provider": conversation.provider,
                 "model": conversation.model,
                 "lastMessageAt": conversation.last_message_at.isoformat() + "Z",
