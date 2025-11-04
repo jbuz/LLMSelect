@@ -1,14 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useState, Suspense, lazy } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, Suspense, lazy, useRef } from 'react';
 
 import Header from './components/Header';
 import MessageList from './components/MessageList';
 import MessageInput from './components/MessageInput';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoginModal from './components/LoginModal';
+import ToastContainer from './components/ToastContainer';
 import { authApi, chatApi, keyApi } from './services/api';
 import { useModels } from './hooks/useModels';
 import { useStreamingChat } from './hooks/useStreamingChat';
 import { useConversations } from './hooks/useConversations';
+import { useToast } from './hooks/useToast';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
 // Lazy load heavy components
 const ComparisonMode = lazy(() => import('./components/ComparisonMode'));
@@ -33,6 +36,7 @@ const LoadingFallback = () => (
 
 const App = () => {
   const [mode, setMode] = useState('chat'); // 'chat', 'compare', or 'history'
+  const messageInputRef = useRef(null);
   const [messages, setMessages] = useState([]);
   const [selectedProvider, setSelectedProvider] = useState('openai');
   const [selectedModel, setSelectedModel] = useState('gpt-4o');
@@ -74,6 +78,23 @@ const App = () => {
     deleteConversation,
     exportConversation
   } = useConversations();
+
+  // Toast notifications
+  const { toasts, removeToast, success: showSuccess, error: showError, info: showInfo } = useToast();
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    'ctrl+k': () => {
+      // Focus message input
+      const input = document.querySelector('.message-input');
+      if (input) input.focus();
+    },
+    'escape': () => {
+      // Close modals
+      if (showApiModal) setShowApiModal(false);
+      if (authModal.open && user) setAuthModal(prev => ({ ...prev, open: false }));
+    },
+  });
 
   // When streaming completes, add the message to the list and refresh conversations
   useEffect(() => {
@@ -155,12 +176,15 @@ const App = () => {
       await keyApi.save(keys);
       setShowApiModal(false);
       setGlobalError('');
+      showSuccess('API keys saved successfully!');
     } catch (error) {
       if (error.response?.status === 401) {
         handleUnauthorized();
         return;
       }
-      setGlobalError(error.response?.data?.message || 'Unable to save API keys');
+      const errorMsg = error.response?.data?.message || 'Unable to save API keys';
+      setGlobalError(errorMsg);
+      showError(errorMsg);
     }
   };
 
@@ -171,6 +195,7 @@ const App = () => {
       setUser(response.data.user);
       setAuthModal({ open: false, submitting: false, error: '' });
       setGlobalError('');
+      showSuccess(`Welcome back, ${response.data.user.username}!`);
     } catch (error) {
       const message =
         error.response?.data?.message ||
@@ -185,6 +210,7 @@ const App = () => {
     try {
       await authApi.register(payload);
       await handleLogin({ username: payload.username, password: payload.password });
+      showSuccess('Registration successful!');
     } catch (error) {
       const message =
         error.response?.data?.message ||
@@ -197,6 +223,7 @@ const App = () => {
   const handleLogout = async () => {
     try {
       await authApi.logout();
+      showInfo('Logged out successfully');
     } catch {
       // Nothing to do; logout is best-effort.
     } finally {
@@ -213,6 +240,7 @@ const App = () => {
     setConversationId(null);
     setActiveConversationId(null);
     localStorage.removeItem(STORAGE_KEY);
+    showInfo('Chat cleared');
   };
 
   const handleSelectConversation = async (conversationId) => {
@@ -340,6 +368,8 @@ const App = () => {
           isSubmitting={authModal.submitting}
         />
       )}
+
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 };
