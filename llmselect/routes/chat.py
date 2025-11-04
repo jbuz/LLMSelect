@@ -130,7 +130,9 @@ def stream_chat():
                 yield f"data: {json.dumps({'content': chunk})}\n\n"
 
             # Save assistant response after streaming completes
-            conversation_service.append_message(conversation, "assistant", full_response)
+            conversation_service.append_message(
+                conversation, "assistant", full_response
+            )
 
             # Send completion event
             yield f"data: {json.dumps({'done': True, 'conversationId': str(conversation.id)})}\n\n"
