@@ -108,17 +108,12 @@ const App = () => {
     setMessages(prev => [...prev, userMessage]);
     setGlobalError('');
 
-    try {
-      await streamMessage({
-        conversationId,
-        message: content,
-        provider: selectedProvider,
-        model: selectedModel
-      });
-    } catch (error) {
-      // Error handling is already done in the streaming hook
-      console.error('Failed to send message:', error);
-    }
+    await streamMessage({
+      conversationId,
+      message: content,
+      provider: selectedProvider,
+      model: selectedModel
+    });
   };
 
   const saveApiKeys = async (keys) => {
