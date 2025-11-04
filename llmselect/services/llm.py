@@ -1,7 +1,8 @@
 import html
 import json
+import os
 import re
-from typing import List, Mapping
+from typing import List, Mapping, Optional
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -17,7 +18,15 @@ def _sanitize_message_content(content: str) -> str:
 
 
 class LLMService:
-    def __init__(self, max_tokens=1000):
+    def __init__(
+        self,
+        max_tokens=1000,
+        use_azure: bool = False,
+        azure_endpoint: Optional[str] = None,
+        azure_api_key: Optional[str] = None,
+        azure_api_version: Optional[str] = None,
+        azure_deployment_mappings: Optional[dict] = None,
+    ):
         self.session = requests.Session()
         retry = Retry(
             total=3,
@@ -30,6 +39,13 @@ class LLMService:
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
         self.max_tokens = max_tokens
+        
+        # Azure AI Foundry configuration
+        self.use_azure = use_azure
+        self.azure_endpoint = azure_endpoint
+        self.azure_api_key = azure_api_key
+        self.azure_api_version = azure_api_version or "2024-02-15-preview"
+        self.azure_deployment_mappings = azure_deployment_mappings or {}
 
     def invoke(
         self, provider: str, model: str, messages: List[Mapping[str, str]], api_key: str
@@ -41,6 +57,10 @@ class LLMService:
             }
             for message in messages
         ]
+
+        # Route through Azure AI Foundry if configured
+        if self.use_azure and self.azure_endpoint and self.azure_api_key:
+            return self._call_azure_foundry(provider, model, sanitized)
 
         if provider == "openai":
             return self._call_openai(model, sanitized, api_key)
@@ -169,6 +189,11 @@ class LLMService:
             }
             for message in messages
         ]
+
+        # Route through Azure AI Foundry if configured
+        if self.use_azure and self.azure_endpoint and self.azure_api_key:
+            yield from self._stream_azure_foundry(provider, model, sanitized)
+            return
 
         if provider == "openai":
             yield from self._stream_openai(model, sanitized, api_key)
@@ -327,6 +352,127 @@ class LLMService:
         if not response.ok:
             self._parse_json(response, "Mistral")
 
+        for line in response.iter_lines():
+            if not line:
+                continue
+            line_str = line.decode("utf-8")
+            if line_str.startswith("data: "):
+                data_str = line_str[6:]
+                if data_str == "[DONE]":
+                    break
+                try:
+                    data = json.loads(data_str)
+                    if (
+                        data.get("choices")
+                        and data["choices"][0].get("delta")
+                        and data["choices"][0]["delta"].get("content")
+                    ):
+                        yield data["choices"][0]["delta"]["content"]
+                except (ValueError, KeyError, IndexError):
+                    continue
+
+    def _get_azure_deployment_name(self, model: str) -> str:
+        """Get Azure deployment name for a given model.
+        
+        Args:
+            model: The model name (e.g., 'gpt-4', 'claude-3-5-sonnet-20241022')
+        
+        Returns:
+            The Azure deployment name
+        
+        Raises:
+            AppError: If no deployment mapping found
+        """
+        deployment = self.azure_deployment_mappings.get(model)
+        if not deployment:
+            raise AppError(
+                f"No Azure deployment mapping found for model '{model}'. "
+                f"Please configure the deployment in your environment variables."
+            )
+        return deployment
+
+    def _call_azure_foundry(
+        self, provider: str, model: str, messages: List[Mapping[str, str]]
+    ) -> str:
+        """Call Azure AI Foundry unified API.
+        
+        Azure AI Foundry provides OpenAI-compatible endpoints for all providers
+        (OpenAI, Anthropic, Gemini, Mistral) through a single interface.
+        
+        Args:
+            provider: The provider name (used for error messages)
+            model: The model name to map to Azure deployment
+            messages: List of message dictionaries
+        
+        Returns:
+            The response text
+        """
+        deployment_name = self._get_azure_deployment_name(model)
+        
+        # Azure AI Foundry uses OpenAI-compatible format for all providers
+        url = (
+            f"{self.azure_endpoint}/openai/deployments/{deployment_name}"
+            f"/chat/completions?api-version={self.azure_api_version}"
+        )
+        
+        response = self.session.post(
+            url,
+            headers={
+                "api-key": self.azure_api_key,
+                "Content-Type": "application/json",
+            },
+            json={
+                "messages": messages,
+                "max_tokens": self.max_tokens,
+            },
+            timeout=30,
+        )
+        
+        if not response.ok:
+            self._parse_json(response, f"Azure AI Foundry ({provider})")
+        
+        return self._handle_response(response, f"Azure AI Foundry ({provider})")
+
+    def _stream_azure_foundry(
+        self, provider: str, model: str, messages: List[Mapping[str, str]]
+    ):
+        """Stream response from Azure AI Foundry unified API.
+        
+        Args:
+            provider: The provider name (used for error messages)
+            model: The model name to map to Azure deployment
+            messages: List of message dictionaries
+        
+        Yields:
+            str: Chunks of the response as they arrive
+        """
+        deployment_name = self._get_azure_deployment_name(model)
+        
+        # Azure AI Foundry uses OpenAI-compatible format for all providers
+        url = (
+            f"{self.azure_endpoint}/openai/deployments/{deployment_name}"
+            f"/chat/completions?api-version={self.azure_api_version}"
+        )
+        
+        response = self.session.post(
+            url,
+            headers={
+                "api-key": self.azure_api_key,
+                "Content-Type": "application/json",
+            },
+            json={
+                "messages": messages,
+                "max_tokens": self.max_tokens,
+                "stream": True,
+            },
+            timeout=30,
+            stream=True,
+        )
+        
+        if not response.ok:
+            self._parse_json(response, f"Azure AI Foundry ({provider})")
+        
+        # Azure returns OpenAI-compatible streaming format
         for line in response.iter_lines():
             if not line:
                 continue

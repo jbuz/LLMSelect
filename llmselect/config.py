@@ -57,6 +57,56 @@ class BaseConfig:
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
     LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "1000"))
 
+    # Azure AI Foundry configuration
+    AZURE_AI_FOUNDRY_ENDPOINT = os.getenv("AZURE_AI_FOUNDRY_ENDPOINT")
+    AZURE_AI_FOUNDRY_KEY = os.getenv("AZURE_AI_FOUNDRY_KEY")
+    AZURE_AI_FOUNDRY_API_VERSION = os.getenv(
+        "AZURE_AI_FOUNDRY_API_VERSION", "2024-02-15-preview"
+    )
+    USE_AZURE_FOUNDRY = (
+        os.getenv("USE_AZURE_FOUNDRY", "false").lower() == "true"
+    )
+
+    # Azure deployment name mappings (model -> deployment name)
+    AZURE_DEPLOYMENT_MAPPINGS = {
+        # OpenAI models
+        "gpt-4o": os.getenv("AZURE_DEPLOYMENT_GPT4O", "gpt-4o-deployment"),
+        "gpt-4o-mini": os.getenv("AZURE_DEPLOYMENT_GPT4O_MINI", "gpt-4o-mini-deployment"),
+        "gpt-4-turbo": os.getenv("AZURE_DEPLOYMENT_GPT4_TURBO", "gpt-4-turbo-deployment"),
+        "gpt-4": os.getenv("AZURE_DEPLOYMENT_GPT4", "gpt-4-deployment"),
+        "gpt-3.5-turbo": os.getenv("AZURE_DEPLOYMENT_GPT35_TURBO", "gpt-35-turbo-deployment"),
+        # Anthropic models
+        "claude-3-5-sonnet-20241022": os.getenv(
+            "AZURE_DEPLOYMENT_CLAUDE_35_SONNET", "claude-35-sonnet-deployment"
+        ),
+        "claude-3-5-haiku-20241022": os.getenv(
+            "AZURE_DEPLOYMENT_CLAUDE_35_HAIKU", "claude-35-haiku-deployment"
+        ),
+        "claude-3-opus-20240229": os.getenv(
+            "AZURE_DEPLOYMENT_CLAUDE_3_OPUS", "claude-3-opus-deployment"
+        ),
+        # Gemini models
+        "gemini-1.5-pro": os.getenv(
+            "AZURE_DEPLOYMENT_GEMINI_15_PRO", "gemini-15-pro-deployment"
+        ),
+        "gemini-1.5-flash": os.getenv(
+            "AZURE_DEPLOYMENT_GEMINI_15_FLASH", "gemini-15-flash-deployment"
+        ),
+        "gemini-1.5-flash-8b": os.getenv(
+            "AZURE_DEPLOYMENT_GEMINI_15_FLASH_8B", "gemini-15-flash-8b-deployment"
+        ),
+        # Mistral models
+        "mistral-large-latest": os.getenv(
+            "AZURE_DEPLOYMENT_MISTRAL_LARGE", "mistral-large-deployment"
+        ),
+        "mistral-medium-latest": os.getenv(
+            "AZURE_DEPLOYMENT_MISTRAL_MEDIUM", "mistral-medium-deployment"
+        ),
+        "mistral-small-latest": os.getenv(
+            "AZURE_DEPLOYMENT_MISTRAL_SMALL", "mistral-small-deployment"
+        ),
+    }
+
     @classmethod
     def validate(cls) -> None:
         missing = [

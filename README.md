@@ -67,6 +67,32 @@ The service will start on `http://localhost:3044` by default.
 | `ALLOW_OPEN_REGISTRATION` | ❌ | When `true`, any user can self-register. Defaults to `false`. |
 | `REGISTRATION_TOKEN` | ❌ | Optional shared secret required during registration when open registration is disabled. |
 
+### Azure AI Foundry Integration (Optional)
+
+LLMSelect can optionally route all provider APIs (OpenAI, Anthropic, Gemini, Mistral) through **Azure AI Foundry** for centralized billing and enterprise governance. See [`AZURE_QUICK_REFERENCE.md`](AZURE_QUICK_REFERENCE.md) for quick setup.
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `USE_AZURE_FOUNDRY` | ❌ | Set to `true` to route all API calls through Azure AI Foundry. |
+| `AZURE_AI_FOUNDRY_ENDPOINT` | ⚠️ | Your Azure AI Foundry endpoint URL (required if Azure enabled). |
+| `AZURE_AI_FOUNDRY_KEY` | ⚠️ | Your Azure API key (required if Azure enabled). |
+| `AZURE_AI_FOUNDRY_API_VERSION` | ❌ | Azure API version (default: `2024-02-15-preview`). |
+| `AZURE_DEPLOYMENT_*` | ❌ | Model deployment name mappings (see `.env.example` for full list). |
+
+**Benefits of Azure routing:**
+- 💰 **Centralized Billing**: Single Azure invoice for all providers
+- 🔐 **Enterprise Governance**: Azure Monitor, compliance, and security controls
+- 🌐 **Unified API**: OpenAI-compatible interface for all providers
+- 📊 **Better Monitoring**: Azure logging, metrics, and cost tracking
+
+**Documentation:**
+- 🚀 **Quick Start**: [`AZURE_QUICK_REFERENCE.md`](AZURE_QUICK_REFERENCE.md) - 3-step setup guide
+- 📖 **Full Setup**: [`AZURE_FOUNDRY_SETUP.md`](AZURE_FOUNDRY_SETUP.md) - Azure resource creation with CLI
+- 🔧 **Integration**: [`AZURE_INTEGRATION_GUIDE.md`](AZURE_INTEGRATION_GUIDE.md) - Configuration and testing
+- 💻 **Implementation**: [`AZURE_IMPLEMENTATION_SUMMARY.md`](AZURE_IMPLEMENTATION_SUMMARY.md) - Technical details
+
+**Note:** Azure integration is **completely optional**. LLMSelect works perfectly with direct provider APIs (default behavior).
+
 > ⚠️ API keys for LLM providers are **no longer read from environment variables**. They are securely stored per user inside the database and encrypted with the master key.
 
 ## Authentication & API Key Flow
