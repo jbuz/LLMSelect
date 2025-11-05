@@ -309,9 +309,9 @@ def compare_stream():
                         "error_message": str(exc),
                     }
                     # Try to extract API error details if available
-                    if hasattr(exc, 'extra'):
+                    if hasattr(exc, "extra"):
                         error_details["api_error"] = exc.extra
-                    
+
                     current_app.logger.error(
                         f"Provider {provider_name} streaming failed",
                         extra=error_details,

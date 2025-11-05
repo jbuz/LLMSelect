@@ -39,7 +39,7 @@ class LLMService:
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
         self.max_tokens = max_tokens
-        
+
         # Azure AI Foundry configuration
         self.use_azure = use_azure
         self.azure_endpoint = azure_endpoint
@@ -74,8 +74,12 @@ class LLMService:
 
     def _call_openai(self, model: str, messages, api_key: str) -> str:
         # GPT-5+ models use max_completion_tokens, older models use max_tokens
-        token_param = "max_completion_tokens" if model.startswith(("gpt-5", "o3", "o4")) else "max_tokens"
-        
+        token_param = (
+            "max_completion_tokens"
+            if model.startswith(("gpt-5", "o3", "o4"))
+            else "max_tokens"
+        )
+
         response = self.session.post(
             "https://api.openai.com/v1/chat/completions",
             headers={
@@ -212,8 +216,12 @@ class LLMService:
     def _stream_openai(self, model: str, messages, api_key: str):
         """Stream response from OpenAI API."""
         # GPT-5+ models use max_completion_tokens, older models use max_tokens
-        token_param = "max_completion_tokens" if model.startswith(("gpt-5", "o3", "o4")) else "max_tokens"
-        
+        token_param = (
+            "max_completion_tokens"
+            if model.startswith(("gpt-5", "o3", "o4"))
+            else "max_tokens"
+        )
+
         response = self.session.post(
             "https://api.openai.com/v1/chat/completions",
             headers={
@@ -379,13 +387,13 @@ class LLMService:
 
     def _get_azure_deployment_name(self, model: str) -> str:
         """Get Azure deployment name for a given model.
-        
+
         Args:
             model: The model name (e.g., 'gpt-4', 'claude-3-5-sonnet-20241022')
-        
+
         Returns:
             The Azure deployment name
-        
+
         Raises:
             AppError: If no deployment mapping found
         """
@@ -401,26 +409,26 @@ class LLMService:
         self, provider: str, model: str, messages: List[Mapping[str, str]]
     ) -> str:
         """Call Azure AI Foundry unified API.
-        
+
         Azure AI Foundry provides OpenAI-compatible endpoints for all providers
         (OpenAI, Anthropic, Gemini, Mistral) through a single interface.
-        
+
         Args:
             provider: The provider name (used for error messages)
             model: The model name to map to Azure deployment
             messages: List of message dictionaries
-        
+
         Returns:
             The response text
         """
         deployment_name = self._get_azure_deployment_name(model)
-        
+
         # Azure AI Foundry uses OpenAI-compatible format for all providers
         url = (
             f"{self.azure_endpoint}/openai/deployments/{deployment_name}"
             f"/chat/completions?api-version={self.azure_api_version}"
         )
-        
+
         response = self.session.post(
             url,
             headers={
@@ -433,33 +441,33 @@ class LLMService:
             },
             timeout=30,
         )
-        
+
         if not response.ok:
             self._parse_json(response, f"Azure AI Foundry ({provider})")
-        
+
         return self._handle_response(response, f"Azure AI Foundry ({provider})")
 
     def _stream_azure_foundry(
         self, provider: str, model: str, messages: List[Mapping[str, str]]
     ):
         """Stream response from Azure AI Foundry unified API.
-        
+
         Args:
             provider: The provider name (used for error messages)
             model: The model name to map to Azure deployment
             messages: List of message dictionaries
-        
+
         Yields:
             str: Chunks of the response as they arrive
         """
         deployment_name = self._get_azure_deployment_name(model)
-        
+
         # Azure AI Foundry uses OpenAI-compatible format for all providers
         url = (
             f"{self.azure_endpoint}/openai/deployments/{deployment_name}"
             f"/chat/completions?api-version={self.azure_api_version}"
         )
-        
+
         response = self.session.post(
             url,
             headers={
@@ -474,10 +482,10 @@ class LLMService:
             timeout=30,
             stream=True,
         )
-        
+
         if not response.ok:
             self._parse_json(response, f"Azure AI Foundry ({provider})")
-        
+
         # Azure returns OpenAI-compatible streaming format
         for line in response.iter_lines():
             if not line:

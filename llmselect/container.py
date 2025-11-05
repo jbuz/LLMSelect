@@ -21,7 +21,7 @@ def create_service_container(app=None) -> ServiceContainer:
     azure_api_key = None
     azure_api_version = None
     azure_deployment_mappings = {}
-    
+
     if app and hasattr(app.config, "get"):
         max_tokens = app.config.get("LLM_MAX_TOKENS", 1000)
         use_azure = app.config.get("USE_AZURE_FOUNDRY", False)
