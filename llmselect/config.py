@@ -70,18 +70,22 @@ class BaseConfig:
     AZURE_AI_FOUNDRY_API_VERSION = os.getenv(
         "AZURE_AI_FOUNDRY_API_VERSION", "2024-02-15-preview"
     )
-    USE_AZURE_FOUNDRY = (
-        os.getenv("USE_AZURE_FOUNDRY", "false").lower() == "true"
-    )
+    USE_AZURE_FOUNDRY = os.getenv("USE_AZURE_FOUNDRY", "false").lower() == "true"
 
     # Azure deployment name mappings (model -> deployment name)
     AZURE_DEPLOYMENT_MAPPINGS = {
         # OpenAI models
         "gpt-4o": os.getenv("AZURE_DEPLOYMENT_GPT4O", "gpt-4o-deployment"),
-        "gpt-4o-mini": os.getenv("AZURE_DEPLOYMENT_GPT4O_MINI", "gpt-4o-mini-deployment"),
-        "gpt-4-turbo": os.getenv("AZURE_DEPLOYMENT_GPT4_TURBO", "gpt-4-turbo-deployment"),
+        "gpt-4o-mini": os.getenv(
+            "AZURE_DEPLOYMENT_GPT4O_MINI", "gpt-4o-mini-deployment"
+        ),
+        "gpt-4-turbo": os.getenv(
+            "AZURE_DEPLOYMENT_GPT4_TURBO", "gpt-4-turbo-deployment"
+        ),
         "gpt-4": os.getenv("AZURE_DEPLOYMENT_GPT4", "gpt-4-deployment"),
-        "gpt-3.5-turbo": os.getenv("AZURE_DEPLOYMENT_GPT35_TURBO", "gpt-35-turbo-deployment"),
+        "gpt-3.5-turbo": os.getenv(
+            "AZURE_DEPLOYMENT_GPT35_TURBO", "gpt-35-turbo-deployment"
+        ),
         # Anthropic models
         "claude-3-5-sonnet-20241022": os.getenv(
             "AZURE_DEPLOYMENT_CLAUDE_35_SONNET", "claude-35-sonnet-deployment"
