@@ -1,6 +1,4 @@
-import html
 import json
-import os
 import re
 from typing import List, Mapping, Optional
 
@@ -75,9 +73,7 @@ class LLMService:
     def _call_openai(self, model: str, messages, api_key: str) -> str:
         # GPT-5+ models use max_completion_tokens, older models use max_tokens
         token_param = (
-            "max_completion_tokens"
-            if model.startswith(("gpt-5", "o3", "o4"))
-            else "max_tokens"
+            "max_completion_tokens" if model.startswith(("gpt-5", "o3", "o4")) else "max_tokens"
         )
 
         response = self.session.post(
@@ -217,9 +213,7 @@ class LLMService:
         """Stream response from OpenAI API."""
         # GPT-5+ models use max_completion_tokens, older models use max_tokens
         token_param = (
-            "max_completion_tokens"
-            if model.startswith(("gpt-5", "o3", "o4"))
-            else "max_tokens"
+            "max_completion_tokens" if model.startswith(("gpt-5", "o3", "o4")) else "max_tokens"
         )
 
         response = self.session.post(
@@ -316,8 +310,12 @@ class LLMService:
                 }
             )
 
+        url = (
+            "https://generativelanguage.googleapis.com/v1beta/models/"
+            f"{model}:streamGenerateContent"
+        )
         response = self.session.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent",
+            url,
             headers={"Content-Type": "application/json"},
             params={"key": api_key, "alt": "sse"},
             json={"contents": contents},
@@ -336,12 +334,14 @@ class LLMService:
                 data_str = line_str[6:]
                 try:
                     data = json.loads(data_str)
-                    if data.get("candidates") and data["candidates"][0].get(
-                        "content", {}
-                    ).get("parts"):
-                        text = data["candidates"][0]["content"]["parts"][0].get("text")
-                        if text:
-                            yield text
+                    candidates = data.get("candidates") or []
+                    if candidates:
+                        content = candidates[0].get("content", {})
+                        parts = content.get("parts") or []
+                        if parts:
+                            text = parts[0].get("text")
+                            if text:
+                                yield text
                 except (ValueError, KeyError, IndexError):
                     continue
 
@@ -447,9 +447,7 @@ class LLMService:
 
         return self._handle_response(response, f"Azure AI Foundry ({provider})")
 
-    def _stream_azure_foundry(
-        self, provider: str, model: str, messages: List[Mapping[str, str]]
-    ):
+    def _stream_azure_foundry(self, provider: str, model: str, messages: List[Mapping[str, str]]):
         """Stream response from Azure AI Foundry unified API.
 
         Args:

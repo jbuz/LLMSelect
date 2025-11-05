@@ -17,9 +17,7 @@ class ConversationService:
             raise NotFoundError("Conversation not found")
         return conversation
 
-    def create_conversation(
-        self, user_id: int, provider: str, model: str
-    ) -> Conversation:
+    def create_conversation(self, user_id: int, provider: str, model: str) -> Conversation:
         conversation = Conversation(user_id=user_id, provider=provider, model=model)
         try:
             db.session.add(conversation)
@@ -29,9 +27,7 @@ class ConversationService:
             db.session.rollback()
             raise AppError("Unable to create conversation") from exc
 
-    def append_message(
-        self, conversation: Conversation, role: str, content: str
-    ) -> Message:
+    def append_message(self, conversation: Conversation, role: str, content: str) -> Message:
         message = Message(conversation=conversation, role=role, content=content)
         conversation.last_message_at = datetime.utcnow()
         try:

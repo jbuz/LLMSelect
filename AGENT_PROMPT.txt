@@ -16,6 +16,7 @@ CRITICAL REQUIREMENTS:
 - Security P0: JWT auth on all endpoints, CSRF protection, input validation, no secrets exposed
 - Follow existing patterns: Service layer, dependency injection, Marshmallow schemas
 - Code quality: Black formatting, type hints, PropTypes, comprehensive tests
+- Run `scripts/lint.sh --fix` (or at least `scripts/lint.sh`) before committing; CI enforces the same settings
 - No breaking changes to existing /api/v1/compare endpoint (extend, don't modify)
 
 START BY:

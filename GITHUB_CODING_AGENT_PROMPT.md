@@ -153,6 +153,7 @@ npm install react-markdown remark-gfm react-syntax-highlighter
 - ✅ No console errors or warnings
 - ✅ Follow existing patterns (service layer, dependency injection)
 - ✅ Graceful degradation (partial failures don't break page)
+- ✅ Run `scripts/lint.sh` (or `scripts/lint.sh --fix`) before opening a PR; CI uses the same settings
 
 ### Error Handling
 - ✅ If one model fails, others continue streaming

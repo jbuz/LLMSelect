@@ -11,9 +11,7 @@ class User(db.Model, TimestampMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
 
-    api_keys = db.relationship(
-        "APIKey", back_populates="user", cascade="all, delete-orphan"
-    )
+    api_keys = db.relationship("APIKey", back_populates="user", cascade="all, delete-orphan")
     conversations = db.relationship(
         "Conversation", back_populates="user", cascade="all, delete-orphan"
     )

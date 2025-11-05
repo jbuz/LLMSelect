@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_registration_and_login_flow(client):
     register_payload = {
         "username": "testuser",

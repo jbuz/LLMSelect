@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, jsonify, request, Response
 from flask_jwt_extended import current_user, jwt_required
 from marshmallow import Schema, fields, validate
 
-from ..extensions import limiter, db
+from ..extensions import limiter, db, cache
 from ..models import Conversation, Message
 
 bp = Blueprint("conversations", __name__, url_prefix="/api/v1/conversations")
@@ -10,6 +10,15 @@ bp = Blueprint("conversations", __name__, url_prefix="/api/v1/conversations")
 
 def _rate_limit():
     return current_app.config["RATE_LIMIT"]
+
+
+def _invalidate_conversation_cache():
+    """Invalidate conversation list cache.
+
+    Note: This invalidates the entire cache regardless of user_id.
+    For production at scale, consider implementing user-specific cache keys.
+    """
+    cache.delete_memoized(list_conversations)
 
 
 class UpdateConversationSchema(Schema):
@@ -22,6 +31,7 @@ update_schema = UpdateConversationSchema()
 @bp.get("")
 @jwt_required()
 @limiter.limit(_rate_limit)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes based on query params
 def list_conversations():
     """List all conversations for the current user with pagination and search."""
     page = request.args.get("page", 1, type=int)
@@ -101,9 +111,7 @@ def get_conversation(conversation_id):
     services = current_app.extensions["services"]
     conversation_service = services.conversations
 
-    conversation = conversation_service.get_conversation(
-        conversation_id, current_user.id
-    )
+    conversation = conversation_service.get_conversation(conversation_id, current_user.id)
 
     messages = [
         {
@@ -117,8 +125,7 @@ def get_conversation(conversation_id):
     return jsonify(
         {
             "id": conversation.id,
-            "title": conversation.title
-            or f"{conversation.provider} - {conversation.model}",
+            "title": conversation.title or f"{conversation.provider} - {conversation.model}",
             "provider": conversation.provider,
             "model": conversation.model,
             "lastMessageAt": conversation.last_message_at.isoformat() + "Z",
@@ -138,13 +145,13 @@ def update_conversation(conversation_id):
     services = current_app.extensions["services"]
     conversation_service = services.conversations
 
-    conversation = conversation_service.get_conversation(
-        conversation_id, current_user.id
-    )
+    conversation = conversation_service.get_conversation(conversation_id, current_user.id)
     conversation.title = payload["title"]
 
     try:
         db.session.commit()
+        # Invalidate cache after successful update
+        _invalidate_conversation_cache()
     except Exception as exc:
         db.session.rollback()
         current_app.logger.error(f"Failed to update conversation: {exc}")
@@ -169,13 +176,13 @@ def delete_conversation(conversation_id):
     services = current_app.extensions["services"]
     conversation_service = services.conversations
 
-    conversation = conversation_service.get_conversation(
-        conversation_id, current_user.id
-    )
+    conversation = conversation_service.get_conversation(conversation_id, current_user.id)
 
     try:
         db.session.delete(conversation)
         db.session.commit()
+        # Invalidate cache after successful deletion
+        _invalidate_conversation_cache()
     except Exception as exc:
         db.session.rollback()
         current_app.logger.error(f"Failed to delete conversation: {exc}")
@@ -197,9 +204,7 @@ def export_conversation(conversation_id):
     services = current_app.extensions["services"]
     conversation_service = services.conversations
 
-    conversation = conversation_service.get_conversation(
-        conversation_id, current_user.id
-    )
+    conversation = conversation_service.get_conversation(conversation_id, current_user.id)
 
     if format_type == "json":
         # Export as JSON
@@ -215,8 +220,7 @@ def export_conversation(conversation_id):
         return jsonify(
             {
                 "id": conversation.id,
-                "title": conversation.title
-                or f"{conversation.provider} - {conversation.model}",
+                "title": conversation.title or f"{conversation.provider} - {conversation.model}",
                 "provider": conversation.provider,
                 "model": conversation.model,
                 "lastMessageAt": conversation.last_message_at.isoformat() + "Z",
@@ -251,7 +255,5 @@ def export_conversation(conversation_id):
         return Response(
             markdown_content,
             mimetype="text/markdown",
-            headers={
-                "Content-Disposition": f'attachment; filename="{conversation.id}.md"'
-            },
+            headers={"Content-Disposition": f'attachment; filename="{conversation.id}.md"'},
         )

@@ -2,8 +2,6 @@
 
 import time
 
-import pytest
-
 
 def register_and_login(client, username="testuser", password="testpassword"):
     """Helper to register and login a test user."""

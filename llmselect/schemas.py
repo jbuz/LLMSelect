@@ -1,12 +1,10 @@
-from marshmallow import Schema, fields, validate, validates_schema
+from marshmallow import Schema, fields, validate
 
 from .models import PROVIDERS
 
 
 class MessageSchema(Schema):
-    role = fields.String(
-        required=True, validate=validate.OneOf(["system", "user", "assistant"])
-    )
+    role = fields.String(required=True, validate=validate.OneOf(["system", "user", "assistant"]))
     content = fields.String(required=True, validate=validate.Length(min=1, max=4000))
 
 
@@ -18,9 +16,7 @@ class ChatRequestSchema(Schema):
         required=True,
         validate=validate.Length(min=1, max=25),
     )
-    conversation_id = fields.UUID(
-        load_default=None, data_key="conversationId", allow_none=True
-    )
+    conversation_id = fields.UUID(load_default=None, data_key="conversationId", allow_none=True)
 
 
 class CompareProviderSchema(Schema):

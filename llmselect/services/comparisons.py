@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -10,9 +10,7 @@ from ..utils.errors import AppError, NotFoundError
 class ComparisonService:
     """Business logic for comparison management."""
 
-    def save_comparison(
-        self, user_id: int, prompt: str, results: List[Dict]
-    ) -> ComparisonResult:
+    def save_comparison(self, user_id: int, prompt: str, results: List[Dict]) -> ComparisonResult:
         """Save a comparison result to the database.
 
         Args:
@@ -69,9 +67,7 @@ class ComparisonService:
         Raises:
             NotFoundError: If the comparison doesn't exist or doesn't belong to the user
         """
-        comparison = ComparisonResult.query.filter_by(
-            id=comparison_id, user_id=user_id
-        ).first()
+        comparison = ComparisonResult.query.filter_by(id=comparison_id, user_id=user_id).first()
         if comparison is None:
             raise NotFoundError("Comparison not found")
         return comparison

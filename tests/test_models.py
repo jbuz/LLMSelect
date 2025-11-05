@@ -1,15 +1,10 @@
 """Tests for model registry service and API endpoint."""
 
-import pytest
-
-from llmselect.models import User
 from llmselect.services.model_registry import ModelRegistryService
 
 
 def register_and_login(client, username="modeluser", password="model-password"):
-    client.post(
-        "/api/v1/auth/register", json={"username": username, "password": password}
-    )
+    client.post("/api/v1/auth/register", json={"username": username, "password": password})
     client.post("/api/v1/auth/login", json={"username": username, "password": password})
 
 

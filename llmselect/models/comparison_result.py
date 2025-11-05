@@ -12,7 +12,15 @@ class ComparisonResult(db.Model, TimestampMixin):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     prompt = db.Column(db.Text, nullable=False)
 
-    # Store results as JSON array: [{"provider": "openai", "model": "gpt-4", "response": "...", "time": 1.2, "tokens": 245}, ...]
+    # Store results as JSON array of dictionaries.
+    # Example entry:
+    # {
+    #     "provider": "openai",
+    #     "model": "gpt-4",
+    #     "response": "...",
+    #     "time": 1.2,
+    #     "tokens": 245,
+    # }
     results = db.Column(db.JSON, nullable=False)
 
     # Optional: User's preference (model index or null)

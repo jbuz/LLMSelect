@@ -17,10 +17,16 @@ def _validate_encryption_key(key: str) -> None:
     try:
         Fernet(key)
     except (InvalidToken, ValueError, TypeError):
-        raise ConfigError(
-            "ENCRYPTION_KEY must be a valid Fernet key. "
-            'Generate one with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`'
+        command = (
+            'python -c "from cryptography.fernet import Fernet; '
+            'print(Fernet.generate_key().decode())"'
         )
+        message = (
+            "ENCRYPTION_KEY must be a valid Fernet key. "
+            "Generate one with the following command:\n"
+            f"{command}"
+        )
+        raise ConfigError(message)
 
 
 class BaseConfig:
@@ -49,9 +55,7 @@ class BaseConfig:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(
         minutes=int(os.getenv("ACCESS_TOKEN_EXPIRES_MINUTES", "15"))
     )
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(
-        days=int(os.getenv("REFRESH_TOKEN_EXPIRES_DAYS", "7"))
-    )
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.getenv("REFRESH_TOKEN_EXPIRES_DAYS", "7")))
 
     RATE_LIMIT = os.getenv("API_RATE_LIMIT", "60 per minute")
     CORS_ORIGINS = _split_csv(
@@ -71,25 +75,17 @@ class BaseConfig:
     # Azure AI Foundry configuration
     AZURE_AI_FOUNDRY_ENDPOINT = os.getenv("AZURE_AI_FOUNDRY_ENDPOINT")
     AZURE_AI_FOUNDRY_KEY = os.getenv("AZURE_AI_FOUNDRY_KEY")
-    AZURE_AI_FOUNDRY_API_VERSION = os.getenv(
-        "AZURE_AI_FOUNDRY_API_VERSION", "2024-02-15-preview"
-    )
+    AZURE_AI_FOUNDRY_API_VERSION = os.getenv("AZURE_AI_FOUNDRY_API_VERSION", "2024-02-15-preview")
     USE_AZURE_FOUNDRY = os.getenv("USE_AZURE_FOUNDRY", "false").lower() == "true"
 
     # Azure deployment name mappings (model -> deployment name)
     AZURE_DEPLOYMENT_MAPPINGS = {
         # OpenAI models
         "gpt-4o": os.getenv("AZURE_DEPLOYMENT_GPT4O", "gpt-4o-deployment"),
-        "gpt-4o-mini": os.getenv(
-            "AZURE_DEPLOYMENT_GPT4O_MINI", "gpt-4o-mini-deployment"
-        ),
-        "gpt-4-turbo": os.getenv(
-            "AZURE_DEPLOYMENT_GPT4_TURBO", "gpt-4-turbo-deployment"
-        ),
+        "gpt-4o-mini": os.getenv("AZURE_DEPLOYMENT_GPT4O_MINI", "gpt-4o-mini-deployment"),
+        "gpt-4-turbo": os.getenv("AZURE_DEPLOYMENT_GPT4_TURBO", "gpt-4-turbo-deployment"),
         "gpt-4": os.getenv("AZURE_DEPLOYMENT_GPT4", "gpt-4-deployment"),
-        "gpt-3.5-turbo": os.getenv(
-            "AZURE_DEPLOYMENT_GPT35_TURBO", "gpt-35-turbo-deployment"
-        ),
+        "gpt-3.5-turbo": os.getenv("AZURE_DEPLOYMENT_GPT35_TURBO", "gpt-35-turbo-deployment"),
         # Anthropic models
         "claude-3-5-sonnet-20241022": os.getenv(
             "AZURE_DEPLOYMENT_CLAUDE_35_SONNET", "claude-35-sonnet-deployment"
@@ -101,9 +97,7 @@ class BaseConfig:
             "AZURE_DEPLOYMENT_CLAUDE_3_OPUS", "claude-3-opus-deployment"
         ),
         # Gemini models
-        "gemini-1.5-pro": os.getenv(
-            "AZURE_DEPLOYMENT_GEMINI_15_PRO", "gemini-15-pro-deployment"
-        ),
+        "gemini-1.5-pro": os.getenv("AZURE_DEPLOYMENT_GEMINI_15_PRO", "gemini-15-pro-deployment"),
         "gemini-1.5-flash": os.getenv(
             "AZURE_DEPLOYMENT_GEMINI_15_FLASH", "gemini-15-flash-deployment"
         ),
@@ -130,9 +124,7 @@ class BaseConfig:
             if not getattr(cls, key)
         ]
         if missing:
-            raise ConfigError(
-                f"Missing required environment variables: {', '.join(missing)}"
-            )
+            raise ConfigError(f"Missing required environment variables: {', '.join(missing)}")
         _validate_encryption_key(cls.ENCRYPTION_KEY)
 
 

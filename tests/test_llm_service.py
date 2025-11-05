@@ -66,9 +66,7 @@ def test_provider_error_raises_app_error(monkeypatch):
     monkeypatch.setattr(service.session, "post", failing_post)
 
     with pytest.raises(AppError) as excinfo:
-        service.invoke(
-            "openai", "gpt-4", [{"role": "user", "content": "test"}], api_key="fake"
-        )
+        service.invoke("openai", "gpt-4", [{"role": "user", "content": "test"}], api_key="fake")
 
     error = excinfo.value
     assert error.error_code == "bad_request"

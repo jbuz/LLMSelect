@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask
+from flask import Flask
 
 from .auth import bp as auth_bp
 from .chat import bp as chat_bp

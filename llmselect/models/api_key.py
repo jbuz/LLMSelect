@@ -12,6 +12,4 @@ class APIKey(db.Model, TimestampMixin):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user = db.relationship("User", back_populates="api_keys")
 
-    __table_args__ = (
-        db.UniqueConstraint("user_id", "provider", name="uq_user_provider"),
-    )
+    __table_args__ = (db.UniqueConstraint("user_id", "provider", name="uq_user_provider"),)

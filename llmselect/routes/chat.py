@@ -70,9 +70,7 @@ def send_chat_message():
     if messages:
         latest_message = messages[-1]
         if latest_message.get("role") == "user":
-            conversation_service.append_message(
-                conversation, "user", latest_message["content"]
-            )
+            conversation_service.append_message(conversation, "user", latest_message["content"])
 
     api_key = get_api_key(current_user, provider, encryption_service)
 
@@ -113,9 +111,7 @@ def stream_chat():
     if messages:
         latest_message = messages[-1]
         if latest_message.get("role") == "user":
-            conversation_service.append_message(
-                conversation, "user", latest_message["content"]
-            )
+            conversation_service.append_message(conversation, "user", latest_message["content"])
 
     api_key = get_api_key(current_user, provider, encryption_service)
 
@@ -123,16 +119,32 @@ def stream_chat():
         """Generator function for SSE stream."""
         try:
             full_response = ""
+            start_time = time()
+            first_token_time = None
+            chunk_count = 0
 
             # Stream from provider
             for chunk in llm_service.invoke_stream(provider, model, messages, api_key):
+                if first_token_time is None:
+                    first_token_time = time()
+                    ttft = (first_token_time - start_time) * 1000  # Convert to ms
+                    current_app.logger.info(
+                        f"[Streaming] Time to first token: {ttft:.2f}ms (provider={provider}, model={model})"
+                    )
+
                 full_response += chunk
+                chunk_count += 1
                 yield f"data: {json.dumps({'content': chunk})}\n\n"
 
-            # Save assistant response after streaming completes
-            conversation_service.append_message(
-                conversation, "assistant", full_response
+            # Log streaming metrics
+            total_time = (time() - start_time) * 1000  # Convert to ms
+            current_app.logger.info(
+                f"[Streaming] Complete: {total_time:.2f}ms total, {chunk_count} chunks "
+                f"(provider={provider}, model={model})"
             )
+
+            # Save assistant response after streaming completes
+            conversation_service.append_message(conversation, "assistant", full_response)
 
             # Send completion event
             yield f"data: {json.dumps({'done': True, 'conversationId': str(conversation.id)})}\n\n"
@@ -154,6 +166,7 @@ def stream_chat():
         headers={
             "Cache-Control": "no-cache",
             "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",  # Add keep-alive header
         },
     )
 
@@ -228,16 +241,12 @@ def compare():
                 )
 
     # Save comparison to database
-    comparison = comparison_service.save_comparison(
-        user_id=user.id, prompt=prompt, results=results
-    )
+    comparison = comparison_service.save_comparison(user_id=user.id, prompt=prompt, results=results)
 
     return jsonify({"id": comparison.id, "results": results, "prompt": prompt})
 
 
-def _invoke_provider_with_timing(
-    encryption_service, llm_service, user, provider, model, messages
-):
+def _invoke_provider_with_timing(encryption_service, llm_service, user, provider, model, messages):
     """Invoke provider and measure elapsed time."""
     api_key = get_api_key(user, provider, encryption_service)
     start_time = time()

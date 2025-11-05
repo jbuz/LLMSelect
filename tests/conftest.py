@@ -13,8 +13,8 @@ os.environ.setdefault(
 )
 os.environ.setdefault("ALLOW_OPEN_REGISTRATION", "true")
 
-from llmselect import create_app
-from llmselect.extensions import db
+from llmselect import create_app  # noqa: E402
+from llmselect.extensions import db  # noqa: E402
 
 
 @pytest.fixture(scope="session")

@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import current_user, jwt_required
 
-from ..extensions import db, limiter
+from ..extensions import limiter
 from ..models.api_key import APIKey
 from ..schemas import APIKeySchema
 from ..services.api_keys import set_api_keys

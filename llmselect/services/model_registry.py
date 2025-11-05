@@ -7,7 +7,6 @@ up-to-date model information.
 
 import time
 from typing import Dict, List, Optional
-from datetime import datetime, timedelta
 
 import requests
 from requests.adapters import HTTPAdapter

@@ -158,6 +158,7 @@ Before submitting a PR:
 - **Style**: Follow PEP 8
 - **Formatter**: Black (line length 100)
 - **Linter**: Flake8
+- **Automation**: Run `scripts/lint.sh --fix` before committing to keep formatting and linting aligned with CI
 - **Type Hints**: Use type hints for function signatures
 - **Docstrings**: Use Google-style docstrings
 
@@ -249,7 +250,7 @@ def test_endpoint_requires_authentication(client):
 2. **Run all checks locally**:
    ```bash
    # Lint
-   flake8 llmselect tests
+   scripts/lint.sh --fix
    
    # Type check (if mypy is configured)
    mypy llmselect
