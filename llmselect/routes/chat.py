@@ -123,11 +123,29 @@ def stream_chat():
         """Generator function for SSE stream."""
         try:
             full_response = ""
+            start_time = time()
+            first_token_time = None
+            chunk_count = 0
 
             # Stream from provider
             for chunk in llm_service.invoke_stream(provider, model, messages, api_key):
+                if first_token_time is None:
+                    first_token_time = time()
+                    ttft = (first_token_time - start_time) * 1000  # Convert to ms
+                    current_app.logger.info(
+                        f"[Streaming] Time to first token: {ttft:.2f}ms (provider={provider}, model={model})"
+                    )
+                
                 full_response += chunk
+                chunk_count += 1
                 yield f"data: {json.dumps({'content': chunk})}\n\n"
+
+            # Log streaming metrics
+            total_time = (time() - start_time) * 1000  # Convert to ms
+            current_app.logger.info(
+                f"[Streaming] Complete: {total_time:.2f}ms total, {chunk_count} chunks "
+                f"(provider={provider}, model={model})"
+            )
 
             # Save assistant response after streaming completes
             conversation_service.append_message(
@@ -154,6 +172,7 @@ def stream_chat():
         headers={
             "Cache-Control": "no-cache",
             "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",  # Add keep-alive header
         },
     )
 

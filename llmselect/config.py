@@ -138,6 +138,11 @@ class BaseConfig:
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
+    RATELIMIT_ENABLED = False
+    # Enable slow query logging in development
+    SQLALCHEMY_ECHO = False  # Don't echo all queries
+    SQLALCHEMY_RECORD_QUERIES = True  # Enable query recording
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 class TestingConfig(BaseConfig):

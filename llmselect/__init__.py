@@ -3,6 +3,7 @@ from datetime import datetime
 
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
+from flask_compress import Compress
 from dotenv import load_dotenv
 
 from .config import get_config
@@ -49,6 +50,9 @@ def create_app() -> Flask:
         limiter.enabled = False
     jwt.init_app(app)
     cache.init_app(app)
+    
+    # Initialize response compression for better network performance
+    Compress(app)
 
     register_blueprints(app)
     register_error_handlers(app)
@@ -98,6 +102,16 @@ def create_app() -> Flask:
 
     @app.after_request
     def finalize_response(response):
+        # Log slow database queries in development mode
+        if app.config.get("SQLALCHEMY_RECORD_QUERIES") and hasattr(db, "get_app"):
+            from flask_sqlalchemy import get_debug_queries
+            queries = get_debug_queries()
+            for query in queries:
+                if query.duration >= 0.1:  # Log queries taking > 100ms
+                    app.logger.warning(
+                        f"Slow query detected: {query.duration:.3f}s - {query.statement[:200]}"
+                    )
+        
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
@@ -110,6 +124,20 @@ def create_app() -> Flask:
             "script-src 'self' 'unsafe-inline'; "
             "connect-src 'self'"
         )
+        
+        # Add caching headers for static assets and suitable API responses
+        if request.path.startswith('/static/'):
+            # Cache static assets for 1 year with immutable flag
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        elif request.path.startswith('/api/') and request.method == 'GET':
+            # Cache GET API responses for short duration
+            if 'models' in request.path:
+                # Model list can be cached longer
+                response.headers['Cache-Control'] = 'public, max-age=3600'
+            elif response.status_code == 200:
+                # Other successful GET requests cached briefly
+                response.headers['Cache-Control'] = 'private, max-age=60'
+        
         app.logger.info(
             "response_sent",
             extra={

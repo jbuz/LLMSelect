@@ -3,7 +3,7 @@
 from flask import Blueprint, current_app, jsonify, request
 from flask_jwt_extended import jwt_required
 
-from ..extensions import limiter
+from ..extensions import limiter, cache
 
 bp = Blueprint("models", __name__, url_prefix="/api/v1/models")
 
@@ -15,6 +15,7 @@ def _rate_limit():
 @bp.get("")
 @jwt_required()
 @limiter.limit(_rate_limit)
+@cache.cached(timeout=3600, query_string=True)  # Cache based on query params
 def list_models():
     """Get list of available models from all providers.
 

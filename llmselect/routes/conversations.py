@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, jsonify, request, Response
 from flask_jwt_extended import current_user, jwt_required
 from marshmallow import Schema, fields, validate
 
-from ..extensions import limiter, db
+from ..extensions import limiter, db, cache
 from ..models import Conversation, Message
 
 bp = Blueprint("conversations", __name__, url_prefix="/api/v1/conversations")
@@ -10,6 +10,12 @@ bp = Blueprint("conversations", __name__, url_prefix="/api/v1/conversations")
 
 def _rate_limit():
     return current_app.config["RATE_LIMIT"]
+
+
+def _invalidate_conversation_cache(user_id):
+    """Invalidate conversation list cache for a specific user."""
+    # Clear all cached conversation lists for this user
+    cache.delete_memoized(list_conversations)
 
 
 class UpdateConversationSchema(Schema):
@@ -22,6 +28,7 @@ update_schema = UpdateConversationSchema()
 @bp.get("")
 @jwt_required()
 @limiter.limit(_rate_limit)
+@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes based on query params
 def list_conversations():
     """List all conversations for the current user with pagination and search."""
     page = request.args.get("page", 1, type=int)
@@ -145,6 +152,8 @@ def update_conversation(conversation_id):
 
     try:
         db.session.commit()
+        # Invalidate cache after successful update
+        _invalidate_conversation_cache(current_user.id)
     except Exception as exc:
         db.session.rollback()
         current_app.logger.error(f"Failed to update conversation: {exc}")
@@ -176,6 +185,8 @@ def delete_conversation(conversation_id):
     try:
         db.session.delete(conversation)
         db.session.commit()
+        # Invalidate cache after successful deletion
+        _invalidate_conversation_cache(current_user.id)
     except Exception as exc:
         db.session.rollback()
         current_app.logger.error(f"Failed to delete conversation: {exc}")
