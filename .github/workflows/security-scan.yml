@@ -44,8 +44,6 @@ jobs:
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
           extra_args: --debug --only-verified
 
   code-scanning:
@@ -131,7 +129,7 @@ jobs:
           upload-release-assets: false
 
       - name: Upload SBOM as artifact
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@v4
         with:
           name: sbom-spdx-json
           path: sbom.spdx.json
