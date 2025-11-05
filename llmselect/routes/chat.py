@@ -135,7 +135,7 @@ def stream_chat():
                     current_app.logger.info(
                         f"[Streaming] Time to first token: {ttft:.2f}ms (provider={provider}, model={model})"
                     )
-                
+
                 full_response += chunk
                 chunk_count += 1
                 yield f"data: {json.dumps({'content': chunk})}\n\n"

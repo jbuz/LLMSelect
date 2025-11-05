@@ -14,7 +14,7 @@ def _rate_limit():
 
 def _invalidate_conversation_cache():
     """Invalidate conversation list cache.
-    
+
     Note: This invalidates the entire cache regardless of user_id.
     For production at scale, consider implementing user-specific cache keys.
     """
@@ -31,7 +31,9 @@ update_schema = UpdateConversationSchema()
 @bp.get("")
 @jwt_required()
 @limiter.limit(_rate_limit)
-@cache.cached(timeout=300, query_string=True)  # Cache for 5 minutes based on query params
+@cache.cached(
+    timeout=300, query_string=True
+)  # Cache for 5 minutes based on query params
 def list_conversations():
     """List all conversations for the current user with pagination and search."""
     page = request.args.get("page", 1, type=int)
