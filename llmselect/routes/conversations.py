@@ -3,7 +3,7 @@ from flask_jwt_extended import current_user, jwt_required
 from marshmallow import Schema, fields, validate
 
 from ..extensions import limiter, db, cache
-from ..models import Conversation, Message
+from ..models import Conversation
 
 bp = Blueprint("conversations", __name__, url_prefix="/api/v1/conversations")
 

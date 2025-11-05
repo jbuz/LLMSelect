@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 from time import time
-from typing import Dict, Optional
+from typing import Optional
 
 from flask import (
     Blueprint,
@@ -129,7 +129,8 @@ def stream_chat():
                     first_token_time = time()
                     ttft = (first_token_time - start_time) * 1000  # Convert to ms
                     current_app.logger.info(
-                        f"[Streaming] Time to first token: {ttft:.2f}ms (provider={provider}, model={model})"
+                        f"[Streaming] Time to first token: {ttft:.2f}ms "
+                        f"(provider={provider}, model={model})"
                     )
 
                 full_response += chunk
@@ -151,14 +152,15 @@ def stream_chat():
 
         except Exception as exc:
             current_app.logger.error(
-                f"Chat streaming failed",
+                "Chat streaming failed",
                 extra={
                     "provider": provider,
                     "model": model,
                     "error_type": type(exc).__name__,
                 },
             )
-            yield f"data: {json.dumps({'error': 'Streaming failed. Please check your API key and try again.'})}\n\n"
+            error_msg = "Streaming failed. Please check your API key " "and try again."
+            yield f"data: {json.dumps({'error': error_msg})}\n\n"
 
     return Response(
         stream_with_context(generate()),
@@ -233,7 +235,9 @@ def compare():
                     {
                         "provider": provider_name,
                         "model": model,
-                        "response": "Provider request failed. Please check your API key and try again.",
+                        "response": (
+                            "Provider request failed. Please check your " "API key and try again."
+                        ),
                         "time": 0,
                         "tokens": 0,
                         "error": True,
@@ -325,7 +329,13 @@ def compare_stream():
                         f"Provider {provider_name} streaming failed",
                         extra=error_details,
                     )
-                    yield f"data: {json.dumps({'event': 'error', 'provider': provider_name, 'model': model, 'error': 'Streaming failed. Please check your API key and try again.'})}\n\n"
+                    error_data = {
+                        "event": "error",
+                        "provider": provider_name,
+                        "model": model,
+                        "error": ("Streaming failed. Please check your " "API key and try again."),
+                    }
+                    yield f"data: {json.dumps(error_data)}\n\n"
                     completed_count += 1
 
         # Save comparison to database after all streams complete
