@@ -13,7 +13,9 @@ limiter = Limiter(
     enabled=True,  # Default to enabled, will be overridden by app config
 )
 # Cache for model registry and conversation lists
-cache = Cache(config={
-    'CACHE_TYPE': 'SimpleCache',  # In-memory for demo
-    'CACHE_DEFAULT_TIMEOUT': 3600,  # 1 hour default
-})
+cache = Cache(
+    config={
+        "CACHE_TYPE": "SimpleCache",  # In-memory for demo
+        "CACHE_DEFAULT_TIMEOUT": 3600,  # 1 hour default
+    }
+)

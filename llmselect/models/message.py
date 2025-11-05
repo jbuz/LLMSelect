@@ -5,7 +5,7 @@ from .base import TimestampMixin
 class Message(db.Model, TimestampMixin):
     __tablename__ = "messages"
     __table_args__ = (
-        db.Index('idx_message_conversation_created', 'conversation_id', 'created_at'),
+        db.Index("idx_message_conversation_created", "conversation_id", "created_at"),
     )
 
     id = db.Column(db.Integer, primary_key=True)
