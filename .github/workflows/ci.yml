@@ -139,10 +139,21 @@ jobs:
 
       - name: Verify build artifacts
         run: |
-          if [ ! -f "static/js/bundle.js" ]; then
-            echo "::error::Build failed - bundle.js not created"
+          # Check for main bundle (with hash in production)
+          if ls static/js/main.*.js 1> /dev/null 2>&1; then
+            echo "✓ Main bundle found"
+          elif [ -f "static/js/bundle.js" ]; then
+            echo "✓ Development bundle found"
+          else
+            echo "::error::Build failed - no bundle files created"
             exit 1
           fi
+          
+          # Check for vendor chunks
+          if ls static/js/vendors.*.js 1> /dev/null 2>&1; then
+            echo "✓ Vendor chunks created"
+          fi
+          
           echo "Build successful!"
 
       - name: Upload build artifacts

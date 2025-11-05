@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 import MarkdownMessage from './MarkdownMessage';
 
-const MessageList = ({ messages, isLoading, isStreaming, currentMessage }) => {
+const MessageList = memo(({ messages, isLoading, isStreaming, currentMessage }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -58,6 +58,8 @@ const MessageList = ({ messages, isLoading, isStreaming, currentMessage }) => {
       <div ref={messagesEndRef} />
     </div>
   );
-};
+});
+
+MessageList.displayName = 'MessageList';
 
 export default MessageList;

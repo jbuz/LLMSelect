@@ -6,6 +6,7 @@ class ComparisonResult(db.Model, TimestampMixin):
     """Stores comparison results for multi-model comparisons."""
 
     __tablename__ = "comparison_results"
+    __table_args__ = (db.Index("idx_comparison_user_created", "user_id", "created_at"),)
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)

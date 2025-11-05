@@ -6,7 +6,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 
 from .config import get_config
-from .extensions import db, jwt, limiter
+from .extensions import db, jwt, limiter, cache
 from .models import User
 from .security import KeyEncryptionService
 from .container import create_service_container
@@ -48,6 +48,7 @@ def create_app() -> Flask:
     if app.config.get("RATELIMIT_ENABLED") is False:
         limiter.enabled = False
     jwt.init_app(app)
+    cache.init_app(app)
 
     register_blueprints(app)
     register_error_handlers(app)

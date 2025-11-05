@@ -1,23 +1,42 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, Suspense, lazy, useRef } from 'react';
 
 import Header from './components/Header';
 import MessageList from './components/MessageList';
 import MessageInput from './components/MessageInput';
-import ApiKeyModal from './components/ApiKeyModal';
-import LoginModal from './components/LoginModal';
 import ErrorBoundary from './components/ErrorBoundary';
-import ComparisonMode from './components/ComparisonMode';
-import ComparisonHistory from './components/ComparisonHistory';
-import ConversationSidebar from './components/ConversationSidebar';
+import LoginModal from './components/LoginModal';
+import ToastContainer from './components/ToastContainer';
 import { authApi, chatApi, keyApi } from './services/api';
 import { useModels } from './hooks/useModels';
 import { useStreamingChat } from './hooks/useStreamingChat';
 import { useConversations } from './hooks/useConversations';
+import { useToast } from './hooks/useToast';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+
+// Lazy load heavy components
+const ComparisonMode = lazy(() => import('./components/ComparisonMode'));
+const ComparisonHistory = lazy(() => import('./components/ComparisonHistory'));
+const ConversationSidebar = lazy(() => import('./components/ConversationSidebar'));
+const ApiKeyModal = lazy(() => import('./components/ApiKeyModal'));
 
 const STORAGE_KEY = 'chat-session';
 
+// Loading fallback component
+const LoadingFallback = () => (
+  <div style={{ 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    padding: '2rem',
+    color: '#666'
+  }}>
+    Loading...
+  </div>
+);
+
 const App = () => {
   const [mode, setMode] = useState('chat'); // 'chat', 'compare', or 'history'
+  const messageInputRef = useRef(null);
   const [messages, setMessages] = useState([]);
   const [selectedProvider, setSelectedProvider] = useState('openai');
   const [selectedModel, setSelectedModel] = useState('gpt-4o');
@@ -59,6 +78,23 @@ const App = () => {
     deleteConversation,
     exportConversation
   } = useConversations();
+
+  // Toast notifications
+  const { toasts, removeToast, success: showSuccess, error: showError, info: showInfo } = useToast();
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    'ctrl+k': () => {
+      // Focus message input
+      const input = document.querySelector('.message-input');
+      if (input) input.focus();
+    },
+    'escape': () => {
+      // Close modals
+      if (showApiModal) setShowApiModal(false);
+      if (authModal.open && user) setAuthModal(prev => ({ ...prev, open: false }));
+    },
+  });
 
   // When streaming completes, add the message to the list and refresh conversations
   useEffect(() => {
@@ -140,12 +176,15 @@ const App = () => {
       await keyApi.save(keys);
       setShowApiModal(false);
       setGlobalError('');
+      showSuccess('API keys saved successfully!');
     } catch (error) {
       if (error.response?.status === 401) {
         handleUnauthorized();
         return;
       }
-      setGlobalError(error.response?.data?.message || 'Unable to save API keys');
+      const errorMsg = error.response?.data?.message || 'Unable to save API keys';
+      setGlobalError(errorMsg);
+      showError(errorMsg);
     }
   };
 
@@ -156,6 +195,7 @@ const App = () => {
       setUser(response.data.user);
       setAuthModal({ open: false, submitting: false, error: '' });
       setGlobalError('');
+      showSuccess(`Welcome back, ${response.data.user.username}!`);
     } catch (error) {
       const message =
         error.response?.data?.message ||
@@ -170,6 +210,7 @@ const App = () => {
     try {
       await authApi.register(payload);
       await handleLogin({ username: payload.username, password: payload.password });
+      showSuccess('Registration successful!');
     } catch (error) {
       const message =
         error.response?.data?.message ||
@@ -182,6 +223,7 @@ const App = () => {
   const handleLogout = async () => {
     try {
       await authApi.logout();
+      showInfo('Logged out successfully');
     } catch {
       // Nothing to do; logout is best-effort.
     } finally {
@@ -198,6 +240,7 @@ const App = () => {
     setConversationId(null);
     setActiveConversationId(null);
     localStorage.removeItem(STORAGE_KEY);
+    showInfo('Chat cleared');
   };
 
   const handleSelectConversation = async (conversationId) => {
@@ -256,18 +299,20 @@ const App = () => {
       {conversationsError && <div className="global-error">{conversationsError}</div>}
 
       <div className="app-layout">
-        <ConversationSidebar
-          conversations={conversations}
-          activeConversationId={activeConversationId}
-          onSelectConversation={handleSelectConversation}
-          onNewConversation={handleNewConversation}
-          onRenameConversation={renameConversation}
-          onDeleteConversation={deleteConversation}
-          onExportConversation={exportConversation}
-          onSearch={fetchConversations}
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <ConversationSidebar
+            conversations={conversations}
+            activeConversationId={activeConversationId}
+            onSelectConversation={handleSelectConversation}
+            onNewConversation={handleNewConversation}
+            onRenameConversation={renameConversation}
+            onDeleteConversation={deleteConversation}
+            onExportConversation={exportConversation}
+            onSearch={fetchConversations}
+            isOpen={sidebarOpen}
+            onToggle={() => setSidebarOpen(!sidebarOpen)}
+          />
+        </Suspense>
         
         <ErrorBoundary onReset={clearChat}>
           <main className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
@@ -286,22 +331,28 @@ const App = () => {
                 />
               </>
             ) : mode === 'compare' ? (
-              <ComparisonMode chatApi={chatApi} providerModels={providerModels} />
+              <Suspense fallback={<LoadingFallback />}>
+                <ComparisonMode chatApi={chatApi} providerModels={providerModels} />
+              </Suspense>
             ) : mode === 'history' ? (
-              <ComparisonHistory
-                onLoadComparison={handleLoadComparison}
-                onClose={() => setMode('compare')}
-              />
+              <Suspense fallback={<LoadingFallback />}>
+                <ComparisonHistory
+                  onLoadComparison={handleLoadComparison}
+                  onClose={() => setMode('compare')}
+                />
+              </Suspense>
             ) : null}
           </main>
         </ErrorBoundary>
       </div>
 
       {showApiModal && (
-        <ApiKeyModal
-          onSave={saveApiKeys}
-          onClose={() => setShowApiModal(false)}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <ApiKeyModal
+            onSave={saveApiKeys}
+            onClose={() => setShowApiModal(false)}
+          />
+        </Suspense>
       )}
 
       {authModal.open && (
@@ -317,6 +368,8 @@ const App = () => {
           isSubmitting={authModal.submitting}
         />
       )}
+
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 };

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MultiChat - Compare responses from multiple AI models side-by-side">
     <title>MultiChat - AI Assistant</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,7 +55,10 @@
     
     <div id="root"></div>
     
-    <script src="/static/js/bundle.js?v=1730610051"></script>
+    <!-- Load chunks in order: react-vendor, vendors, main -->
+    <script src="/static/js/react-vendor.657bfb5420201b9c88a6.js"></script>
+    <script src="/static/js/vendors.f8e8bf6fee509242d4cb.js"></script>
+    <script src="/static/js/main.f9b57c02c13fac182f36.js"></script>
     <script>
         // Hide initial loader once React app is loaded
         window.addEventListener('load', function() {
@@ -65,7 +69,7 @@
                     loader.style.transition = 'opacity 0.3s ease';
                     setTimeout(() => loader.remove(), 300);
                 }
-            }, 500);
+            }, 300);
         });
     </script>
 </body>

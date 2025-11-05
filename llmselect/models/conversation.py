@@ -7,6 +7,9 @@ from .base import TimestampMixin
 
 class Conversation(db.Model, TimestampMixin):
     __tablename__ = "conversations"
+    __table_args__ = (
+        db.Index("idx_conversation_user_created", "user_id", "created_at"),
+    )
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
     provider = db.Column(db.String(32), nullable=False)

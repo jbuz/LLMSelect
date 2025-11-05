@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 
-export default function ModelSelector({ selected, onChange, availableModels = [], maxModels = 4, minModels = 2 }) {
+const ModelSelector = memo(({ selected, onChange, availableModels = [], maxModels = 4, minModels = 2 }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  const handleToggle = (model) => {
+  const handleToggle = useCallback((model) => {
     const isSelected = selected.some(s => 
       s.provider === model.provider && s.model === model.model
     );
@@ -18,7 +18,10 @@ export default function ModelSelector({ selected, onChange, availableModels = []
     } else if (selected.length < maxModels) {
       onChange([...selected, model]);
     }
-  };
+  }, [selected, onChange, minModels, maxModels]);
+  
+  const toggleDropdown = useCallback(() => setIsOpen(prev => !prev), []);
+  const closeDropdown = useCallback(() => setIsOpen(false), []);
   
   return (
     <div className="model-selector">
@@ -44,7 +47,7 @@ export default function ModelSelector({ selected, onChange, availableModels = []
         
         {selected.length < maxModels && (
           <button 
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={toggleDropdown}
             className="add-model-btn"
           >
             + Add Model
@@ -56,7 +59,7 @@ export default function ModelSelector({ selected, onChange, availableModels = []
         <div className="model-dropdown">
           <div className="dropdown-header">
             <span>Select a model to compare</span>
-            <button onClick={() => setIsOpen(false)} className="close-dropdown">×</button>
+            <button onClick={closeDropdown} className="close-dropdown">×</button>
           </div>
           {availableModels
             .filter(m => !selected.some(s => 
@@ -68,7 +71,7 @@ export default function ModelSelector({ selected, onChange, availableModels = []
                 onClick={() => {
                   handleToggle(model);
                   if (selected.length + 1 >= maxModels) {
-                    setIsOpen(false);
+                    closeDropdown();
                   }
                 }}
                 className="model-option"
@@ -85,4 +88,8 @@ export default function ModelSelector({ selected, onChange, availableModels = []
       )}
     </div>
   );
-}
+});
+
+ModelSelector.displayName = 'ModelSelector';
+
+export default ModelSelector;
