@@ -12,9 +12,12 @@ def _rate_limit():
     return current_app.config["RATE_LIMIT"]
 
 
-def _invalidate_conversation_cache(user_id):
-    """Invalidate conversation list cache for a specific user."""
-    # Clear all cached conversation lists for this user
+def _invalidate_conversation_cache():
+    """Invalidate conversation list cache.
+    
+    Note: This invalidates the entire cache regardless of user_id.
+    For production at scale, consider implementing user-specific cache keys.
+    """
     cache.delete_memoized(list_conversations)
 
 
@@ -153,7 +156,7 @@ def update_conversation(conversation_id):
     try:
         db.session.commit()
         # Invalidate cache after successful update
-        _invalidate_conversation_cache(current_user.id)
+        _invalidate_conversation_cache()
     except Exception as exc:
         db.session.rollback()
         current_app.logger.error(f"Failed to update conversation: {exc}")
@@ -186,7 +189,7 @@ def delete_conversation(conversation_id):
         db.session.delete(conversation)
         db.session.commit()
         # Invalidate cache after successful deletion
-        _invalidate_conversation_cache(current_user.id)
+        _invalidate_conversation_cache()
     except Exception as exc:
         db.session.rollback()
         current_app.logger.error(f"Failed to delete conversation: {exc}")

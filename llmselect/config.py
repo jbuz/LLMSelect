@@ -143,6 +143,8 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_ECHO = False  # Don't echo all queries
     SQLALCHEMY_RECORD_QUERIES = True  # Enable query recording
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Slow query threshold in seconds (queries taking longer than this will be logged)
+    SLOW_QUERY_THRESHOLD = 0.1  # 100ms
 
 
 class TestingConfig(BaseConfig):

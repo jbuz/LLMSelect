@@ -106,8 +106,9 @@ def create_app() -> Flask:
         if app.config.get("SQLALCHEMY_RECORD_QUERIES") and hasattr(db, "get_app"):
             from flask_sqlalchemy import get_debug_queries
             queries = get_debug_queries()
+            slow_query_threshold = app.config.get("SLOW_QUERY_THRESHOLD", 0.1)
             for query in queries:
-                if query.duration >= 0.1:  # Log queries taking > 100ms
+                if query.duration >= slow_query_threshold:
                     app.logger.warning(
                         f"Slow query detected: {query.duration:.3f}s - {query.statement[:200]}"
                     )

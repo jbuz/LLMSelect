@@ -29,7 +29,9 @@ http.interceptors.request.use((config) => {
   }
 
   // Request deduplication (skip for mutations like POST/PUT/DELETE)
-  if (['get', 'head', 'options'].includes(config.method?.toLowerCase())) {
+  // Only deduplicate GET/HEAD/OPTIONS which should be idempotent
+  const method = (config.method || 'get').toLowerCase();
+  if (['get', 'head', 'options'].includes(method)) {
     const requestKey = generateRequestKey(config);
     
     if (pendingRequests.has(requestKey)) {

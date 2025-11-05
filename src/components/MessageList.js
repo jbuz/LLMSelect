@@ -2,8 +2,12 @@ import React, { useEffect, useRef, memo, useMemo } from 'react';
 import { VariableSizeList as List } from 'react-window';
 import MarkdownMessage from './MarkdownMessage';
 
-// Threshold for when to use virtualization
-const VIRTUALIZATION_THRESHOLD = 50;
+// Configuration constants for virtualization
+const VIRTUALIZATION_THRESHOLD = 50; // Messages count threshold for enabling virtualization
+const CHARS_PER_LINE = 80; // Estimated characters per line for sizing
+const PIXELS_PER_LINE = 24; // Height per line of text in pixels
+const BASE_HEIGHT = 60; // Minimum height for a message row in pixels
+const MAX_HEIGHT = 500; // Maximum height for a message row in pixels
 
 const MessageList = memo(({ messages, isLoading, isStreaming, currentMessage }) => {
   const messagesEndRef = useRef(null);
@@ -22,11 +26,11 @@ const MessageList = memo(({ messages, isLoading, isStreaming, currentMessage }) 
   const getItemSize = useMemo(() => {
     return (index) => {
       const message = messages[index];
-      if (!message) return 100;
+      if (!message) return BASE_HEIGHT;
       // Estimate based on content length
       const contentLength = message.content?.length || 0;
-      const estimatedLines = Math.ceil(contentLength / 80);
-      return Math.max(80, Math.min(estimatedLines * 24 + 60, 500));
+      const estimatedLines = Math.ceil(contentLength / CHARS_PER_LINE);
+      return Math.max(BASE_HEIGHT, Math.min(estimatedLines * PIXELS_PER_LINE + BASE_HEIGHT, MAX_HEIGHT));
     };
   }, [messages]);
 
