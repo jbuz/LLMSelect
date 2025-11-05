@@ -1,0 +1,5 @@
+name: LLMSelect CodeQL Configuration
+paths-ignore:
+  - static/js/**
+  - static/css/**
+  - static/media/**
