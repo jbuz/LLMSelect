@@ -21,7 +21,7 @@ export const ChatProvider = ({ children }) => {
         setConversationId(null);
       } else if (parsed && typeof parsed === 'object') {
         setMessages(Array.isArray(parsed.messages) ? parsed.messages : []);
-        setConversationId(parsed.conversationId ?? null);
+        setConversationId(parsed.conversationId !== undefined ? parsed.conversationId : null);
       }
     } catch {
       localStorage.removeItem(STORAGE_KEY);

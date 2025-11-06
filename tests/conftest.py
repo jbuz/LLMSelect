@@ -46,7 +46,12 @@ def _reset_database(app):
         db.session.remove()
         db.drop_all()
         db.create_all()
-        cache.clear()  # Clear cache between tests
+        # Clear cache between tests (handle cases where cache might not be available)
+        try:
+            cache.clear()
+        except Exception:
+            # Cache backend might not be available in some test configurations
+            pass
     yield
     # Clean up after test
     with app.app_context():
