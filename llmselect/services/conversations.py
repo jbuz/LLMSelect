@@ -18,36 +18,37 @@ class ConversationService:
             raise NotFoundError("Conversation not found")
         return conversation
 
-    def get_user_conversations(self, user_id: int, limit: int = 50, offset: int = 0) -> List[Conversation]:
+    def get_user_conversations(
+        self, user_id: int, limit: int = 50, offset: int = 0
+    ) -> List[Conversation]:
         """Get user's conversations with eager-loaded messages to avoid N+1 queries."""
-        cache_key = f'conversations_{user_id}_{limit}_{offset}'
-        
+        cache_key = f"conversations_{user_id}_{limit}_{offset}"
+
         # Try to get from cache first
         cached = cache.get(cache_key)
         if cached is not None:
             return cached
-        
+
         conversations = (
-            Conversation.query
-            .filter_by(user_id=user_id)
+            Conversation.query.filter_by(user_id=user_id)
             .options(joinedload(Conversation.messages))  # Eager load messages
             .order_by(Conversation.created_at.desc())
             .limit(limit)
             .offset(offset)
             .all()
         )
-        
+
         # Cache for 1 hour
         cache.set(cache_key, conversations, timeout=3600)
         return conversations
-    
+
     def invalidate_conversation_cache(self, user_id: int):
         """Invalidate conversation cache for a user."""
         # Clear all cache keys for this user (simplified approach)
         # Common pagination limits
         for limit in [10, 20, 50, 100, 200]:
             for offset in range(0, 500, limit):
-                cache.delete(f'conversations_{user_id}_{limit}_{offset}')
+                cache.delete(f"conversations_{user_id}_{limit}_{offset}")
 
     def create_conversation(self, user_id: int, provider: str, model: str) -> Conversation:
         conversation = Conversation(user_id=user_id, provider=provider, model=model)

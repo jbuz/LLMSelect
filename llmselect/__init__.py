@@ -60,15 +60,15 @@ def create_app() -> Flask:
     # Set up query monitoring with SQLAlchemy events
     @event.listens_for(Engine, "before_cursor_execute")
     def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
-        conn.info.setdefault('query_start_time', []).append(time.time())
+        conn.info.setdefault("query_start_time", []).append(time.time())
 
     @event.listens_for(Engine, "after_cursor_execute")
     def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
-        total = time.time() - conn.info['query_start_time'].pop(-1)
+        total = time.time() - conn.info["query_start_time"].pop(-1)
         if total > 0.1:  # Log queries slower than 100ms
             app.logger.warning(
                 f"Slow query ({total:.2f}s): {statement[:200]}",
-                extra={'query_time': total, 'statement': statement[:200]}
+                extra={"query_time": total, "statement": statement[:200]},
             )
 
     register_blueprints(app)

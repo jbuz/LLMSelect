@@ -20,30 +20,32 @@ from llmselect.extensions import db
 def run_migrations():
     """Run all SQL migration files in order."""
     app = create_app()
-    
+
     with app.app_context():
         # Get all migration files
         migrations_dir = Path(__file__).parent.parent / "migrations"
         migration_files = sorted(migrations_dir.glob("*.sql"))
-        
+
         if not migration_files:
             print("No migration files found.")
             return
-        
+
         print(f"Found {len(migration_files)} migration file(s):")
         for mf in migration_files:
             print(f"  - {mf.name}")
-        
+
         # Run each migration
         for migration_file in migration_files:
             print(f"\nRunning migration: {migration_file.name}")
-            
-            with open(migration_file, 'r') as f:
+
+            with open(migration_file, "r") as f:
                 sql = f.read()
-            
+
             # Split by semicolons and execute each statement
-            statements = [s.strip() for s in sql.split(';') if s.strip() and not s.strip().startswith('--')]
-            
+            statements = [
+                s.strip() for s in sql.split(";") if s.strip() and not s.strip().startswith("--")
+            ]
+
             for statement in statements:
                 if statement:
                     try:
@@ -52,10 +54,10 @@ def run_migrations():
                     except Exception as e:
                         print(f"  ⚠ Error: {e}")
                         # Continue with other statements
-            
+
             db.session.commit()
             print(f"✓ Migration {migration_file.name} completed")
-        
+
         print("\n✓ All migrations completed successfully!")
 
 

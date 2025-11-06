@@ -322,7 +322,7 @@ class ModelRegistryService:
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
 
-    @cache.cached(timeout=86400, key_prefix='all_models')
+    @cache.cached(timeout=86400, key_prefix="all_models")
     def get_models(self, provider: Optional[str] = None) -> List[Dict]:
         """Get list of available models with 24-hour caching.
 
@@ -350,8 +350,8 @@ class ModelRegistryService:
         Returns:
             List of model dictionaries
         """
-        cache_key = f'models_{provider}'
-        
+        cache_key = f"models_{provider}"
+
         # Try to get from Flask-Cache
         cached = cache.get(cache_key)
         if cached is not None:
@@ -391,8 +391,8 @@ class ModelRegistryService:
             provider: Optional provider to clear. If None, clears all caches.
         """
         if provider:
-            cache.delete(f'models_{provider}')
+            cache.delete(f"models_{provider}")
         else:
-            cache.delete('all_models')
+            cache.delete("all_models")
             for p in ["openai", "anthropic", "gemini", "mistral"]:
-                cache.delete(f'models_{p}')
+                cache.delete(f"models_{p}")
