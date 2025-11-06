@@ -14,7 +14,7 @@ os.environ.setdefault(
 os.environ.setdefault("ALLOW_OPEN_REGISTRATION", "true")
 
 from llmselect import create_app  # noqa: E402
-from llmselect.extensions import db  # noqa: E402
+from llmselect.extensions import db, cache  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -41,11 +41,12 @@ def app():
 
 @pytest.fixture(autouse=True)
 def _reset_database(app):
-    """Reset database before each test to ensure clean state."""
+    """Reset database and cache before each test to ensure clean state."""
     with app.app_context():
         db.session.remove()
         db.drop_all()
         db.create_all()
+        cache.clear()  # Clear cache between tests
     yield
     # Clean up after test
     with app.app_context():
