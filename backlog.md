@@ -1863,7 +1863,58 @@ export const useAppContext = () => useContext(AppContext);
 
 ---
 
-## 📝 Notes
+## � Performance & Optimization Backlog
+
+### Parallel API Calls for Same Provider
+**Priority:** P2 - Medium  
+**Status:** Not Started ⏸️  
+**Category:** Performance Optimization  
+
+**Problem:**
+When comparing multiple models from the same provider (e.g., GPT-5 and GPT-4o from OpenAI), requests appear to be executed sequentially rather than in parallel, causing unnecessary delays in the comparison UI.
+
+**Current Behavior:**
+- ThreadPoolExecutor is used in `/api/v1/compare` and `/api/v1/compare/stream`
+- HTTP session may be reusing connections sequentially
+- No explicit connection pooling configuration for concurrent same-host requests
+
+**Investigation Needed:**
+1. Verify if requests library's Session object is causing sequential execution for same-host
+2. Check if API provider rate limits require sequential requests
+3. Test impact of connection pool size on parallel performance
+4. Consider per-provider connection pool configuration
+
+**Proposed Solutions:**
+1. **Connection Pool Tuning:**
+   - Configure `HTTPAdapter` with `pool_connections` and `pool_maxsize` parameters
+   - Consider separate session instances per provider
+   - Example: `HTTPAdapter(pool_connections=10, pool_maxsize=20, max_retries=retry)`
+
+2. **Provider-Specific Rate Limit Handling:**
+   - Research rate limits per provider:
+     - OpenAI: Typically allows parallel requests
+     - Anthropic: Check if per-account limits apply
+     - Google Gemini: Verify QPM (queries per minute) limits
+     - Mistral: Document concurrent request policies
+   - Implement provider-specific semaphores if needed
+
+3. **Async Architecture (Future Enhancement):**
+   - Consider migrating to `httpx` or `aiohttp` for true async concurrent requests
+   - Would require Flask migration to async views or FastAPI migration
+
+**Acceptance Criteria:**
+- Multiple models from same provider complete in parallel (observable via logging)
+- No increase in API errors or rate limit violations
+- Total comparison time reduced when using same-provider models
+- Connection pool metrics logged for monitoring
+
+**Estimated Effort:** 1-2 days  
+**Dependencies:** None  
+**Related:** Performance improvements (#6)
+
+---
+
+## �📝 Notes
 
 - This backlog should be revisited quarterly
 - Priority levels may change based on user feedback
@@ -1873,6 +1924,6 @@ export const useAppContext = () => useContext(AppContext);
 
 ---
 
-**Last Updated:** October 21, 2025  
+**Last Updated:** November 6, 2025  
 **Next Review:** January 21, 2026
 

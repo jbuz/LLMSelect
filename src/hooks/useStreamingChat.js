@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 export const useStreamingChat = () => {
   const [currentMessage, setCurrentMessage] = useState('');
@@ -16,9 +17,17 @@ export const useStreamingChat = () => {
       // Create AbortController for cancellation
       abortControllerRef.current = new AbortController();
 
-      // Get access token
-      const token = localStorage.getItem('access_token');
       const url = new URL('/api/v1/chat/stream', window.location.origin);
+
+      // Prepare headers, including CSRF token so JWT cookies are accepted
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+
+      const csrfToken = Cookies.get('csrf_access_token');
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
 
       // Build messages array
       const messages = [{ role: 'user', content: message }];
@@ -26,12 +35,10 @@ export const useStreamingChat = () => {
       // Send POST request to initiate stream
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers,
+        credentials: 'include',
         body: JSON.stringify({
-          conversation_id: conversationId,
+          conversationId: conversationId,
           messages,
           provider,
           model,

@@ -18,6 +18,8 @@ services:
     restart: unless-stopped
     depends_on:
       - llm-chat
+    profiles:
+      - cloudflare
     networks:
       - default
 
