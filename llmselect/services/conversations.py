@@ -44,8 +44,9 @@ class ConversationService:
     def invalidate_conversation_cache(self, user_id: int):
         """Invalidate conversation cache for a user."""
         # Clear all cache keys for this user (simplified approach)
-        for limit in [10, 20, 50]:
-            for offset in range(0, 200, limit):
+        # Common pagination limits
+        for limit in [10, 20, 50, 100, 200]:
+            for offset in range(0, 500, limit):
                 cache.delete(f'conversations_{user_id}_{limit}_{offset}')
 
     def create_conversation(self, user_id: int, provider: str, model: str) -> Conversation:
