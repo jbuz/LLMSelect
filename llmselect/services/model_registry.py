@@ -5,13 +5,13 @@ It uses static fallback lists for most providers and can query OpenAI's API for
 up-to-date model information.
 """
 
-import time
 from typing import Dict, List, Optional
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from ..extensions import cache
 from ..utils.errors import AppError
 
 
@@ -298,17 +298,15 @@ MISTRAL_MODELS = [
 
 
 class ModelRegistryService:
-    """Service for managing LLM model registry with caching."""
+    """Service for managing LLM model registry with Flask-Caching integration."""
 
-    def __init__(self, cache_ttl_seconds: int = 3600):
+    def __init__(self, cache_ttl_seconds: int = 86400):
         """Initialize the model registry service.
 
         Args:
-            cache_ttl_seconds: Time-to-live for cached model data in seconds (default: 1 hour)
+            cache_ttl_seconds: Time-to-live for cached model data in seconds (default: 24 hours)
         """
         self.cache_ttl_seconds = cache_ttl_seconds
-        self._cache: Dict[str, List[Dict]] = {}
-        self._cache_timestamp: Dict[str, float] = {}
 
         # HTTP session with retries
         self.session = requests.Session()
@@ -323,8 +321,9 @@ class ModelRegistryService:
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
 
+    @cache.cached(timeout=86400, key_prefix="all_models")
     def get_models(self, provider: Optional[str] = None) -> List[Dict]:
-        """Get list of available models.
+        """Get list of available models with 24-hour caching.
 
         Args:
             provider: Optional provider filter (openai, anthropic, gemini, mistral)
@@ -350,9 +349,12 @@ class ModelRegistryService:
         Returns:
             List of model dictionaries
         """
-        # Check cache
-        if self._is_cache_valid(provider):
-            return self._cache[provider]
+        cache_key = f"models_{provider}"
+
+        # Try to get from Flask-Cache
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached
 
         # Get fresh data
         if provider == "openai":
@@ -366,26 +368,10 @@ class ModelRegistryService:
         else:
             raise AppError(f"Unsupported provider: {provider}")
 
-        # Update cache
-        self._cache[provider] = models
-        self._cache_timestamp[provider] = time.time()
+        # Update cache (24 hours)
+        cache.set(cache_key, models, timeout=self.cache_ttl_seconds)
 
         return models
-
-    def _is_cache_valid(self, provider: str) -> bool:
-        """Check if cached data is still valid.
-
-        Args:
-            provider: Provider name
-
-        Returns:
-            True if cache is valid, False otherwise
-        """
-        if provider not in self._cache:
-            return False
-
-        cache_age = time.time() - self._cache_timestamp[provider]
-        return cache_age < self.cache_ttl_seconds
 
     def _get_openai_models_static(self) -> List[Dict]:
         """Get OpenAI models from static list.
@@ -404,8 +390,8 @@ class ModelRegistryService:
             provider: Optional provider to clear. If None, clears all caches.
         """
         if provider:
-            self._cache.pop(provider, None)
-            self._cache_timestamp.pop(provider, None)
+            cache.delete(f"models_{provider}")
         else:
-            self._cache.clear()
-            self._cache_timestamp.clear()
+            cache.delete("all_models")
+            for p in ["openai", "anthropic", "gemini", "mistral"]:
+                cache.delete(f"models_{p}")

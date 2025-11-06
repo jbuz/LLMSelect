@@ -19,6 +19,8 @@ paths = [
     '''\.pytest_cache/''',
     '''dist/''',
     '''build/''',
+    '''tests/conftest\.py''',  # Test configuration with test secrets
+    '''scripts/test_performance\.py''',  # Performance test with test secrets
 ]
 
 # Allowlist specific regex patterns that are known to be safe

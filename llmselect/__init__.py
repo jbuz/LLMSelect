@@ -5,6 +5,9 @@ from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 from flask_compress import Compress
 from dotenv import load_dotenv
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+import time
 
 from .config import get_config
 from .extensions import db, jwt, limiter, cache
@@ -53,6 +56,20 @@ def create_app() -> Flask:
 
     # Initialize response compression for better network performance
     Compress(app)
+
+    # Set up query monitoring with SQLAlchemy events
+    @event.listens_for(Engine, "before_cursor_execute")
+    def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+        conn.info.setdefault("query_start_time", []).append(time.time())
+
+    @event.listens_for(Engine, "after_cursor_execute")
+    def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+        total = time.time() - conn.info["query_start_time"].pop(-1)
+        if total > 0.1:  # Log queries slower than 100ms
+            app.logger.warning(
+                f"Slow query ({total:.2f}s): {statement[:200]}",
+                extra={"query_time": total, "statement": statement[:200]},
+            )
 
     register_blueprints(app)
     register_error_handlers(app)
