@@ -5,7 +5,6 @@ It uses static fallback lists for most providers and can query OpenAI's API for
 up-to-date model information.
 """
 
-import time
 from typing import Dict, List, Optional
 
 import requests
