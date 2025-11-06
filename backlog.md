@@ -1,770 +1,1537 @@
-# LLMSelect - Strategic Product Backlog
+# LLMSelect - Strategic Product Backlog# LLMSelect - Strategic Product Backlog
 
-**Last Updated:** October 31, 2025  
-**Repository:** https://github.com/jbuz/LLMSelect  
-**Status:** Phase 1 Complete ✅ | Phase 2 In Progress 🚧
 
----
 
-## � Project Status Overview
+**Last Updated:** November 6, 2025  **Last Updated:** October 31, 2025  
 
-### Completed ✅
-- ✅ Security infrastructure (encryption, JWT, CSRF)
-- ✅ Backend architecture (service layer, database, API versioning)
-- ✅ Error handling and logging
-- ✅ Basic authentication and API key management
-- ✅ Rate limiting and input validation
+**Repository:** https://github.com/jbuz/LLMSelect  **Repository:** https://github.com/jbuz/LLMSelect  
 
-### In Progress 🚧
-- 🚧 Comparison mode UI implementation
-- 🚧 Streaming response support
-- 🚧 Frontend architecture improvements
+**Status:** Phase 1 ✅ | Phase 2 ✅ | Phase 3 ✅ | Azure Integration ✅**Status:** Phase 1 Complete ✅ | Phase 2 In Progress 🚧
 
-### Not Started ⏸️
-- ⏸️ Comprehensive testing suite
-- ⏸️ Conversation management UI
+
+
+------
+
+
+
+## 📊 Project Status Overview## � Project Status Overview
+
+
+
+### Completed ✅### Completed ✅
+
+- ✅ **Phase 1**: Security infrastructure (encryption, JWT, CSRF)- ✅ Security infrastructure (encryption, JWT, CSRF)
+
+- ✅ **Phase 1**: Backend architecture (service layer, database, API versioning)- ✅ Backend architecture (service layer, database, API versioning)
+
+- ✅ **Phase 1**: Error handling and logging- ✅ Error handling and logging
+
+- ✅ **Phase 1**: Basic authentication and API key management- ✅ Basic authentication and API key management
+
+- ✅ **Phase 1**: Rate limiting and input validation- ✅ Rate limiting and input validation
+
+- ✅ **Phase 2**: Comparison mode UI with side-by-side display
+
+- ✅ **Phase 2**: Comparison result persistence and history### In Progress 🚧
+
+- ✅ **Phase 2**: Multi-model selector (2-4 models)- 🚧 Comparison mode UI implementation
+
+- ✅ **Phase 2**: Vote/preference tracking- 🚧 Streaming response support
+
+- ✅ **Phase 3**: Real-time streaming for all providers (OpenAI, Anthropic, Gemini, Mistral)- 🚧 Frontend architecture improvements
+
+- ✅ **Phase 3**: Parallel multi-model streaming in comparison mode
+
+- ✅ **Phase 3**: Markdown rendering with syntax highlighting (277+ languages)### Not Started ⏸️
+
+- ✅ **Phase 3**: Comparison history UI component with pagination- ⏸️ Comprehensive testing suite
+
+- ✅ **Azure Integration**: Azure AI Foundry routing for unified billing- ⏸️ Conversation management UI
+
 - ⏸️ Mobile optimization
-- ⏸️ Advanced features
 
----
+### In Progress 🚧- ⏸️ Advanced features
+
+- 🚧 Performance optimization (caching, database indexing)
+
+- 🚧 Frontend architecture improvements (custom hooks, context API)---
+
+
+
+### Not Started ⏸️## 🎯 Strategic Priorities
+
+- ⏸️ Comprehensive automated testing suite
+
+- ⏸️ Mobile optimization and responsive design enhancements### **Core Value Proposition:**
+
+- ⏸️ Advanced features (export, voice input, analytics)Enable users to compare multiple LLM responses side-by-side from a single prompt with exceptional UX/UI.
+
+
+
+---### **Critical Gap:**
+
+Backend comparison logic exists (`/api/v1/compare` endpoint) but frontend has no comparison mode UI.
 
 ## 🎯 Strategic Priorities
 
-### **Core Value Proposition:**
-Enable users to compare multiple LLM responses side-by-side from a single prompt with exceptional UX/UI.
-
-### **Critical Gap:**
-Backend comparison logic exists (`/api/v1/compare` endpoint) but frontend has no comparison mode UI.
-
 ---
 
-## 🔴 PHASE 1: Foundation (COMPLETE ✅)
+### **Core Value Proposition:**
 
-### ✅ 1. Security Infrastructure
-**Priority:** P0 - Critical  
+Enable users to compare multiple LLM responses side-by-side from a single prompt with exceptional UX/UI.## 🔴 PHASE 1: Foundation (COMPLETE ✅)
+
+
+
+### **Current Focus:**### ✅ 1. Security Infrastructure
+
+Performance optimization and code quality improvements to prepare for production deployment.**Priority:** P0 - Critical  
+
 **Status:** COMPLETE  
-**Duration:** 2-3 weeks  
 
-**Completed Items:**
+---**Duration:** 2-3 weeks  
+
+
+
+## 🔴 PHASE 1: Foundation (COMPLETE ✅)**Completed Items:**
+
 - ✅ Implement API key encryption at rest (Fernet)
-- ✅ Add user authentication system (JWT with cookies)
-- ✅ Implement rate limiting (Flask-Limiter)
-- ✅ Add CSRF protection
-- ✅ Input validation and sanitization
+
+### ✅ 1. Security Infrastructure- ✅ Add user authentication system (JWT with cookies)
+
+**Priority:** P0 - Critical  - ✅ Implement rate limiting (Flask-Limiter)
+
+**Status:** COMPLETE ✅  - ✅ Add CSRF protection
+
+**Completed:** October 2025- ✅ Input validation and sanitization
+
 - ✅ Structured error responses
 
----
+**Delivered:**
 
-### ✅ 2. Backend Architecture
-**Priority:** P0 - Critical  
-**Status:** COMPLETE  
-**Duration:** 2-3 weeks  
+- ✅ API key encryption at rest (Fernet)---
 
-**Completed Items:**
+- ✅ JWT authentication with secure HTTP-only cookies
+
+- ✅ Rate limiting (Flask-Limiter, 60 req/min default)### ✅ 2. Backend Architecture
+
+- ✅ CSRF protection**Priority:** P0 - Critical  
+
+- ✅ Input validation and sanitization (Marshmallow schemas)**Status:** COMPLETE  
+
+- ✅ Structured error responses with no sensitive data exposure**Duration:** 2-3 weeks  
+
+
+
+---**Completed Items:**
+
 - ✅ Refactor to application factory pattern
-- ✅ Implement service layer (LLM, Conversations, API Keys)
-- ✅ Add database models (User, APIKey, Conversation, Message)
-- ✅ API versioning (`/api/v1`)
-- ✅ Dependency injection via service container
+
+### ✅ 2. Backend Architecture- ✅ Implement service layer (LLM, Conversations, API Keys)
+
+**Priority:** P0 - Critical  - ✅ Add database models (User, APIKey, Conversation, Message)
+
+**Status:** COMPLETE ✅  - ✅ API versioning (`/api/v1`)
+
+**Completed:** October 2025- ✅ Dependency injection via service container
+
 - ✅ Health check endpoint
 
----
+**Delivered:**
 
-### ✅ 3. Error Handling & Logging
-**Priority:** P0 - Critical  
-**Status:** COMPLETE  
-**Duration:** 1 week  
+- ✅ Application factory pattern---
 
-**Completed Items:**
+- ✅ Service layer architecture (LLM, Conversations, API Keys, Comparisons)
+
+- ✅ Database models (User, APIKey, Conversation, Message, ComparisonResult)### ✅ 3. Error Handling & Logging
+
+- ✅ API versioning (`/api/v1`)**Priority:** P0 - Critical  
+
+- ✅ Dependency injection via service container**Status:** COMPLETE  
+
+- ✅ Health check endpoint (`/api/v1/health`)**Duration:** 1 week  
+
+
+
+---**Completed Items:**
+
 - ✅ Comprehensive logging system
-- ✅ Retry logic with exponential backoff
+
+### ✅ 3. Error Handling & Logging- ✅ Retry logic with exponential backoff
+
+**Priority:** P0 - Critical  - ✅ Error boundaries in React
+
+**Status:** COMPLETE ✅  - ✅ Structured error responses
+
+**Completed:** October 2025- ✅ Request/response logging
+
+
+
+**Delivered:****Remaining:**
+
+- ✅ Comprehensive logging system with structured logs- [ ] Custom error pages (404, 500, etc.)
+
+- ✅ Retry logic with exponential backoff for LLM API calls- [ ] Client-side error reporting (Sentry integration)
+
 - ✅ Error boundaries in React
-- ✅ Structured error responses
+
+- ✅ Structured error responses---
+
 - ✅ Request/response logging
-
-**Remaining:**
-- [ ] Custom error pages (404, 500, etc.)
-- [ ] Client-side error reporting (Sentry integration)
-
----
 
 ## 🟠 PHASE 2: Core Comparison Experience (IN PROGRESS 🚧)
 
-### 🚧 4. Comparison Mode UI **[HIGHEST PRIORITY]**
-**Priority:** P0 - CRITICAL  
+**Remaining:**
+
+- [ ] Custom error pages (404, 500, etc.)### 🚧 4. Comparison Mode UI **[HIGHEST PRIORITY]**
+
+- [ ] Client-side error reporting (Sentry integration)**Priority:** P0 - CRITICAL  
+
 **Status:** IN PROGRESS 🚧  
-**Duration:** 2-3 weeks  
+
+---**Duration:** 2-3 weeks  
+
 **Dependencies:** None  
+
+## 🟢 PHASE 2: Core Comparison Experience (COMPLETE ✅)
 
 **Why Critical:** This is the app's primary value proposition. Currently users can only chat with one model at a time, defeating the purpose of "LLMSelect".
 
-**Tasks:**
-- [ ] **Backend additions:**
-  - [ ] Create `ComparisonResult` model to persist comparisons
+### ✅ 4. Comparison Mode UI
+
+**Priority:** P0 - CRITICAL  **Tasks:**
+
+**Status:** COMPLETE ✅  - [ ] **Backend additions:**
+
+**Completed:** October-November 2025  - [ ] Create `ComparisonResult` model to persist comparisons
+
   - [ ] Add `GET /api/v1/comparisons` endpoint (list user's comparison history)
-  - [ ] Add `POST /api/v1/comparisons/:id/vote` endpoint (track preferred responses)
-  - [ ] Update `/api/v1/compare` to save results to database
-  
-- [ ] **Frontend components:**
-  - [ ] Create `ComparisonMode.js` main component
-  - [ ] Create `ModelSelector.js` for multi-model selection
-  - [ ] Create `ResponseCard.js` for individual model responses
-  - [ ] Create `ResponseDiff.js` for highlighting differences
-  - [ ] Add mode toggle in Header (Chat vs Compare)
-  
-- [ ] **UX features:**
-  - [ ] Side-by-side response layout (2-4 models)
-  - [ ] Synchronized scrolling between responses
-  - [ ] Response metadata (time, tokens, cost)
-  - [ ] Copy button per response
-  - [ ] Vote buttons (👍/👎) per response
-  - [ ] Drag-to-reorder model cards
-  - [ ] Export comparison as PDF/Markdown
 
-**Mockup:**
-```
-┌─────────────────────────────────────────────────┐
+**Delivered:**  - [ ] Add `POST /api/v1/comparisons/:id/vote` endpoint (track preferred responses)
+
+- ✅ **Backend:**  - [ ] Update `/api/v1/compare` to save results to database
+
+  - ComparisonResult model for persistence  
+
+  - `GET /api/v1/comparisons` endpoint (list user's comparison history)- [ ] **Frontend components:**
+
+  - `POST /api/v1/comparisons/:id/vote` endpoint (track preferred responses)  - [ ] Create `ComparisonMode.js` main component
+
+  - Updated `/api/v1/compare` to save results to database  - [ ] Create `ModelSelector.js` for multi-model selection
+
+  - `POST /api/v1/compare/stream` for real-time streaming  - [ ] Create `ResponseCard.js` for individual model responses
+
+    - [ ] Create `ResponseDiff.js` for highlighting differences
+
+- ✅ **Frontend Components:**  - [ ] Add mode toggle in Header (Chat vs Compare)
+
+  - ComparisonMode.js main component with mode toggle  
+
+  - ModelSelector.js for multi-model selection (2-4 models)- [ ] **UX features:**
+
+  - ResponseCard.js for individual model responses with metadata  - [ ] Side-by-side response layout (2-4 models)
+
+  - ComparisonHistory.js for browsing past comparisons  - [ ] Synchronized scrolling between responses
+
+    - [ ] Response metadata (time, tokens, cost)
+
+- ✅ **UX Features:**  - [ ] Copy button per response
+
+  - Side-by-side response layout (responsive grid)  - [ ] Vote buttons (👍/👎) per response
+
+  - Response metadata (time, tokens, estimated cost)  - [ ] Drag-to-reorder model cards
+
+  - Copy button per response  - [ ] Export comparison as PDF/Markdown
+
+  - Vote buttons (👍/👎) per response
+
+  - Color-coded model chips**Mockup:**
+
+  - Empty states and loading indicators```
+
+  - Error handling per provider┌─────────────────────────────────────────────────┐
+
 │ [💬 Chat] [⚖️ Compare ✓]                       │
-├─────────────────────────────────────────────────┤
+
+---├─────────────────────────────────────────────────┤
+
 │ Selected: [GPT-4 ✕] [Claude 3.5 ✕] [+ Add]    │
-│                                                 │
-│ ┌─────────────────────────────────────────────┐│
-│ │ Explain quantum computing in simple terms   ││
-│ │                              [🔄 Compare ▶] ││
+
+### ✅ 5. Streaming Responses│                                                 │
+
+**Priority:** P0 - CRITICAL  │ ┌─────────────────────────────────────────────┐│
+
+**Status:** COMPLETE ✅  │ │ Explain quantum computing in simple terms   ││
+
+**Completed:** November 2025│ │                              [🔄 Compare ▶] ││
+
 │ └─────────────────────────────────────────────┘│
-│                                                 │
-│ ┌──────────────────┬──────────────────────────┐│
-│ │ GPT-4            │ Claude 3.5 Sonnet        ││
-│ │ 🟢 1.2s · 245 tok│ 🟢 2.4s · 198 tok        ││
-│ ├──────────────────┼──────────────────────────┤│
-│ │ Quantum          │ Quantum computing is...  ││
-│ │ computing...     │                          ││
-│ │                  │                          ││
-│ │ [📋] [👍] [👎]  │ [📋] [👍] [👎]          ││
-│ └──────────────────┴──────────────────────────┘│
-└─────────────────────────────────────────────────┘
-```
 
----
+**Delivered:**│                                                 │
 
-### 🚧 5. Streaming Responses
-**Priority:** P0 - CRITICAL  
-**Status:** NOT STARTED ⏸️  
-**Duration:** 1 week  
-**Dependencies:** None  
+- ✅ **Backend Streaming:**│ ┌──────────────────┬──────────────────────────┐│
 
-**Why Critical:** Without streaming, users wait 20-60 seconds staring at a blank screen. This creates a poor UX that makes the app feel broken.
+  - `POST /api/v1/compare/stream` SSE endpoint│ │ GPT-4            │ Claude 3.5 Sonnet        ││
 
-**Tasks:**
-- [ ] **Backend streaming:**
-  - [ ] Add `POST /api/v1/chat/stream` SSE endpoint
-  - [ ] Update `LLMService.invoke_stream()` for each provider
+  - `LLMService.invoke_stream()` for all providers│ │ 🟢 1.2s · 245 tok│ 🟢 2.4s · 198 tok        ││
+
+  - Token-by-token streaming for OpenAI│ ├──────────────────┼──────────────────────────┤│
+
+  - Streaming for Anthropic (Claude)│ │ Quantum          │ Quantum computing is...  ││
+
+  - Streaming for Google Gemini│ │ computing...     │                          ││
+
+  - Streaming for Mistral AI│ │                  │                          ││
+
+  - ThreadPoolExecutor for parallel streaming│ │ [📋] [👍] [👎]  │ [📋] [👍] [👎]          ││
+
+  │ └──────────────────┴──────────────────────────┘│
+
+- ✅ **Frontend Streaming:**└─────────────────────────────────────────────────┘
+
+  - `useStreamingComparison` custom hook```
+
+  - Fetch API with ReadableStream for SSE parsing
+
+  - Request cancellation (AbortController)---
+
+  - Real-time typing animation with content
+
+  - Connection error handling### 🚧 5. Streaming Responses
+
+  **Priority:** P0 - CRITICAL  
+
+- ✅ **Comparison Streaming:****Status:** NOT STARTED ⏸️  
+
+  - Stream multiple models simultaneously**Duration:** 1 week  
+
+  - Progress indicators per model (⚡ icon)**Dependencies:** None  
+
+  - Blinking cursor during streaming
+
+  - Partial failure handling (per-provider isolation)**Why Critical:** Without streaming, users wait 20-60 seconds staring at a blank screen. This creates a poor UX that makes the app feel broken.
+
+
+
+**Performance Achieved:****Tasks:**
+
+- Time to first token: < 1 second (previously 20-60 seconds)- [ ] **Backend streaming:**
+
+- No blocking between providers  - [ ] Add `POST /api/v1/chat/stream` SSE endpoint
+
+- Progressive rendering as chunks arrive  - [ ] Update `LLMService.invoke_stream()` for each provider
+
   - [ ] Implement token-by-token streaming for OpenAI
-  - [ ] Implement streaming for Anthropic (Claude)
+
+---  - [ ] Implement streaming for Anthropic (Claude)
+
   - [ ] Implement streaming for Gemini
-  - [ ] Implement streaming for Mistral
-  
-- [ ] **Frontend streaming:**
-  - [ ] Create `useStreamingChat` custom hook
+
+### ✅ 6. Message Rendering Improvements  - [ ] Implement streaming for Mistral
+
+**Priority:** P1 - High    
+
+**Status:** COMPLETE ✅  - [ ] **Frontend streaming:**
+
+**Completed:** November 2025  - [ ] Create `useStreamingChat` custom hook
+
   - [ ] Implement EventSource connection
-  - [ ] Add request cancellation (AbortController)
-  - [ ] Show typing animation with real content
-  - [ ] Handle connection errors and reconnection
-  
-- [ ] **Comparison streaming:**
-  - [ ] Stream multiple models simultaneously
-  - [ ] Show progress indicators per model
-  - [ ] Handle partial failures gracefully
 
-**Example Implementation:**
-```python
-# Backend
-@bp.post("/chat/stream")
-@jwt_required()
-def chat_stream():
-    def generate():
-        for chunk in llm_service.invoke_stream(provider, model, messages, api_key):
-            yield f"data: {json.dumps({'chunk': chunk})}\n\n"
-        yield "data: [DONE]\n\n"
+**Delivered:**  - [ ] Add request cancellation (AbortController)
+
+- ✅ **Markdown Rendering:**  - [ ] Show typing animation with real content
+
+  - MarkdownMessage component with react-markdown  - [ ] Handle connection errors and reconnection
+
+  - GitHub Flavored Markdown support (remark-gfm)  
+
+  - Tables, lists, links, images, task lists- [ ] **Comparison streaming:**
+
+    - [ ] Stream multiple models simultaneously
+
+- ✅ **Code Highlighting:**  - [ ] Show progress indicators per model
+
+  - react-syntax-highlighter with Prism  - [ ] Handle partial failures gracefully
+
+  - 277+ programming languages supported
+
+  - VS Code Dark Plus theme**Example Implementation:**
+
+  - Copy button for code blocks with visual feedback```python
+
+  - Inline code styling# Backend
+
+  @bp.post("/chat/stream")
+
+- ✅ **Message Actions:**@jwt_required()
+
+  - Copy button per message in ResponseCarddef chat_stream():
+
+  - Timestamp display    def generate():
+
+  - Token count display        for chunk in llm_service.invoke_stream(provider, model, messages, api_key):
+
+  - Response time display            yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+
+  - Model name display        yield "data: [DONE]\n\n"
+
     
-    return Response(stream_with_context(generate()), mimetype='text/event-stream')
-```
 
-```javascript
+**Dependencies Added:**    return Response(stream_with_context(generate()), mimetype='text/event-stream')
+
+- `react-markdown` ^9.0.1```
+
+- `remark-gfm` ^4.0.0
+
+- `react-syntax-highlighter` ^15.5.0```javascript
+
 // Frontend
-const useStreamingChat = () => {
+
+---const useStreamingChat = () => {
+
   const streamMessage = async (content) => {
-    const eventSource = new EventSource('/api/v1/chat/stream');
+
+## 🟢 PHASE 3: Real-Time Experience (COMPLETE ✅)    const eventSource = new EventSource('/api/v1/chat/stream');
+
     let fullResponse = '';
-    
+
+All Phase 3 items delivered in November 2025. See Phase 2 sections above for streaming (#5) and markdown rendering (#6) details.    
+
     eventSource.onmessage = (event) => {
-      if (event.data === '[DONE]') {
-        eventSource.close();
-        return;
-      }
+
+**Additional Deliverables:**      if (event.data === '[DONE]') {
+
+- ✅ Comparison history UI (#12 partial)        eventSource.close();
+
+- ✅ Streaming architecture documentation        return;
+
+- ✅ Testing checklist for manual validation      }
+
       
-      const { chunk } = JSON.parse(event.data);
+
+---      const { chunk } = JSON.parse(event.data);
+
       fullResponse += chunk;
-      setMessages(prev => [...prev.slice(0, -1), {
+
+## 🔵 AZURE INTEGRATION (COMPLETE ✅)      setMessages(prev => [...prev.slice(0, -1), {
+
         role: 'assistant',
-        content: fullResponse,
-        streaming: true
-      }]);
-    };
+
+### ✅ Azure AI Foundry Support        content: fullResponse,
+
+**Priority:** P1 - High          streaming: true
+
+**Status:** COMPLETE ✅        }]);
+
+**Completed:** January 2025    };
+
   };
-};
-```
 
----
+**Delivered:**};
 
-### 🚧 6. Message Rendering Improvements
-**Priority:** P1 - High  
-**Status:** NOT STARTED ⏸️  
+- ✅ Configuration layer with Azure-specific settings```
+
+- ✅ Unified routing through Azure endpoint
+
+- ✅ Support for 14 model deployments across 4 providers---
+
+- ✅ Deployment name mappings with environment variable overrides
+
+- ✅ Streaming support through Azure (SSE)### 🚧 6. Message Rendering Improvements
+
+- ✅ Fallback to direct provider APIs when Azure is disabled**Priority:** P1 - High  
+
+- ✅ Comprehensive documentation (3 guides, 1200+ lines)**Status:** NOT STARTED ⏸️  
+
 **Duration:** 3-4 days  
-**Dependencies:** None  
 
-**Tasks:**
-- [ ] **Markdown rendering:**
-  - [ ] Install `react-markdown` and `remark-gfm`
+**Files Modified:****Dependencies:** None  
+
+- `llmselect/config.py` - Azure configuration variables
+
+- `llmselect/services/llm.py` - Azure routing methods**Tasks:**
+
+- `llmselect/container.py` - Azure config injection- [ ] **Markdown rendering:**
+
+- `.env.example` - Azure environment variables  - [ ] Install `react-markdown` and `remark-gfm`
+
   - [ ] Add markdown parser to MessageList
-  - [ ] Support tables, lists, links, images
-  
-- [ ] **Code highlighting:**
-  - [ ] Install `react-syntax-highlighter`
-  - [ ] Add language detection
+
+**Documentation Created:**  - [ ] Support tables, lists, links, images
+
+- `AZURE_FOUNDRY_SETUP.md` (350+ lines)  
+
+- `AZURE_INTEGRATION_GUIDE.md` (400+ lines)- [ ] **Code highlighting:**
+
+- `AZURE_IMPLEMENTATION_SUMMARY.md` (500+ lines)  - [ ] Install `react-syntax-highlighter`
+
+- `AZURE_QUICK_REFERENCE.md`  - [ ] Add language detection
+
   - [ ] Add copy button for code blocks
-  - [ ] Add line numbers (optional)
+
+---  - [ ] Add line numbers (optional)
+
   
-- [ ] **Message actions:**
+
+## 🟡 PHASE 4: Performance & Polish (IN PROGRESS 🚧)- [ ] **Message actions:**
+
   - [ ] Add copy button per message
-  - [ ] Add regenerate button
-  - [ ] Add edit button (edit and resend)
-  - [ ] Add delete button
-  
+
+### 🚧 7. Database & Backend Performance  - [ ] Add regenerate button
+
+**Priority:** P1 - High    - [ ] Add edit button (edit and resend)
+
+**Status:** NOT STARTED ⏸️    - [ ] Add delete button
+
+**Duration:** 3-5 days  
+
 - [ ] **Metadata display:**
-  - [ ] Show message timestamp
-  - [ ] Show token count
-  - [ ] Show response time
-  - [ ] Show model name
 
-**Package additions:**
-```json
-{
-  "dependencies": {
-    "react-markdown": "^9.0.0",
-    "remark-gfm": "^4.0.0",
-    "react-syntax-highlighter": "^15.5.0"
-  }
-}
-```
+**Tasks:**  - [ ] Show message timestamp
 
----
+- [ ] Add database indexes  - [ ] Show token count
 
-## 🟡 PHASE 3: Frontend Architecture (WEEKS 4-5)
+  - [ ] Index on `conversations.user_id` + `created_at`  - [ ] Show response time
+
+  - [ ] Index on `messages.conversation_id`  - [ ] Show model name
+
+  - [ ] Index on `api_keys.user_id` + `provider`
+
+  - [ ] Index on `comparison_results.user_id` + `created_at`**Package additions:**
+
+- [ ] Implement connection pooling (SQLAlchemy)```json
+
+  - [ ] Configure pool size (10-20 connections){
+
+  - [ ] Set pool timeout (30 seconds)  "dependencies": {
+
+  - [ ] Enable pool pre-ping    "react-markdown": "^9.0.0",
+
+- [ ] Optimize query patterns    "remark-gfm": "^4.0.0",
+
+  - [ ] Use `joinedload` for eager loading    "react-syntax-highlighter": "^15.5.0"
+
+  - [ ] Implement cursor-based pagination  }
+
+  - [ ] Add query result counting optimization}
+
+- [ ] Add slow query logging (> 100ms)```
+
+
+
+**Acceptance Criteria:**---
+
+- Common queries execute in < 50ms
+
+- No N+1 query issues## 🟡 PHASE 3: Frontend Architecture (WEEKS 4-5)
+
+- Connection pool handles concurrent requests
 
 ### 7. State Management & Component Refactor
-**Priority:** P1 - High  
+
+---**Priority:** P1 - High  
+
 **Status:** NOT STARTED ⏸️  
-**Duration:** 1-2 weeks  
-**Dependencies:** None  
 
-**Why Important:** Current App.js is 261 lines with complex state management. Extracting hooks and adding Context API will make the codebase maintainable.
+### 🚧 8. Response Caching**Duration:** 1-2 weeks  
 
-**Tasks:**
-- [ ] **Custom hooks:**
-  - [ ] Create `useAuth` hook (login, logout, register, user state)
-  - [ ] Create `useChat` hook (messages, sendMessage, clearChat)
-  - [ ] Create `useComparison` hook (compare, results, history)
-  - [ ] Create `useModels` hook (model list, selection)
+**Priority:** P1 - High  **Dependencies:** None  
+
+**Status:** NOT STARTED ⏸️  
+
+**Duration:** 2-3 days**Why Important:** Current App.js is 261 lines with complex state management. Extracting hooks and adding Context API will make the codebase maintainable.
+
+
+
+**Tasks:****Tasks:**
+
+- [ ] Implement Flask-Caching with in-memory cache (SimpleCache)- [ ] **Custom hooks:**
+
+- [ ] Cache model registry (24-hour TTL)  - [ ] Create `useAuth` hook (login, logout, register, user state)
+
+- [ ] Cache conversation summaries (1-hour TTL)  - [ ] Create `useChat` hook (messages, sendMessage, clearChat)
+
+- [ ] Implement cache invalidation strategies  - [ ] Create `useComparison` hook (compare, results, history)
+
+- [ ] Add cache hit/miss metrics  - [ ] Create `useModels` hook (model list, selection)
+
   - [ ] Create `useApiKeys` hook (save, validate keys)
-  
-- [ ] **Context API:**
-  - [ ] Create `AppContext` for global state
+
+**Implementation Notes:**  
+
+```python- [ ] **Context API:**
+
+from flask_caching import Cache  - [ ] Create `AppContext` for global state
+
   - [ ] Create `AuthContext` for user/session
-  - [ ] Create `ThemeContext` for dark/light mode
-  
-- [ ] **Component structure:**
-  ```
+
+cache = Cache(config={  - [ ] Create `ThemeContext` for dark/light mode
+
+    'CACHE_TYPE': 'SimpleCache',  
+
+    'CACHE_DEFAULT_TIMEOUT': 3600- [ ] **Component structure:**
+
+})  ```
+
   src/
-    components/
-      chat/
-        ChatMode.js
-        MessageList.js
+
+@cache.cached(timeout=86400, key_prefix='models_list')    components/
+
+def get_available_models():      chat/
+
+    pass        ChatMode.js
+
+```        MessageList.js
+
         MessageItem.js
-        MessageInput.js
+
+---        MessageInput.js
+
       comparison/
-        ComparisonMode.js
-        ModelSelector.js
-        ResponseCard.js
-      common/
+
+### 🚧 9. Frontend Architecture Refactor        ComparisonMode.js
+
+**Priority:** P1 - High          ModelSelector.js
+
+**Status:** NOT STARTED ⏸️          ResponseCard.js
+
+**Duration:** 1-2 weeks      common/
+
         Modal.js
-        Button.js
-        LoadingSpinner.js
-    hooks/
-      useAuth.js
-      useChat.js
-      useComparison.js
-      useModels.js
-    contexts/
-      AppContext.js
-  ```
 
-**Example Hook:**
-```javascript
-// hooks/useChat.js
-export const useChat = () => {
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [conversationId, setConversationId] = useState(null);
-  
-  const sendMessage = useCallback(async (content, provider, model) => {
-    setIsLoading(true);
-    try {
-      const response = await chatApi.sendMessage({
-        provider,
-        model,
-        messages: [...messages, { role: 'user', content }],
-        conversationId
-      });
-      
-      setMessages(prev => [
-        ...prev,
+**Tasks:**        Button.js
+
+- [ ] **Custom Hooks:**        LoadingSpinner.js
+
+  - [ ] Create `useAuth` hook (login, logout, register, user state)    hooks/
+
+  - [ ] Create `useChat` hook (messages, sendMessage, clearChat)      useAuth.js
+
+  - [ ] Create `useComparison` hook (compare, results, history)      useChat.js
+
+  - [ ] Create `useModels` hook (model list, selection)      useComparison.js
+
+  - [ ] Create `useApiKeys` hook (save, validate keys)      useModels.js
+
+      contexts/
+
+- [ ] **Context API:**      AppContext.js
+
+  - [ ] Create `AppContext` for global state  ```
+
+  - [ ] Create `AuthContext` for user/session
+
+  - [ ] Create `ThemeContext` for dark/light mode**Example Hook:**
+
+  ```javascript
+
+- [ ] **Component Restructure:**// hooks/useChat.js
+
+  ```export const useChat = () => {
+
+  src/  const [messages, setMessages] = useState([]);
+
+    components/  const [isLoading, setIsLoading] = useState(false);
+
+      chat/  const [conversationId, setConversationId] = useState(null);
+
+        ChatMode.js  
+
+        MessageList.js  const sendMessage = useCallback(async (content, provider, model) => {
+
+        MessageItem.js    setIsLoading(true);
+
+        MessageInput.js    try {
+
+      comparison/      const response = await chatApi.sendMessage({
+
+        ComparisonMode.js        provider,
+
+        ModelSelector.js        model,
+
+        ResponseCard.js        messages: [...messages, { role: 'user', content }],
+
+      common/        conversationId
+
+        Modal.js      });
+
+        Button.js      
+
+        LoadingSpinner.js      setMessages(prev => [
+
+  ```        ...prev,
+
         { role: 'user', content },
-        { role: 'assistant', content: response.data.response }
+
+---        { role: 'assistant', content: response.data.response }
+
       ]);
-      setConversationId(response.data.conversationId);
-    } finally {
-      setIsLoading(false);
-    }
+
+### ⏸️ 10. Testing Infrastructure      setConversationId(response.data.conversationId);
+
+**Priority:** P1 - High      } finally {
+
+**Status:** NOT STARTED ⏸️        setIsLoading(false);
+
+**Duration:** 2-3 weeks    }
+
   }, [messages, conversationId]);
-  
-  return { messages, sendMessage, isLoading, conversationId };
-};
-```
+
+**Backend Testing:**  
+
+- [ ] Expand unit test coverage to > 80%  return { messages, sendMessage, isLoading, conversationId };
+
+- [ ] Add integration tests for streaming endpoints};
+
+- [ ] Add tests for Azure routing logic```
+
+- [ ] Performance regression tests
 
 ---
 
-### 8. TypeScript Migration (Optional)
-**Priority:** P2 - Medium  
-**Status:** NOT STARTED ⏸️  
-**Duration:** 1 week  
-**Dependencies:** Component refactor (#7)  
+**Frontend Testing:**
 
-**Tasks:**
-- [ ] Add TypeScript configuration
-- [ ] Convert components to `.tsx`
-- [ ] Add type definitions for API responses
+- [ ] Set up Jest + React Testing Library### 8. TypeScript Migration (Optional)
+
+- [ ] Unit tests for custom hooks**Priority:** P2 - Medium  
+
+- [ ] Component tests for UI elements**Status:** NOT STARTED ⏸️  
+
+- [ ] Integration tests for API interactions**Duration:** 1 week  
+
+- [ ] E2E tests with Playwright/Cypress**Dependencies:** Component refactor (#7)  
+
+  - [ ] User registration and login flow
+
+  - [ ] API key management**Tasks:**
+
+  - [ ] Chat conversation flow- [ ] Add TypeScript configuration
+
+  - [ ] Comparison mode with streaming- [ ] Convert components to `.tsx`
+
+  - [ ] Vote/preference recording- [ ] Add type definitions for API responses
+
 - [ ] Add prop types for components
-- [ ] Add utility types
 
-**Note:** This is optional but highly recommended for large applications.
+**Current Status:** 12/13 backend tests passing (92%)- [ ] Add utility types
 
----
 
-## 🟢 PHASE 4: Testing & Quality (WEEKS 6-8)
+
+---**Note:** This is optional but highly recommended for large applications.
+
+
+
+### ⏸️ 11. Conversation Management UI---
+
+**Priority:** P2 - Medium  
+
+**Status:** NOT STARTED ⏸️  ## 🟢 PHASE 4: Testing & Quality (WEEKS 6-8)
+
+**Duration:** 1 week
 
 ### 9. Frontend Testing Suite
-**Priority:** P1 - High  
-**Status:** NOT STARTED ⏸️  
-**Duration:** 1-2 weeks  
-**Dependencies:** Component refactor (#7)  
 
-**Current Coverage:** 0% ❌
+**Tasks:****Priority:** P1 - High  
 
-**Tasks:**
+- [ ] Create ConversationSidebar component**Status:** NOT STARTED ⏸️  
+
+- [ ] Add conversation list with search/filter**Duration:** 1-2 weeks  
+
+- [ ] Add conversation rename/delete**Dependencies:** Component refactor (#7)  
+
+- [ ] Add "New Conversation" button
+
+- [ ] Add conversation metadata (date, message count)**Current Coverage:** 0% ❌
+
+- [ ] Implement conversation switching
+
+- [ ] Add conversation export (JSON/Markdown)**Tasks:**
+
 - [ ] **Setup:**
-  - [ ] Install Jest, React Testing Library, @testing-library/user-event
-  - [ ] Configure test environment
-  - [ ] Add test scripts to package.json
+
+**Mockup:**  - [ ] Install Jest, React Testing Library, @testing-library/user-event
+
+```  - [ ] Configure test environment
+
+┌────────────────────┬─────────────────────────┐  - [ ] Add test scripts to package.json
+
+│ Conversations      │ Chat                    │  
+
+│ ──────────────────│                         │- [ ] **Component tests:**
+
+│ 🔍 Search...      │ Messages...             │  - [ ] MessageList component tests
+
+│                    │                         │  - [ ] MessageInput component tests
+
+│ Today              │                         │  - [ ] Header component tests
+
+│ • Code Review Help │                         │  - [ ] Modal component tests
+
+│ • API Design Q...  │                         │  - [ ] ComparisonMode tests (when implemented)
+
+│                    │                         │  
+
+│ Yesterday          │                         │- [ ] **Hook tests:**
+
+│ • Debug SQL Query  │                         │  - [ ] useAuth tests
+
+└────────────────────┴─────────────────────────┘  - [ ] useChat tests
+
+```  - [ ] useComparison tests
+
   
-- [ ] **Component tests:**
-  - [ ] MessageList component tests
-  - [ ] MessageInput component tests
-  - [ ] Header component tests
-  - [ ] Modal component tests
-  - [ ] ComparisonMode tests (when implemented)
-  
-- [ ] **Hook tests:**
-  - [ ] useAuth tests
-  - [ ] useChat tests
-  - [ ] useComparison tests
-  
-- [ ] **Integration tests:**
+
+---- [ ] **Integration tests:**
+
   - [ ] Complete user flow tests
-  - [ ] API integration tests (mocked)
-  
-- [ ] **Target:** 80%+ code coverage
 
-**Example Test:**
-```javascript
+## 🟠 PHASE 5: User Experience Enhancements (NOT STARTED ⏸️)  - [ ] API integration tests (mocked)
+
+  
+
+### ⏸️ 12. Comparison Export- [ ] **Target:** 80%+ code coverage
+
+**Priority:** P2 - Medium  
+
+**Status:** NOT STARTED ⏸️  **Example Test:**
+
+**Duration:** 3-4 days```javascript
+
 // components/__tests__/MessageList.test.js
-import { render, screen } from '@testing-library/react';
-import MessageList from '../MessageList';
 
-describe('MessageList', () => {
-  it('renders messages correctly', () => {
-    const messages = [
+**Tasks:**import { render, screen } from '@testing-library/react';
+
+- [ ] Export comparison as Markdownimport MessageList from '../MessageList';
+
+- [ ] Export comparison as PDF
+
+- [ ] Export comparison as JSONdescribe('MessageList', () => {
+
+- [ ] Add export button to ComparisonMode  it('renders messages correctly', () => {
+
+- [ ] Include metadata in exports (models, timing, tokens)    const messages = [
+
       { role: 'user', content: 'Hello' },
-      { role: 'assistant', content: 'Hi!' }
+
+---      { role: 'assistant', content: 'Hi!' }
+
     ];
-    
-    render(<MessageList messages={messages} isLoading={false} />);
-    
-    expect(screen.getByText('Hello')).toBeInTheDocument();
+
+### ⏸️ 13. Mobile Responsive Design    
+
+**Priority:** P2 - Medium      render(<MessageList messages={messages} isLoading={false} />);
+
+**Status:** NOT STARTED ⏸️      
+
+**Duration:** 1 week    expect(screen.getByText('Hello')).toBeInTheDocument();
+
     expect(screen.getByText('Hi!')).toBeInTheDocument();
-  });
-  
-  it('shows loading indicator', () => {
-    render(<MessageList messages={[]} isLoading={true} />);
-    expect(screen.getByTestId('loading-indicator')).toBeInTheDocument();
-  });
-});
+
+**Tasks:**  });
+
+- [ ] Optimize comparison layout for mobile (stack vertically)  
+
+- [ ] Add touch gestures for scrolling  it('shows loading indicator', () => {
+
+- [ ] Optimize button sizes for touch    render(<MessageList messages={[]} isLoading={true} />);
+
+- [ ] Test on iOS and Android devices    expect(screen.getByTestId('loading-indicator')).toBeInTheDocument();
+
+- [ ] Ensure keyboard doesn't obscure input  });
+
+- [ ] Add mobile-specific navigation});
+
 ```
 
 ---
 
-### 10. Backend Test Coverage Expansion
-**Priority:** P1 - High  
-**Status:** IN PROGRESS 🚧  
+---
+
+### ⏸️ 14. Accessibility Improvements
+
+**Priority:** P2 - Medium  ### 10. Backend Test Coverage Expansion
+
+**Status:** NOT STARTED ⏸️  **Priority:** P1 - High  
+
+**Duration:** 3-5 days**Status:** IN PROGRESS 🚧  
+
 **Duration:** 1 week  
-**Dependencies:** None  
 
-**Current Coverage:** ~30% (basic tests exist)  
-**Target Coverage:** 90%+
+**Tasks:****Dependencies:** None  
 
-**Tasks:**
-- [ ] **Streaming tests:**
-  - [ ] SSE endpoint tests
+- [ ] Add ARIA labels to all interactive elements
+
+- [ ] Ensure keyboard navigation works everywhere**Current Coverage:** ~30% (basic tests exist)  
+
+- [ ] Add focus indicators**Target Coverage:** 90%+
+
+- [ ] Test with screen readers (NVDA, JAWS, VoiceOver)
+
+- [ ] Add alt text to all images/icons**Tasks:**
+
+- [ ] Ensure color contrast meets WCAG AA standards- [ ] **Streaming tests:**
+
+- [ ] Add skip links for keyboard users  - [ ] SSE endpoint tests
+
   - [ ] Stream error handling
-  - [ ] Stream cancellation
+
+---  - [ ] Stream cancellation
+
   
-- [ ] **Comparison tests:**
-  - [ ] Multi-model comparison
-  - [ ] Parallel execution tests
-  - [ ] Timeout handling
+
+### ⏸️ 15. Theme Toggle (Dark/Light Mode)- [ ] **Comparison tests:**
+
+**Priority:** P2 - Medium    - [ ] Multi-model comparison
+
+**Status:** NOT STARTED ⏸️    - [ ] Parallel execution tests
+
+**Duration:** 2-3 days  - [ ] Timeout handling
+
   - [ ] Partial failure tests
-  
-- [ ] **Authentication tests:**
-  - [ ] JWT token refresh
-  - [ ] Session expiration
-  - [ ] CSRF protection
-  - [ ] Rate limiting enforcement
-  
+
+**Tasks:**  
+
+- [ ] Create light mode color palette- [ ] **Authentication tests:**
+
+- [ ] Add theme toggle button to header  - [ ] JWT token refresh
+
+- [ ] Persist theme preference to localStorage  - [ ] Session expiration
+
+- [ ] Update all components to support both themes  - [ ] CSRF protection
+
+- [ ] Ensure syntax highlighting works in both themes  - [ ] Rate limiting enforcement
+
+- [ ] Test for color contrast in both themes  
+
 - [ ] **LLM service tests:**
-  - [ ] Provider-specific tests
+
+---  - [ ] Provider-specific tests
+
   - [ ] Retry logic tests
-  - [ ] Response parsing tests
-  - [ ] Error handling tests
-  
-- [ ] **Database tests:**
+
+### ⏸️ 16. Keyboard Shortcuts  - [ ] Response parsing tests
+
+**Priority:** P3 - Low    - [ ] Error handling tests
+
+**Status:** NOT STARTED ⏸️    
+
+**Duration:** 2-3 days- [ ] **Database tests:**
+
   - [ ] Conversation persistence
-  - [ ] Message ordering
-  - [ ] User isolation
-  - [ ] API key encryption/decryption
 
-**Example Test:**
-```python
-# tests/test_comparison.py
+**Tasks:**  - [ ] Message ordering
+
+- [ ] Add shortcut for new conversation (Ctrl+N)  - [ ] User isolation
+
+- [ ] Add shortcut for focus input (Ctrl+/)  - [ ] API key encryption/decryption
+
+- [ ] Add shortcut for submit message (Ctrl+Enter)
+
+- [ ] Add shortcut for cancel request (Escape)**Example Test:**
+
+- [ ] Add shortcut for mode toggle (Ctrl+M)```python
+
+- [ ] Add keyboard shortcut help modal (?)# tests/test_comparison.py
+
 def test_compare_multiple_models(client, app, monkeypatch):
-    """Test side-by-side comparison of multiple models"""
-    register_and_login(client)
-    
-    responses = {"openai": "GPT response", "anthropic": "Claude response"}
-    
-    def fake_invoke(provider, model, messages, api_key):
-        return responses[provider]
-    
-    monkeypatch.setattr(app.extensions["services"].llm, "invoke", fake_invoke)
-    
-    response = client.post("/api/v1/compare", json={
-        "prompt": "Hello",
-        "providers": [
-            {"provider": "openai", "model": "gpt-4"},
-            {"provider": "anthropic", "model": "claude-3-5-sonnet-20241022"}
-        ]
-    })
-    
-    assert response.status_code == 200
-    data = response.get_json()
-    assert data["openai"] == "GPT response"
-    assert data["anthropic"] == "Claude response"
-```
 
----
+---    """Test side-by-side comparison of multiple models"""
+
+    register_and_login(client)
+
+## 🔵 PHASE 6: Advanced Features (NOT STARTED ⏸️)    
+
+    responses = {"openai": "GPT response", "anthropic": "Claude response"}
+
+### ⏸️ 17. Model Configuration Panel    
+
+**Priority:** P3 - Low      def fake_invoke(provider, model, messages, api_key):
+
+**Status:** NOT STARTED ⏸️          return responses[provider]
+
+**Duration:** 3-5 days    
+
+    monkeypatch.setattr(app.extensions["services"].llm, "invoke", fake_invoke)
+
+**Tasks:**    
+
+- [ ] Add advanced settings panel    response = client.post("/api/v1/compare", json={
+
+- [ ] Temperature control slider        "prompt": "Hello",
+
+- [ ] Max tokens slider        "providers": [
+
+- [ ] Top-p slider            {"provider": "openai", "model": "gpt-4"},
+
+- [ ] Frequency penalty slider            {"provider": "anthropic", "model": "claude-3-5-sonnet-20241022"}
+
+- [ ] Presence penalty slider        ]
+
+- [ ] System message customization    })
+
+- [ ] Save custom presets    
+
+- [ ] Provider-specific settings    assert response.status_code == 200
+
+    data = response.get_json()
+
+---    assert data["openai"] == "GPT response"
+
+    assert data["anthropic"] == "Claude response"
+
+### ⏸️ 18. Cost Tracking & Analytics```
+
+**Priority:** P3 - Low  
+
+**Status:** NOT STARTED ⏸️  ---
+
+**Duration:** 1 week
 
 ### 11. E2E Testing with Playwright
-**Priority:** P2 - Medium  
-**Status:** NOT STARTED ⏸️  
-**Duration:** 3-4 days  
-**Dependencies:** Comparison UI (#4)  
 
-**Tasks:**
-- [ ] Install Playwright
-- [ ] Configure test environment
-- [ ] Write critical user flows:
+**Tasks:****Priority:** P2 - Medium  
+
+- [ ] Track token usage per provider**Status:** NOT STARTED ⏸️  
+
+- [ ] Calculate costs based on current pricing**Duration:** 3-4 days  
+
+- [ ] Show cost per conversation**Dependencies:** Comparison UI (#4)  
+
+- [ ] Show cost per comparison
+
+- [ ] Monthly cost dashboard**Tasks:**
+
+- [ ] Set budget alerts- [ ] Install Playwright
+
+- [ ] Export usage reports (CSV)- [ ] Configure test environment
+
+- [ ] Visualize usage trends- [ ] Write critical user flows:
+
   - [ ] User registration and login
-  - [ ] API key configuration
+
+---  - [ ] API key configuration
+
   - [ ] Single model chat
-  - [ ] Multi-model comparison
-  - [ ] Conversation history
-  - [ ] Settings management
+
+### ⏸️ 19. Voice Input/Output  - [ ] Multi-model comparison
+
+**Priority:** P3 - Low    - [ ] Conversation history
+
+**Status:** NOT STARTED ⏸️    - [ ] Settings management
+
+**Duration:** 1 week
 
 **Example E2E Test:**
-```javascript
-// e2e/comparison.spec.js
-import { test, expect } from '@playwright/test';
 
-test('compare multiple models', async ({ page }) => {
-  await page.goto('http://localhost:3044');
-  
+**Tasks:**```javascript
+
+- [ ] Integrate Web Speech API// e2e/comparison.spec.js
+
+- [ ] Add microphone buttonimport { test, expect } from '@playwright/test';
+
+- [ ] Add voice transcription (speech-to-text)
+
+- [ ] Add text-to-speech for responsestest('compare multiple models', async ({ page }) => {
+
+- [ ] Handle multiple languages  await page.goto('http://localhost:3044');
+
+- [ ] Add voice activity detection  
+
   // Login
-  await page.click('text=Sign in');
-  await page.fill('input[name="username"]', 'testuser');
-  await page.fill('input[name="password"]', 'testpass');
-  await page.click('button:has-text("Login")');
-  
-  // Switch to compare mode
-  await page.click('button:has-text("Compare")');
-  
-  // Select models
-  await page.click('text=Add model');
-  await page.selectOption('select[name="provider"]', 'openai');
-  
-  // Send prompt
-  await page.fill('textarea', 'Explain quantum computing');
-  await page.click('button[type="submit"]');
-  
-  // Verify responses appear
-  await expect(page.locator('.response-card').first()).toBeVisible();
-});
-```
 
----
+---  await page.click('text=Sign in');
+
+  await page.fill('input[name="username"]', 'testuser');
+
+### ⏸️ 20. Conversation Templates  await page.fill('input[name="password"]', 'testpass');
+
+**Priority:** P3 - Low    await page.click('button:has-text("Login")');
+
+**Status:** NOT STARTED ⏸️    
+
+**Duration:** 3-5 days  // Switch to compare mode
+
+  await page.click('button:has-text("Compare")');
+
+**Tasks:**  
+
+- [ ] Create template library  // Select models
+
+- [ ] Add template categories (code, writing, analysis, etc.)  await page.click('text=Add model');
+
+- [ ] User-created templates  await page.selectOption('select[name="provider"]', 'openai');
+
+- [ ] Template variables/placeholders  
+
+- [ ] Template sharing (import/export)  // Send prompt
+
+  await page.fill('textarea', 'Explain quantum computing');
+
+---  await page.click('button[type="submit"]');
+
+  
+
+## 🆕 NEW FEATURES (BACKLOG)  // Verify responses appear
+
+  await expect(page.locator('.response-card').first()).toBeVisible();
+
+### ⏸️ 21. Comparison Output Difference Summarizer});
+
+**Priority:** P2 - Medium  ```
+
+**Status:** NOT STARTED ⏸️  
+
+**Duration:** 1 week  ---
+
+**Added:** November 6, 2025
 
 ## 🔵 PHASE 5: Conversation Management (WEEKS 7-8)
 
-### 12. Conversation Sidebar & History
+**Description:**  
+
+After generating outputs from multiple models in the 'compare' feature, add a button that analyzes and summarizes the key differences between each output in a structured table format.### 12. Conversation Sidebar & History
+
 **Priority:** P2 - Medium  
-**Status:** NOT STARTED ⏸️  
-**Duration:** 1 week  
-**Dependencies:** None  
 
-**Tasks:**
-- [ ] **Backend:**
-  - [ ] Add `GET /api/v1/conversations` endpoint
-  - [ ] Add `DELETE /api/v1/conversations/:id` endpoint
-  - [ ] Add `PATCH /api/v1/conversations/:id` endpoint (rename)
-  - [ ] Add conversation search endpoint
-  - [ ] Add pagination support
-  
-- [ ] **Frontend:**
-  - [ ] Create ConversationSidebar component
+**Feature Details:****Status:** NOT STARTED ⏸️  
+
+- Add "Summarize Differences" button that appears after all model outputs are generated**Duration:** 1 week  
+
+- When clicked, analyze the outputs and identify:**Dependencies:** None  
+
+  - Content differences (what information each model included/excluded)
+
+  - Structural differences (formatting, organization)**Tasks:**
+
+  - Tone/style differences- [ ] **Backend:**
+
+  - Length variations  - [ ] Add `GET /api/v1/conversations` endpoint
+
+  - Key factual discrepancies  - [ ] Add `DELETE /api/v1/conversations/:id` endpoint
+
+- Present findings in a summary table with columns for:  - [ ] Add `PATCH /api/v1/conversations/:id` endpoint (rename)
+
+  - Aspect/Category  - [ ] Add conversation search endpoint
+
+  - Model 1  - [ ] Add pagination support
+
+  - Model 2  
+
+  - Model N (for each model compared)- [ ] **Frontend:**
+
+- Make the comparison actionable and easy to scan  - [ ] Create ConversationSidebar component
+
   - [ ] Add conversation list with timestamps
-  - [ ] Implement search/filter
-  - [ ] Add "New conversation" button
-  - [ ] Add conversation deletion
-  - [ ] Add conversation renaming
-  - [ ] Show active conversation indicator
-  
-- [ ] **UX:**
-  - [ ] Collapsible sidebar (toggle)
-  - [ ] Keyboard shortcuts (Ctrl+K for search)
+
+**Technical Considerations:**  - [ ] Implement search/filter
+
+- May need to use an LLM to perform the comparison analysis  - [ ] Add "New conversation" button
+
+  - Could use cheapest available model (e.g., gpt-4o-mini) to reduce costs  - [ ] Add conversation deletion
+
+  - Or use dedicated comparison/analysis model  - [ ] Add conversation renaming
+
+- Consider caching results if the same outputs are compared multiple times  - [ ] Show active conversation indicator
+
+- UI should handle variable number of models being compared (2-4)  
+
+- Table should be responsive and readable on all devices- [ ] **UX:**
+
+- Button should be disabled during streaming  - [ ] Collapsible sidebar (toggle)
+
+- Consider adding option to export the difference summary  - [ ] Keyboard shortcuts (Ctrl+K for search)
+
   - [ ] Drag to reorder
-  - [ ] Pin important conversations
 
-**Mockup:**
-```
-┌──────────┬───────────────────────┐
-│ 🔍 Search│  Current Chat         │
+**Implementation Approach:**  - [ ] Pin important conversations
+
+1. Add new backend endpoint: `POST /api/v1/comparisons/:id/analyze`
+
+2. Use LLM to generate structured difference analysis**Mockup:**
+
+3. Create `DifferenceSummary` component for display```
+
+4. Add "Summarize Differences" button to ComparisonMode┌──────────┬───────────────────────┐
+
+5. Display results in collapsible panel or modal│ 🔍 Search│  Current Chat         │
+
 ├──────────┤                       │
-│ 📌 Pinned│                       │
-│ · Conv 1 │                       │
-│          │                       │
-│ 📅 Today │                       │
-│ · Conv 2 │                       │
-│ · Conv 3 │                       │
-│          │                       │
-│ 📅 Yest. │                       │
-│ · Conv 4 │                       │
-│          │                       │
-│ [+ New]  │                       │
-└──────────┴───────────────────────┘
-```
 
----
+**Dependencies:**│ 📌 Pinned│                       │
+
+- Requires comparison result to be saved (✅ already implemented)│ · Conv 1 │                       │
+
+- May require additional API credits for analysis calls│          │                       │
+
+│ 📅 Today │                       │
+
+---│ · Conv 2 │                       │
+
+│ · Conv 3 │                       │
+
+## 🐛 KNOWN ISSUES & TECHNICAL DEBT│          │                       │
+
+│ 📅 Yest. │                       │
+
+### Performance Issues│ · Conv 4 │                       │
+
+│          │                       │
+
+#### 1. Parallel API Calls for Same Provider│ [+ New]  │                       │
+
+**Priority:** P2 - Medium  └──────────┴───────────────────────┘
+
+**Status:** NOT STARTED ⏸️  ```
+
+
+
+**Problem:**  ---
+
+When comparing multiple models from the same provider (e.g., GPT-4o and GPT-3.5-Turbo from OpenAI), requests may execute sequentially rather than in parallel, causing unnecessary delays.
 
 ### 13. Conversation Export & Sharing
-**Priority:** P3 - Low  
-**Status:** NOT STARTED ⏸️  
-**Duration:** 3-4 days  
-**Dependencies:** Conversation sidebar (#12)  
+
+**Investigation Needed:****Priority:** P3 - Low  
+
+1. Verify if requests library's Session object is causing sequential execution**Status:** NOT STARTED ⏸️  
+
+2. Check API provider rate limits**Duration:** 3-4 days  
+
+3. Test impact of connection pool size**Dependencies:** Conversation sidebar (#12)  
+
+4. Consider per-provider connection pool configuration
 
 **Tasks:**
-- [ ] **Export formats:**
-  - [ ] Export as Markdown
-  - [ ] Export as JSON
-  - [ ] Export as PDF (using jsPDF)
-  - [ ] Export as HTML
-  
-- [ ] **Sharing (optional):**
-  - [ ] Generate shareable link
-  - [ ] Anonymous viewing mode
-  - [ ] Expiration settings
-  - [ ] Password protection
+
+**Proposed Solutions:**- [ ] **Export formats:**
+
+1. **Connection Pool Tuning:**  - [ ] Export as Markdown
+
+   ```python  - [ ] Export as JSON
+
+   from requests.adapters import HTTPAdapter  - [ ] Export as PDF (using jsPDF)
+
+   adapter = HTTPAdapter(pool_connections=10, pool_maxsize=20)  - [ ] Export as HTML
+
+   ```  
+
+2. **Provider-Specific Rate Limit Handling:**- [ ] **Sharing (optional):**
+
+   - Research rate limits per provider  - [ ] Generate shareable link
+
+   - Implement provider-specific semaphores if needed  - [ ] Anonymous viewing mode
+
+3. **Async Architecture (Future):**  - [ ] Expiration settings
+
+   - Consider migrating to `httpx` or `aiohttp`  - [ ] Password protection
+
+   - Would require Flask async views or FastAPI migration
 
 ---
 
-## ⚡ PHASE 6: Performance & Optimization (WEEKS 9-10)
+**Acceptance Criteria:**
 
-### 14. Response Caching
-**Priority:** P2 - Medium  
+- Multiple models from same provider complete in parallel## ⚡ PHASE 6: Performance & Optimization (WEEKS 9-10)
+
+- No increase in API errors or rate limit violations
+
+- Total comparison time reduced### 14. Response Caching
+
+- Connection pool metrics logged**Priority:** P2 - Medium  
+
 **Status:** NOT STARTED ⏸️  
-**Duration:** 3-4 days  
+
+**Estimated Effort:** 1-2 days**Duration:** 3-4 days  
+
 **Dependencies:** None  
 
+---
+
 **Tasks:**
-- [ ] Install Redis
+
+### Frontend Issues- [ ] Install Redis
+
 - [ ] Implement cache key generation (hash of prompt + model)
-- [ ] Add cache lookup before API calls
-- [ ] Set appropriate TTL (1 hour suggested)
-- [ ] Add cache invalidation
+
+#### 2. Bundle Size Optimization- [ ] Add cache lookup before API calls
+
+**Priority:** P2 - Medium  - [ ] Set appropriate TTL (1 hour suggested)
+
+**Status:** NOT STARTED ⏸️- [ ] Add cache invalidation
+
 - [ ] Add cache statistics endpoint
 
-**Implementation:**
+**Problem:**  
+
+Bundle size increased to 1020 KiB (from 246 KiB) due to syntax highlighter library including 277 languages.**Implementation:**
+
 ```python
-# llmselect/services/llm.py
-import hashlib
-import redis
 
-class LLMService:
+**Proposed Solutions:**# llmselect/services/llm.py
+
+- [ ] Implement code splitting for syntax highlighterimport hashlib
+
+- [ ] Lazy load language support (load on-demand)import redis
+
+- [ ] Consider using lighter alternative (e.g., highlight.js with selective languages)
+
+- [ ] Add bundle size monitoring to CI/CDclass LLMService:
+
     def __init__(self):
-        self.redis = redis.Redis(host='localhost', port=6379, decode_responses=True)
+
+**Target:** Reduce bundle to < 500 KiB        self.redis = redis.Redis(host='localhost', port=6379, decode_responses=True)
+
     
-    def invoke(self, provider, model, messages, api_key):
+
+---    def invoke(self, provider, model, messages, api_key):
+
         # Check cache
-        cache_key = self._generate_cache_key(provider, model, messages)
+
+### Backend Issues        cache_key = self._generate_cache_key(provider, model, messages)
+
         cached = self.redis.get(cache_key)
-        if cached:
-            return cached
-        
+
+#### 3. Incomplete Error Handling        if cached:
+
+**Priority:** P2 - Medium              return cached
+
+**Status:** PARTIAL ✅        
+
         # Call provider
-        response = self._call_provider(provider, model, messages, api_key)
-        
-        # Cache for 1 hour
-        self.redis.setex(cache_key, 3600, response)
-        
+
+**Remaining Tasks:**        response = self._call_provider(provider, model, messages, api_key)
+
+- [ ] Custom error pages (404, 500, etc.)        
+
+- [ ] Client-side error reporting (Sentry integration)        # Cache for 1 hour
+
+- [ ] Better error messages for API key validation failures        self.redis.setex(cache_key, 3600, response)
+
+- [ ] Timeout handling for long-running streaming requests        
+
         return response
-```
 
----
+---```
 
-### 15. Bundle Optimization & Code Splitting
-**Priority:** P2 - Medium  
-**Status:** NOT STARTED ⏸️  
-**Duration:** 2-3 days  
-**Dependencies:** None  
 
-**Tasks:**
-- [ ] Configure webpack code splitting
-- [ ] Lazy load comparison mode
-- [ ] Lazy load markdown renderer
-- [ ] Separate vendor bundles
-- [ ] Add bundle analysis
-- [ ] Optimize images and assets
-- [ ] Enable gzip compression
 
-**Webpack Config:**
-```javascript
+## 📅 Implementation Roadmap---
+
+
+
+### **Q1 2025 (Completed ✅)**### 15. Bundle Optimization & Code Splitting
+
+- ✅ Phase 1: Security & Backend Architecture (Weeks 1-4)**Priority:** P2 - Medium  
+
+- ✅ Phase 2: Comparison Mode UI (Weeks 5-7)**Status:** NOT STARTED ⏸️  
+
+- ✅ Phase 3: Real-Time Streaming (Weeks 8-9)**Duration:** 2-3 days  
+
+- ✅ Azure AI Foundry Integration (Week 10)**Dependencies:** None  
+
+
+
+### **Q2 2025 (Planned)****Tasks:**
+
+- 🚧 Phase 4: Performance & Polish (Weeks 11-14)- [ ] Configure webpack code splitting
+
+  - Database optimization- [ ] Lazy load comparison mode
+
+  - Response caching- [ ] Lazy load markdown renderer
+
+  - Frontend refactor- [ ] Separate vendor bundles
+
+  - Testing infrastructure- [ ] Add bundle analysis
+
+- ⏸️ Phase 5: UX Enhancements (Weeks 15-18)- [ ] Optimize images and assets
+
+  - Comparison export- [ ] Enable gzip compression
+
+  - Mobile responsive design
+
+  - Accessibility improvements**Webpack Config:**
+
+  - Theme toggle```javascript
+
 // webpack.config.js
-module.exports = {
-  optimization: {
-    splitChunks: {
-      chunks: 'all',
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          priority: 10
-        },
+
+### **Q3 2025 (Planned)**module.exports = {
+
+- ⏸️ Phase 6: Advanced Features (Weeks 19-24)  optimization: {
+
+  - Model configuration panel    splitChunks: {
+
+  - Cost tracking      chunks: 'all',
+
+  - Conversation templates      cacheGroups: {
+
+  - Difference summarizer        vendor: {
+
+- ⏸️ Production deployment preparation          test: /[\\/]node_modules[\\/]/,
+
+  - Load testing          name: 'vendors',
+
+  - Security audit          priority: 10
+
+  - Documentation finalization        },
+
         react: {
-          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+
+---          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+
           name: 'react',
-          priority: 20
+
+## 🎯 Success Metrics          priority: 20
+
         }
-      }
-    }
-  }
-};
-```
 
----
+### Phase 1 Success Criteria (✅ MET)      }
 
-### 16. Performance Monitoring
-**Priority:** P3 - Low  
-**Status:** NOT STARTED ⏸️  
+- ✅ Zero security vulnerabilities in dependency scan    }
+
+- ✅ All API keys encrypted at rest  }
+
+- ✅ JWT authentication working with token refresh};
+
+- ✅ Rate limiting prevents abuse```
+
+
+
+### Phase 2 Success Criteria (✅ MET)---
+
+- ✅ Users can compare 2-4 models side-by-side
+
+- ✅ Comparison results are persisted to database### 16. Performance Monitoring
+
+- ✅ Users can vote on preferred responses**Priority:** P3 - Low  
+
+- ✅ Comparison history accessible**Status:** NOT STARTED ⏸️  
+
 **Duration:** 2-3 days  
-**Dependencies:** None  
 
-**Tasks:**
-- [ ] Add Web Vitals tracking
-- [ ] Implement custom performance marks
-- [ ] Add API response time tracking
+### Phase 3 Success Criteria (✅ MET)**Dependencies:** None  
+
+- ✅ Time to first token < 1 second (achieved: < 1s)
+
+- ✅ Multiple models stream in parallel without blocking**Tasks:**
+
+- ✅ Markdown rendering with syntax highlighting works- [ ] Add Web Vitals tracking
+
+- ✅ Code blocks are readable with copy buttons- [ ] Implement custom performance marks
+
+- ✅ Comparison history UI displays past results- [ ] Add API response time tracking
+
 - [ ] Track LLM provider latency
-- [ ] Add error rate monitoring
-- [ ] Create performance dashboard
 
----
+### Phase 4 Success Criteria (🚧 IN PROGRESS)- [ ] Add error rate monitoring
 
-## 🎨 PHASE 7: UX/UI Polish (WEEKS 10-11)
+- [ ] Page load time < 1 second- [ ] Create performance dashboard
 
-### 17. Accessibility (a11y) Improvements
-**Priority:** P2 - Medium  
-**Status:** NOT STARTED ⏸️  
-**Duration:** 3-4 days  
-**Dependencies:** None  
+- [ ] Common database queries < 50ms
 
-**Tasks:**
+- [ ] No N+1 query issues---
+
+- [ ] Frontend architecture uses custom hooks and Context API
+
+- [ ] Test coverage > 80%## 🎨 PHASE 7: UX/UI Polish (WEEKS 10-11)
+
+
+
+### Phase 5 Success Criteria (⏸️ NOT STARTED)### 17. Accessibility (a11y) Improvements
+
+- [ ] Mobile responsive on all devices**Priority:** P2 - Medium  
+
+- [ ] Passes WCAG AA accessibility standards**Status:** NOT STARTED ⏸️  
+
+- [ ] Supports dark and light themes**Duration:** 3-4 days  
+
+- [ ] Keyboard shortcuts implemented**Dependencies:** None  
+
+
+
+---**Tasks:**
+
 - [ ] Add ARIA labels to all interactive elements
-- [ ] Implement keyboard navigation (Tab, Arrow keys)
+
+## 📊 Technical Debt Summary- [ ] Implement keyboard navigation (Tab, Arrow keys)
+
 - [ ] Add focus indicators
-- [ ] Improve color contrast (WCAG AA compliance)
+
+### By Priority- [ ] Improve color contrast (WCAG AA compliance)
+
 - [ ] Add skip-to-content link
-- [ ] Test with screen readers (NVDA, JAWS)
-- [ ] Add alt text for all images
-- [ ] Support reduced motion preferences
 
----
+| Priority | Total Items | Est. Time |- [ ] Test with screen readers (NVDA, JAWS)
 
-### 18. Mobile Responsiveness
+|----------|-------------|-----------|- [ ] Add alt text for all images
+
+| P0 - Critical | 0 items | 0 weeks (all complete ✅) |- [ ] Support reduced motion preferences
+
+| P1 - High | 4 items | 5-8 weeks |
+
+| P2 - Medium | 8 items | 6-9 weeks |---
+
+| P3 - Low | 7 items | 5-8 weeks |
+
+| **Total** | **19 items** | **16-25 weeks** |### 18. Mobile Responsiveness
+
 **Priority:** P2 - Medium  
-**Status:** NOT STARTED ⏸️  
-**Duration:** 3-4 days  
-**Dependencies:** Comparison UI (#4)  
 
-**Tasks:**
-- [ ] Responsive comparison layout (stack on mobile)
-- [ ] Touch-friendly tap targets (min 44x44px)
-- [ ] Mobile-optimized sidebar (drawer)
-- [ ] Swipe gestures for navigation
+### By Category**Status:** NOT STARTED ⏸️  
+
+**Duration:** 3-4 days  
+
+| Category | Items | Status |**Dependencies:** Comparison UI (#4)  
+
+|----------|-------|--------|
+
+| Security & Auth | 2 | 100% Complete ✅ |**Tasks:**
+
+| Backend Architecture | 4 | 75% Complete (caching, optimization pending) |- [ ] Responsive comparison layout (stack on mobile)
+
+| Frontend UI/UX | 8 | 60% Complete (refactor, mobile, accessibility pending) |- [ ] Touch-friendly tap targets (min 44x44px)
+
+| Testing | 1 | 10% Complete (backend only) |- [ ] Mobile-optimized sidebar (drawer)
+
+| Advanced Features | 5 | 0% Complete ⏸️ |- [ ] Swipe gestures for navigation
+
 - [ ] Virtual keyboard handling
-- [ ] Test on iOS and Android
+
+---- [ ] Test on iOS and Android
+
 - [ ] Add PWA support (optional)
 
+## 📝 Notes
+
 ---
 
-### 19. Theme & Visual Polish
-**Priority:** P3 - Low  
-**Status:** NOT STARTED ⏸️  
-**Duration:** 2-3 days  
-**Dependencies:** None  
+- **Phase 1, 2, 3, and Azure Integration are complete** and delivered high-quality foundational features
 
-**Tasks:**
+- **Phase 4 (Performance)** is the current focus for production readiness### 19. Theme & Visual Polish
+
+- **Streaming is production-ready** with <1s time to first token across all providers**Priority:** P3 - Low  
+
+- **Markdown rendering** creates professional appearance for code and formatted content**Status:** NOT STARTED ⏸️  
+
+- **Azure integration** enables enterprise deployments with unified billing**Duration:** 2-3 days  
+
+- Testing infrastructure needs significant investment for long-term maintainability**Dependencies:** None  
+
+- Mobile optimization is deferred but should be prioritized for wider adoption
+
+- Advanced features (analytics, voice, templates) are nice-to-have but not critical**Tasks:**
+
 - [ ] Add light theme option
-- [ ] Implement theme toggle
+
+---- [ ] Implement theme toggle
+
 - [ ] Persist theme preference
-- [ ] Add theme transition animations
-- [ ] Refine color palette
-- [ ] Add loading skeletons
+
+**Last Updated:** November 6, 2025  - [ ] Add theme transition animations
+
+**Next Review:** January 1, 2026  - [ ] Refine color palette
+
+**Maintained By:** @jbuz- [ ] Add loading skeletons
+
 - [ ] Improve button states (hover, active, disabled)
 - [ ] Add micro-interactions
 

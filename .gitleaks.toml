@@ -1,0 +1,46 @@
+# Gitleaks configuration file
+# See https://github.com/gitleaks/gitleaks for more information
+
+title = "LLMSelect Gitleaks Configuration"
+
+[extend]
+# Extend default Gitleaks rules
+useDefault = true
+
+[allowlist]
+description = "Allowlist for known false positives"
+
+# Allowlist specific paths that are known to be safe
+paths = [
+    '''node_modules/''',
+    '''\.git/''',
+    '''\.vscode/''',
+    '''__pycache__/''',
+    '''\.pytest_cache/''',
+    '''dist/''',
+    '''build/''',
+]
+
+# Allowlist specific regex patterns that are known to be safe
+regexes = [
+    # Example API endpoints that look like keys but aren't
+    '''(https?://)?example\.com/[a-z0-9]{32}''',
+    # UUIDs and similar patterns that aren't secrets
+    '''[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}''',
+]
+
+# Allowlist specific commits (useful for historical false positives)
+# commits = [
+#     "commit-sha-here",
+# ]
+
+# Allowlist specific stopwords that indicate test/example data
+stopwords = [
+    "example",
+    "test",
+    "mock",
+    "dummy",
+    "sample",
+    "fake",
+    "placeholder",
+]
