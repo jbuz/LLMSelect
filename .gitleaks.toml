@@ -21,6 +21,7 @@ paths = [
     '''build/''',
     '''tests/conftest\.py''',  # Test configuration with test secrets
     '''scripts/test_performance\.py''',  # Performance test with test secrets
+    '''\.secrets\.baseline\.new''',  # Baseline file from previous secret scanner
 ]
 
 # Allowlist specific regex patterns that are known to be safe
