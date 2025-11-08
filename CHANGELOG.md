@@ -7,6 +7,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Phase 4.3: Testing Infrastructure Documentation (November 6, 2025)
+
+#### Testing Documentation
+- **GITHUB_COPILOT_TESTING_PROMPT.md**: Comprehensive testing strategy guide
+  - Executive summary with clear goals and success criteria
+  - 6 prioritized implementation phases
+  - Detailed phase breakdowns with timelines
+  - Success metrics and completion checklist
+  - References to detailed implementation guide
+- **SUPERPROMPT_PHASE4_TESTING.md**: Detailed implementation guide with code examples
+  - Section 1: Backend Testing Expansion (days 1-7)
+    - Streaming endpoint tests with SSE mocking
+    - Comparison parallel execution tests with timing validation
+    - Azure AI Foundry routing tests
+    - Caching tests with expiration validation
+    - Authentication edge cases (token refresh, CSRF, logout)
+  - Section 2: Frontend Testing Setup (days 8-9)
+    - Jest and React Testing Library configuration
+    - Test utilities and helpers
+    - Mock setup for EventSource, IntersectionObserver
+  - Section 3: Custom Hook Tests (days 10-12)
+    - useAuth, useChat, useStreamingChat examples
+    - useModels, useComparison test patterns
+  - Section 4: Component Tests (days 13-16)
+    - MessageList, MessageInput, ChatMode examples
+    - ComparisonMode, Header test patterns
+  - Section 5: Integration Tests (days 17-19)
+    - Registration/login flow
+    - Chat with streaming
+    - Comparison flow with voting
+  - Section 6: Documentation & Validation (days 20-21)
+    - TESTING_GUIDE.md template
+    - Coverage report generation scripts
+    - CI/CD configuration updates
+
+#### Testing Infrastructure Goals
+- Target backend test coverage: >90% (from ~30%)
+- Target frontend test coverage: >80% (from 0%)
+- Comprehensive test examples for all critical paths
+- CI/CD integration with automated coverage reports
+
+### Fixed - Security & Documentation (November 9, 2025)
+
+#### Gitleaks Configuration
+- Added `security-events: write` permission to Gitleaks workflow
+  - Enables SARIF report uploads for scheduled scans
+  - Fixes "Resource not accessible by integration" errors
+- Added `.secrets.baseline.new` to Gitleaks allowlist
+  - File contains hashed secrets from previous scanner baseline
+  - Prevents false positives in secret detection
+
+#### Documentation Reorganization
+- Archived completed Phase 4 documentation to `archive/`
+  - SUPERPROMPT_PHASE4_TESTING.md (completed and merged)
+  - SUPERPROMPT_PHASE4_PERFORMANCE_REFACTOR.md (superseded)
+  - SUPERPROMPT_PHASE6_7_PERFORMANCE_UX.md (superseded)
+  - All Phase 4 summary and implementation files
+- Created SUPERPROMPT_PHASE5_DATABASE_CACHING.md
+  - Consolidates database optimization and caching work
+  - Focuses on indexes, connection pooling, Flask-Caching
+  - Clear implementation checklist and success criteria
+- Updated backlog.md with clean phase structure
+  - Phase 1-4: Complete ✅
+  - Phase 5: IN PROGRESS 🚧 (Database + Caching)
+  - Phase 6-7: NOT STARTED ⏸️
+- Added GITHUB_PHASE5_PROMPT.md for Copilot Coding Agent
+  - Comprehensive implementation guide
+  - 7 focused PRs covering all Phase 5 work
+  - Blocker handling strategies for autonomous work
+
 ### Added - Phase 4: Performance Optimization & Code Quality
 
 #### Backend Performance (Week 1)
