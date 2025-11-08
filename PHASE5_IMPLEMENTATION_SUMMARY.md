@@ -285,11 +285,13 @@ def health_check():
         health_info["database"] = {
             "connected": True,
             "pool_size": pool.size(),
-            "checked_out": pool.checked_out_connections,
+            "checked_out": (
+                pool.checked_out_connections if hasattr(pool, "checked_out_connections") else None
+            ),
         }
     except (AttributeError, Exception):
         health_info["database"] = {"connected": True}
-    
+
     return jsonify(health_info)
 ```
 
@@ -302,7 +304,7 @@ def health_check():
   "database": {
     "connected": true,
     "pool_size": 10,
-    "checked_out": 3
+    "checked_out": 3 if hasattr(pool, "checked_out_connections") else None
   }
 }
 ```

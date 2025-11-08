@@ -182,19 +182,26 @@ def create_app() -> Flask:
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "environment": env_name,
         }
-        
+
         # Add basic database pool statistics if available (not available for SQLite)
         try:
             pool = db.engine.pool
             health_info["database"] = {
                 "connected": True,
                 "pool_size": pool.size(),
-                "checked_out": pool.checked_out_connections if hasattr(pool, 'checked_out_connections') else 0,
+                "checked_out": (
+                    pool.checked_out_connections
+                    if hasattr(pool, "checked_out_connections")
+                    else None
+                ),
             }
-        except (AttributeError, Exception):
+        except AttributeError:
             # SQLite or pool stats not available
             health_info["database"] = {"connected": True}
-        
+        except Exception as e:
+            app.logger.exception("Unexpected error in health_check database pool stats")
+            health_info["database"] = {"connected": True}
+
         return jsonify(health_info)
 
     with app.app_context():
