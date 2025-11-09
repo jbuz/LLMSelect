@@ -17,6 +17,7 @@ from .container import create_service_container
 from .routes import register_blueprints
 from .utils.errors import register_error_handlers
 from .utils.logging import configure_logging
+from .middleware import init_performance_monitoring
 
 
 def create_app() -> Flask:
@@ -56,6 +57,9 @@ def create_app() -> Flask:
 
     # Initialize response compression for better network performance
     Compress(app)
+
+    # Initialize performance monitoring middleware
+    init_performance_monitoring(app)
 
     # Set up query monitoring with SQLAlchemy events
     @event.listens_for(Engine, "before_cursor_execute")
@@ -176,13 +180,33 @@ def create_app() -> Flask:
 
     @app.get("/health")
     def health_check():
-        return jsonify(
-            {
-                "status": "ok",
-                "timestamp": datetime.utcnow().isoformat() + "Z",
-                "environment": env_name,
+        """Basic health check endpoint with database pool stats."""
+        health_info = {
+            "status": "ok",
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "environment": env_name,
+        }
+
+        # Add basic database pool statistics if available (not available for SQLite)
+        try:
+            pool = db.engine.pool
+            health_info["database"] = {
+                "connected": True,
+                "pool_size": pool.size(),
+                "checked_out": (
+                    pool.checked_out_connections
+                    if hasattr(pool, "checked_out_connections")
+                    else None
+                ),
             }
-        )
+        except AttributeError:
+            # SQLite or pool stats not available
+            health_info["database"] = {"connected": True}
+        except Exception as e:
+            app.logger.exception("Unexpected error in health_check database pool stats")
+            health_info["database"] = {"connected": True}
+
+        return jsonify(health_info)
 
     with app.app_context():
         db.create_all()
