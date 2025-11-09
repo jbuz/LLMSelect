@@ -109,13 +109,17 @@ def create_app() -> Flask:
 
     @app.before_request
     def log_request():
+        # Sanitize user-controlled values to prevent log injection
+        sanitized_method = str(request.method).replace("\r", "").replace("\n", "")
+        sanitized_path = str(request.path).replace("\r", "").replace("\n", "")
+        sanitized_remote_addr = str(request.remote_addr).replace("\r", "").replace("\n", "")
         app.logger.info(
             "request_received",
             extra={
                 "event": "request_received",
-                "method": request.method,
-                "path": request.path,
-                "remote_addr": request.remote_addr,
+                "method": sanitized_method,
+                "path": sanitized_path,
+                "remote_addr": sanitized_remote_addr,
             },
         )
 
