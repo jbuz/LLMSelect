@@ -32,15 +32,20 @@ def init_performance_monitoring(app):
 
             # Log slow requests (>500ms)
             if elapsed > 0.5:
+                # Sanitize user-controlled values to prevent log injection
+                sanitized_method = str(request.method).replace("\r", "").replace("\n", "")
+                sanitized_path = str(request.path).replace("\r", "").replace("\n", "")
+                sanitized_remote_addr = str(request.remote_addr).replace("\r", "").replace("\n", "")
+
                 logger.warning(
-                    f"Slow request: {request.method} {request.path} ({elapsed:.3f}s)",
+                    f"Slow request: {sanitized_method} {sanitized_path} ({elapsed:.3f}s)",
                     extra={
                         "event": "slow_request",
-                        "method": request.method,
-                        "path": request.path,
+                        "method": sanitized_method,
+                        "path": sanitized_path,
                         "duration": elapsed,
                         "status": response.status_code,
-                        "remote_addr": request.remote_addr,
+                        "remote_addr": sanitized_remote_addr,
                     },
                 )
 
