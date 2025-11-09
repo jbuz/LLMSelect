@@ -1,10 +1,10 @@
 name: Gitleaks Secret Detection
 
 on:
-  push:
-    branches: [ main, 'copilot/**' ]
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ main ]  # Only run on direct pushes to main, not feature branches
   schedule:
     # Run daily at 3 AM UTC to catch new secrets
     - cron: '0 3 * * *'
