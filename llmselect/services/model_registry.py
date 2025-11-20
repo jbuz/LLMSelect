@@ -5,6 +5,7 @@ It uses static fallback lists for most providers and can query OpenAI's API for
 up-to-date model information.
 """
 
+import os
 from typing import Dict, List, Optional
 
 import requests
@@ -300,7 +301,6 @@ class ModelRegistryService:
         self.session.mount("https://", adapter)
         self.session.mount("http://", adapter)
 
-    @cache.cached(timeout=86400, key_prefix="all_models")
     def get_models(self, provider: Optional[str] = None) -> List[Dict]:
         """Get list of available models with 24-hour caching.
 
@@ -313,14 +313,25 @@ class ModelRegistryService:
         if provider:
             return self._get_provider_models(provider)
 
+        # Check cache for all models
+        cache_key = "all_models"
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached
+
         # Return all models from all providers
         all_models = []
         for p in ["openai", "anthropic", "gemini", "mistral"]:
             all_models.extend(self._get_provider_models(p))
+        
+        # Cache for 24 hours
+        cache.set(cache_key, all_models, timeout=86400)
         return all_models
 
     def _get_provider_models(self, provider: str) -> List[Dict]:
         """Get models for a specific provider with caching.
+        
+        Automatically attempts to verify models with environment API keys if available.
 
         Args:
             provider: Provider name (openai, anthropic, gemini, mistral)
@@ -335,32 +346,73 @@ class ModelRegistryService:
         if cached is not None:
             return cached
 
-        # Get fresh data
+        # Check if we have an environment API key for verification
+        env_api_key = self._get_env_api_key(provider)
+        
+        # Get fresh data (with verification if API key available)
         if provider == "openai":
-            models = self._get_openai_models_static()
-        elif provider == "anthropic":
-            models = ANTHROPIC_MODELS.copy()
+            static_models = OPENAI_MODELS.copy()
+            if env_api_key:
+                available_ids = self._fetch_openai_models_from_api(env_api_key)
+                models = self._filter_available_models(static_models, available_ids)
+            else:
+                models = static_models
         elif provider == "gemini":
-            models = GEMINI_MODELS.copy()
+            static_models = GEMINI_MODELS.copy()
+            if env_api_key:
+                available_ids = self._fetch_gemini_models_from_api(env_api_key)
+                models = self._filter_available_models(static_models, available_ids)
+            else:
+                models = static_models
         elif provider == "mistral":
-            models = MISTRAL_MODELS.copy()
+            static_models = MISTRAL_MODELS.copy()
+            if env_api_key:
+                available_ids = self._fetch_mistral_models_from_api(env_api_key)
+                models = self._filter_available_models(static_models, available_ids)
+            else:
+                models = static_models
+        elif provider == "anthropic":
+            # Anthropic doesn't have a models API endpoint
+            models = ANTHROPIC_MODELS.copy()
         else:
             raise AppError(f"Unsupported provider: {provider}")
 
-        # Update cache (24 hours)
-        cache.set(cache_key, models, timeout=self.cache_ttl_seconds)
+        # Update cache (24 hours for static, 1 hour if verified)
+        cache_timeout = 3600 if env_api_key else self.cache_ttl_seconds
+        cache.set(cache_key, models, timeout=cache_timeout)
 
         return models
-
-    def _get_openai_models_static(self) -> List[Dict]:
-        """Get OpenAI models from static list.
-
-        Returns fallback static list. Dynamic API querying can be added later.
-
+    
+    def _get_env_api_key(self, provider: str) -> Optional[str]:
+        """Get API key from environment variables.
+        
+        Args:
+            provider: Provider name (openai, anthropic, gemini, mistral)
+            
         Returns:
-            List of OpenAI model dictionaries
+            API key from environment or None if not found
         """
-        return OPENAI_MODELS.copy()
+        env_var_map = {
+            "openai": "OPENAI_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY",
+            "gemini": ["GEMINI_API_KEY", "GOOGLE_API_KEY"],  # Try both
+            "mistral": "MISTRAL_API_KEY",
+        }
+        
+        env_vars = env_var_map.get(provider)
+        if not env_vars:
+            return None
+        
+        # Handle both single string and list of strings
+        if isinstance(env_vars, str):
+            env_vars = [env_vars]
+        
+        for env_var in env_vars:
+            key = os.environ.get(env_var)
+            if key and key.strip():
+                return key.strip()
+        
+        return None
 
     def _fetch_openai_models_from_api(self, api_key: str) -> List[str]:
         """Fetch available OpenAI models from the API.

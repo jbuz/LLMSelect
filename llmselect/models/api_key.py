@@ -8,6 +8,7 @@ class APIKey(db.Model, TimestampMixin):
     id = db.Column(db.Integer, primary_key=True)
     provider = db.Column(db.String(32), nullable=False)
     key_encrypted = db.Column(db.LargeBinary, nullable=False)
+    override_system_key = db.Column(db.Boolean, default=False, nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user = db.relationship("User", back_populates="api_keys")
