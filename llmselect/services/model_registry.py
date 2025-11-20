@@ -19,32 +19,11 @@ from ..utils.errors import AppError
 OPENAI_MODELS = [
     # GPT-5 Series (2025)
     {
-        "id": "gpt-5",
-        "name": "GPT-5",
+        "id": "gpt-5.1",
+        "name": "GPT-5.1",
         "provider": "openai",
-        "contextWindow": 200000,
-        "maxTokens": 16384,
-    },
-    {
-        "id": "gpt-5-mini",
-        "name": "GPT-5 Mini",
-        "provider": "openai",
-        "contextWindow": 200000,
-        "maxTokens": 16384,
-    },
-    {
-        "id": "gpt-5-nano",
-        "name": "GPT-5 Nano",
-        "provider": "openai",
-        "contextWindow": 200000,
-        "maxTokens": 8192,
-    },
-    {
-        "id": "gpt-5-pro",
-        "name": "GPT-5 Pro",
-        "provider": "openai",
-        "contextWindow": 200000,
-        "maxTokens": 32768,
+        "contextWindow": 250000,
+        "maxTokens": 20000,
     },
     # GPT-4.1 Series (2025)
     {
@@ -382,6 +361,156 @@ class ModelRegistryService:
             List of OpenAI model dictionaries
         """
         return OPENAI_MODELS.copy()
+
+    def _fetch_openai_models_from_api(self, api_key: str) -> List[str]:
+        """Fetch available OpenAI models from the API.
+        
+        Args:
+            api_key: OpenAI API key
+            
+        Returns:
+            List of available model IDs
+        """
+        try:
+            response = self.session.get(
+                "https://api.openai.com/v1/models",
+                headers={"Authorization": f"Bearer {api_key}"},
+                timeout=10,
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            # Filter for chat models (gpt and o-series)
+            models = [
+                m["id"]
+                for m in data.get("data", [])
+                if "gpt" in m["id"].lower() or m["id"].startswith("o")
+            ]
+            return models
+        except Exception:
+            return []
+
+    def _fetch_gemini_models_from_api(self, api_key: str) -> List[str]:
+        """Fetch available Gemini models from the API.
+        
+        Args:
+            api_key: Google API key
+            
+        Returns:
+            List of available model IDs
+        """
+        try:
+            response = self.session.get(
+                f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}",
+                timeout=10,
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            # Filter for generateContent models
+            models = [
+                m["name"].replace("models/", "")
+                for m in data.get("models", [])
+                if "generateContent" in m.get("supportedGenerationMethods", [])
+            ]
+            return models
+        except Exception:
+            return []
+
+    def _fetch_mistral_models_from_api(self, api_key: str) -> List[str]:
+        """Fetch available Mistral models from the API.
+        
+        Args:
+            api_key: Mistral API key
+            
+        Returns:
+            List of available model IDs
+        """
+        try:
+            response = self.session.get(
+                "https://api.mistral.ai/v1/models",
+                headers={"Authorization": f"Bearer {api_key}"},
+                timeout=10,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return [m["id"] for m in data.get("data", [])]
+        except Exception:
+            return []
+
+    def _filter_available_models(
+        self, static_models: List[Dict], available_ids: List[str]
+    ) -> List[Dict]:
+        """Filter static model list to only include models available via API.
+        
+        Args:
+            static_models: Static list of model definitions
+            available_ids: List of model IDs available from the API
+            
+        Returns:
+            Filtered list of model definitions
+        """
+        if not available_ids:
+            # If API query failed, return all static models as fallback
+            return static_models
+        
+        return [m for m in static_models if m["id"] in available_ids]
+
+    def get_models_with_verification(
+        self, provider: str, api_key: Optional[str] = None
+    ) -> List[Dict]:
+        """Get models for a provider with API verification.
+        
+        This queries the provider's API to verify which models are actually available
+        and filters the static list accordingly.
+        
+        Args:
+            provider: Provider name (openai, gemini, mistral)
+            api_key: API key for the provider (optional, uses static list if not provided)
+            
+        Returns:
+            List of verified model dictionaries
+        """
+        cache_key = f"models_verified_{provider}"
+        
+        # Try cache first
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached
+        
+        # Get static models
+        if provider == "openai":
+            static_models = OPENAI_MODELS.copy()
+            if api_key:
+                available_ids = self._fetch_openai_models_from_api(api_key)
+                models = self._filter_available_models(static_models, available_ids)
+            else:
+                models = static_models
+        elif provider == "gemini":
+            static_models = GEMINI_MODELS.copy()
+            if api_key:
+                available_ids = self._fetch_gemini_models_from_api(api_key)
+                models = self._filter_available_models(static_models, available_ids)
+            else:
+                models = static_models
+        elif provider == "mistral":
+            static_models = MISTRAL_MODELS.copy()
+            if api_key:
+                available_ids = self._fetch_mistral_models_from_api(api_key)
+                models = self._filter_available_models(static_models, available_ids)
+            else:
+                models = static_models
+        elif provider == "anthropic":
+            # Anthropic doesn't have a models API endpoint
+            models = ANTHROPIC_MODELS.copy()
+        else:
+            raise AppError(f"Unsupported provider: {provider}")
+        
+        # Cache for 1 hour (shorter than static cache since we verified)
+        cache.set(cache_key, models, timeout=3600)
+        
+        return models
+
 
     def clear_cache(self, provider: Optional[str] = None):
         """Clear the model cache.
