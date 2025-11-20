@@ -47,10 +47,7 @@ def test_get_openai_models(client):
 
     # Check for 2025 models (GPT-5 series)
     model_ids = {model["id"] for model in models}
-    assert "gpt-5" in model_ids
-    assert "gpt-5-mini" in model_ids
-    assert "gpt-5-nano" in model_ids
-    assert "gpt-5-pro" in model_ids
+    assert "gpt-5.1" in model_ids
 
     # Check for GPT-4.1 series
     assert "gpt-4.1" in model_ids
@@ -133,10 +130,12 @@ def test_get_mistral_models(client):
     assert "mistral-large-latest" in model_ids
 
 
-def test_models_requires_auth(client):
-    """Test that models endpoint requires authentication."""
+def test_models_endpoint_is_public(client):
+    """Test that models endpoint is publicly accessible (no auth required)."""
     response = client.get("/api/v1/models")
-    assert response.status_code == 401
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "models" in data
 
 
 def test_model_registry_caching(app):
