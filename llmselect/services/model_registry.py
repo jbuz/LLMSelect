@@ -191,6 +191,14 @@ ANTHROPIC_MODELS = [
 ]
 
 GEMINI_MODELS = [
+    # Gemini 3 Series (2025)
+    {
+        "id": "gemini-3-pro-preview",
+        "name": "Gemini 3 Pro (Preview)",
+        "provider": "gemini",
+        "contextWindow": 2000000,
+        "maxTokens": 8192,
+    },
     # Gemini 2.5 Series (2025)
     {
         "id": "gemini-2.5-pro",
