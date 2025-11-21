@@ -31,6 +31,7 @@
 ### Not Started ⏸️
 - ⏸️ **Phase 6**: Frontend architecture refactor (custom hooks, Context API)
 - ⏸️ **Phase 6**: Conversation management UI (sidebar, search, management)
+- ⏸️ **Phase 6**: Multimodal support - vision input (image upload & analysis)
 - ⏸️ **Phase 7**: Mobile optimization and responsive design enhancements
 - ⏸️ **Phase 7**: Accessibility features (ARIA, keyboard navigation)
 - ⏸️ **Phase 8**: Advanced features (export, voice input, analytics)
@@ -2134,16 +2135,226 @@ export const useModels = (provider = null) => {
 
 ---
 
+### 13. Multimodal Support - Vision Input
+**Priority:** P2 - Medium  
+**Category:** Features  
+**Status:** NOT STARTED ⏸️  
+**Duration:** 2-3 weeks  
+**Added:** November 22, 2025
+
+**Context:**
+Many models in the registry now support multimodal input (analyzing images provided by users):
+- **GPT-5.1** - Full multimodal support
+- **Claude Sonnet 4.5** - Vision and document analysis
+- **Gemini 2.5 Pro, Flash, Flash-Lite** - Native multimodal
+- **Gemini 3 Pro (Preview)** - Advanced multimodal
+- **Gemini Pro Vision** - Dedicated vision model
+
+This feature enables users to upload images and ask questions about them (e.g., "What's in this image?", "Analyze this chart", "Debug this error screenshot").
+
+**Note:** This is separate from image generation (DALL-E), which remains P3-Low priority.
+
+**Phase 1: Backend - Image Upload & Storage (1 week)**
+- [ ] **Cloud Storage Integration:**
+  - [ ] Set up Azure Blob Storage or AWS S3 bucket
+  - [ ] Configure storage credentials and access policies
+  - [ ] Implement upload service with signed URLs
+  - [ ] Add image optimization (resize, compress)
+  - [ ] Configure CORS for direct browser uploads
+  - [ ] Set up automatic cleanup for old images (30-day retention)
+  
+- [ ] **Database Schema:**
+  ```sql
+  CREATE TABLE images (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    conversation_id INTEGER,
+    message_id INTEGER,
+    storage_url TEXT NOT NULL,
+    filename TEXT NOT NULL,
+    mime_type TEXT NOT NULL,
+    size_bytes INTEGER NOT NULL,
+    width INTEGER,
+    height INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (conversation_id) REFERENCES conversations(id),
+    FOREIGN KEY (message_id) REFERENCES messages(id)
+  );
+  
+  CREATE INDEX idx_images_user_id ON images(user_id);
+  CREATE INDEX idx_images_conversation_id ON images(conversation_id);
+  ```
+
+- [ ] **API Endpoints:**
+  - [ ] `POST /api/v1/images/upload` - Upload image, return storage URL
+  - [ ] `GET /api/v1/images/{id}` - Get image metadata
+  - [ ] `DELETE /api/v1/images/{id}` - Delete image
+  - [ ] Add file size limits (10MB max)
+  - [ ] Validate image types (JPEG, PNG, WebP, GIF)
+  - [ ] Add rate limiting for uploads
+
+- [ ] **Message Schema Updates:**
+  ```python
+  # llmselect/schemas.py
+  class MessageContentItem(Schema):
+      type = fields.String(required=True)  # "text" or "image"
+      text = fields.String()  # For type="text"
+      image_url = fields.String()  # For type="image"
+      
+  class MessageSchema(Schema):
+      role = fields.String(required=True)
+      content = fields.List(fields.Nested(MessageContentItem))  # Changed from String
+  ```
+
+**Phase 2: LLM Service Integration (3-4 days)**
+- [ ] **Update LLMService for multimodal:**
+  - [ ] Modify `_call_openai()` to support vision messages
+  - [ ] Modify `_call_anthropic()` for Claude vision
+  - [ ] Modify `_call_gemini()` for Gemini vision
+  - [ ] Handle image URL references in message content
+  - [ ] Add image preprocessing (base64 encoding if needed)
+  - [ ] Add error handling for unsupported models
+
+- [ ] **Model Registry Updates:**
+  ```python
+  # Add capabilities field to model definitions
+  {
+      "id": "gpt-5.1",
+      "name": "GPT-5.1",
+      "provider": "openai",
+      "capabilities": ["text", "vision", "multimodal"],
+      # ...
+  }
+  ```
+
+- [ ] **Example API calls:**
+  ```python
+  # OpenAI Vision API
+  {
+      "model": "gpt-5.1",
+      "messages": [
+          {
+              "role": "user",
+              "content": [
+                  {"type": "text", "text": "What's in this image?"},
+                  {"type": "image_url", "image_url": {"url": "https://..."}}
+              ]
+          }
+      ]
+  }
+  ```
+
+**Phase 3: Frontend - Image Upload UI (1 week)**
+- [ ] **Image Upload Component:**
+  - [ ] Create `ImageUpload.js` component
+  - [ ] Add drag-and-drop zone
+  - [ ] Add file picker button
+  - [ ] Show upload progress indicator
+  - [ ] Display image preview thumbnails
+  - [ ] Add remove/clear functionality
+  [ ] Support multiple images per message
+  - [ ] Add paste-from-clipboard support
+
+- [ ] **Update MessageInput:**
+  ```javascript
+  // src/components/chat/MessageInput.js
+  const MessageInput = () => {
+    const [text, setText] = useState('');
+    const [images, setImages] = useState([]);
+    
+    const handleImageUpload = async (files) => {
+      // Upload to backend, get URLs
+      const uploadedImages = await uploadImages(files);
+      setImages(prev => [...prev, ...uploadedImages]);
+    };
+    
+    const handleSubmit = () => {
+      // Send message with text + image URLs
+      sendMessage({
+        content: [
+          { type: 'text', text },
+          ...images.map(img => ({ type: 'image', url: img.url }))
+        ]
+      });
+    };
+  };
+  ```
+
+- [ ] **Update MessageList to display images:**
+  - [ ] Render inline images in messages
+  - [ ] Add lightbox/zoom functionality
+  - [ ] Show image loading states
+  - [ ] Handle image load errors gracefully
+  - [ ] Add image alt text for accessibility
+
+- [ ] **Model Selector Updates:**
+  - [ ] Show vision capability badge on models
+  - [ ] Disable image upload for non-vision models
+  - [ ] Show tooltip: "This model supports image analysis"
+
+**Phase 4: Comparison Mode Support (3-4 days)**
+- [ ] Enable image upload in comparison mode
+- [ ] Send same image(s) to all selected models
+- [ ] Display images in each response card
+- [ ] Allow voting on vision-based comparisons
+
+**Phase 5: Testing & Polish (3-4 days)**
+- [ ] **Backend Tests:**
+  - [ ] Image upload endpoint tests
+  - [ ] Multimodal message schema validation
+  - [ ] Cloud storage integration tests
+  - [ ] Image cleanup job tests
+  
+- [ ] **Frontend Tests:**
+  - [ ] ImageUpload component tests
+  - [ ] Drag-and-drop tests
+  - [ ] Image display tests
+  - [ ] Error handling tests
+
+- [ ] **Integration Tests:**
+  - [ ] Upload image → send to GPT-5.1 → receive response
+  - [ ] Upload image → compare across multiple vision models
+  - [ ] Image deletion and cleanup
+
+- [ ] **Manual Testing:**
+  - [ ] Test with various image formats (JPEG, PNG, WebP)
+  - [ ] Test with large images (resize/compression)
+  - [ ] Test with multiple images per message
+  - [ ] Test error cases (invalid format, too large, network issues)
+  - [ ] Test on mobile devices
+
+**Dependencies:**
+- Azure Blob Storage or AWS S3 account
+- Frontend refactor (#9) - custom hooks
+- Model registry with capabilities field
+
+**Acceptance Criteria:**
+- [ ] Users can upload images (drag-drop or file picker)
+- [ ] Images stored securely in cloud storage
+- [ ] Vision-capable models can analyze uploaded images
+- [ ] Images display correctly in chat history
+- [ ] Comparison mode works with images
+- [ ] All tests passing
+- [ ] Mobile-friendly image upload
+
+**Storage Cost Estimate:**
+- Azure Blob Storage: ~$0.02 per GB/month (hot tier)
+- Assuming 1MB avg image, 1000 images = ~$0.02/month
+- With 30-day retention, costs are minimal
+
+---
+
 ## 🟢 Low Priority / Nice-to-Have
 
-### 13. Advanced Features
+### 14. Advanced Features
 **Priority:** P3 - Low  
 **Category:** Features
 
 **Action Items:**
 - [ ] Multi-language support (i18n)
 - [ ] Voice input/output integration
-- [ ] Image generation support (DALL-E, Midjourney)
+- [ ] **Image generation output (DALL-E, Midjourney)** - Note: Vision input (analyzing images) is P2-Medium (#13)
 - [ ] Plugin/extension system
 - [ ] Conversation sharing functionality
 - [ ] Collaborative editing
@@ -2152,11 +2363,11 @@ export const useModels = (provider = null) => {
 - [ ] Analytics dashboard
 - [ ] A/B testing framework for prompts
 - [ ] Conversation branching (explore alternate responses)
-- [ ] Multi-modal support (images, audio)
+- [ ] Audio input/output support
 
 ---
 
-### 14. Developer Experience
+### 15. Developer Experience
 **Priority:** P3 - Low  
 **Category:** DevEx
 
@@ -2173,7 +2384,7 @@ export const useModels = (provider = null) => {
 
 ---
 
-### 15. Infrastructure & DevOps
+### 16. Infrastructure & DevOps
 **Priority:** P3 - Low  
 **Category:** DevOps
 
