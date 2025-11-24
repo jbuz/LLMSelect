@@ -11,6 +11,7 @@ export const authApi = {
 export const chatApi = {
   sendMessage: (data) => http.post('/chat', data),
   compare: (data) => http.post('/compare', data),
+  analyzeComparison: (data) => http.post('/compare/analyze', data),
   voteComparison: (comparisonId, preferredIndex) => 
     http.post(`/comparisons/${comparisonId}/vote`, { preferred_index: preferredIndex }),
   getComparisons: (params) => http.get('/comparisons', { params }),

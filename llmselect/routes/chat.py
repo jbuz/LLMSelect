@@ -432,3 +432,98 @@ def _stream_provider(encryption_service, llm_service, user, provider, model, mes
             },
         )
         raise
+
+
+@bp.post("/compare/analyze")
+@jwt_required()
+@limiter.limit(_rate_limit)
+def analyze_comparison():
+    """Generate AI-powered analysis comparing multiple model outputs."""
+    payload = request.get_json() or {}
+    
+    if not payload.get("outputs") or not isinstance(payload["outputs"], list):
+        return jsonify({"error": "outputs array is required"}), 400
+    
+    if len(payload["outputs"]) < 2:
+        return jsonify({"error": "At least 2 outputs are required for comparison"}), 400
+    
+    prompt = payload.get("prompt", "")
+    outputs = payload["outputs"]
+    
+    # Build the comparison prompt
+    comparison_prompt = f"""You are an expert AI analyst. Compare the following {len(outputs)} AI model outputs that all responded to the same prompt.
+
+Original Prompt: "{prompt}"
+
+"""
+    
+    for i, output in enumerate(outputs, 1):
+        model_name = output.get("label", output.get("model", f"Model {i}"))
+        response_text = output.get("response", "")
+        comparison_prompt += f"""
+{'='*60}
+OUTPUT {i}: {model_name}
+{'='*60}
+{response_text}
+
+"""
+    
+    comparison_prompt += """
+Please provide a comprehensive comparison analysis covering:
+
+1. **Accuracy & Correctness**: Which responses are most factually accurate? Any errors or misconceptions?
+
+2. **Depth & Detail**: Which provides the most thorough coverage? Which is too shallow or too verbose?
+
+3. **Practical Usefulness**: Which would be most helpful to the user? Which is most actionable?
+
+4. **Tone & Readability**: Compare writing style, clarity, and engagement.
+
+5. **Strengths & Weaknesses**: What does each model do particularly well or poorly?
+
+6. **Overall Ranking**: Provide a clear recommendation on which output(s) are best and why.
+
+Present your analysis in a clear, structured format with headings. Be specific and cite examples from the outputs.
+"""
+    
+    services = current_app.extensions["services"]
+    llm_service = services.llm
+    encryption_service = current_app.extensions["key_encryption"]
+    
+    # Use GPT-4o for the analysis (or user's preferred model if specified)
+    analysis_provider = payload.get("analysis_provider", "openai")
+    analysis_model = payload.get("analysis_model", "gpt-4o")
+    
+    try:
+        api_key = get_api_key(current_user, analysis_provider, encryption_service)
+        
+        messages = [
+            {
+                "role": "system",
+                "content": "You are an expert AI analyst specializing in comparing and evaluating LLM outputs. Provide detailed, objective, and actionable comparisons."
+            },
+            {
+                "role": "user",
+                "content": comparison_prompt
+            }
+        ]
+        
+        analysis = llm_service.invoke(analysis_provider, analysis_model, messages, api_key)
+        
+        return jsonify({
+            "analysis": analysis,
+            "provider": analysis_provider,
+            "model": analysis_model,
+            "outputs_compared": len(outputs)
+        })
+        
+    except Exception as e:
+        current_app.logger.error(
+            f"Comparison analysis failed: {type(e).__name__}",
+            extra={
+                "provider": analysis_provider,
+                "model": analysis_model,
+                "outputs_count": len(outputs),
+            },
+        )
+        return jsonify({"error": f"Analysis failed: {str(e)}"}), 500

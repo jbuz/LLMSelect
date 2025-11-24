@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import MarkdownMessage from './MarkdownMessage';
+import { chatApi } from '../services/api';
 
 const MIN_KEYWORD_LENGTH = 4;
 const WORDS_PER_MINUTE = 200;
@@ -149,6 +150,10 @@ const OutputComparisonModal = ({ results, onClose, prompt }) => {
 
   const [primaryIndex, setPrimaryIndex] = useState(0);
   const [secondaryIndex, setSecondaryIndex] = useState(1);
+  const [activeTab, setActiveTab] = useState('technical'); // 'technical' or 'ai'
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
+  const [analysisError, setAnalysisError] = useState(null);
 
   useEffect(() => {
     if (comparableResults.length < 2) {
@@ -210,6 +215,39 @@ const OutputComparisonModal = ({ results, onClose, prompt }) => {
     }
   };
 
+  const loadAiAnalysis = async () => {
+    if (comparableResults.length < 2) return;
+    
+    setIsLoadingAnalysis(true);
+    setAnalysisError(null);
+    
+    try {
+      const response = await chatApi.analyzeComparison({
+        prompt: prompt || '',
+        outputs: comparableResults.map(result => ({
+          provider: result.provider,
+          model: result.model,
+          label: formatDisplayName(result),
+          response: result.response,
+        })),
+      });
+      
+      setAiAnalysis(response.data.analysis);
+    } catch (error) {
+      console.error('Failed to load AI analysis:', error);
+      setAnalysisError(error.response?.data?.error || 'Failed to generate AI analysis');
+    } finally {
+      setIsLoadingAnalysis(false);
+    }
+  };
+
+  // Load AI analysis when switching to AI tab
+  useEffect(() => {
+    if (activeTab === 'ai' && !aiAnalysis && !isLoadingAnalysis && !analysisError) {
+      loadAiAnalysis();
+    }
+  }, [activeTab]);
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal comparison-modal" onClick={(event) => event.stopPropagation()}>
@@ -219,6 +257,24 @@ const OutputComparisonModal = ({ results, onClose, prompt }) => {
             ×
           </button>
         </div>
+        
+        {/* Tab Navigation */}
+        <div className="comparison-tabs">
+          <button
+            className={`tab-button ${activeTab === 'technical' ? 'active' : ''}`}
+            onClick={() => setActiveTab('technical')}
+          >
+            Technical Comparison
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'ai' ? 'active' : ''}`}
+            onClick={() => setActiveTab('ai')}
+            disabled={comparableResults.length < 2}
+          >
+            AI Analysis ({comparableResults.length} outputs)
+          </button>
+        </div>
+
         <div className="modal-content comparison-analysis">
           {prompt && (
             <div className="prompt-summary">
@@ -233,13 +289,16 @@ const OutputComparisonModal = ({ results, onClose, prompt }) => {
             </div>
           )}
 
-          {comparableResults.length < 2 ? (
-            <div className="comparison-empty">
-              <p>At least two completed responses are required to generate a comparison.</p>
-            </div>
-          ) : (
+          {/* Technical Comparison Tab */}
+          {activeTab === 'technical' && (
             <>
-              <div className="comparison-selectors">
+              {comparableResults.length < 2 ? (
+                <div className="comparison-empty">
+                  <p>At least two completed responses are required to generate a comparison.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="comparison-selectors">
                 <div className="selector-group">
                   <label>Primary response</label>
                   <select
@@ -398,6 +457,57 @@ const OutputComparisonModal = ({ results, onClose, prompt }) => {
                 </div>
               )}
             </>
+              )}
+            </>
+          )}
+
+          {/* AI Analysis Tab */}
+          {activeTab === 'ai' && (
+            <div className="ai-analysis-container">
+              {isLoadingAnalysis && (
+                <div className="analysis-loading">
+                  <div className="spinner"></div>
+                  <p>Generating AI analysis of {comparableResults.length} outputs...</p>
+                  <p className="analysis-subtext">This may take 10-30 seconds depending on response length.</p>
+                </div>
+              )}
+
+              {analysisError && (
+                <div className="error-banner">
+                  <p>⚠️ {analysisError}</p>
+                  <button className="btn btn-secondary" onClick={loadAiAnalysis}>
+                    Retry Analysis
+                  </button>
+                </div>
+              )}
+
+              {aiAnalysis && !isLoadingAnalysis && (
+                <div className="ai-analysis-content">
+                  <div className="analysis-header">
+                    <h3>AI-Powered Comparison Analysis</h3>
+                    <p className="analysis-note">
+                      Analyzing {comparableResults.length} model outputs using GPT-4o
+                    </p>
+                    <button 
+                      className="btn btn-secondary btn-sm" 
+                      onClick={loadAiAnalysis}
+                      disabled={isLoadingAnalysis}
+                    >
+                      🔄 Regenerate Analysis
+                    </button>
+                  </div>
+                  <div className="analysis-markdown">
+                    <MarkdownMessage content={aiAnalysis} />
+                  </div>
+                </div>
+              )}
+
+              {!isLoadingAnalysis && !aiAnalysis && !analysisError && (
+                <div className="comparison-empty">
+                  <p>Click "AI Analysis" tab to generate a comprehensive comparison.</p>
+                </div>
+              )}
+            </div>
           )}
         </div>
         <div className="modal-footer">
