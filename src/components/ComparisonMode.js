@@ -3,6 +3,7 @@ import ModelSelector from './ModelSelector';
 import ResponseCard from './ResponseCard';
 import MessageInput from './MessageInput';
 import { useStreamingComparison } from '../hooks/useStreamingComparison';
+import OutputComparisonModal from './OutputComparisonModal';
 
 // Provider colors for visual distinction
 const PROVIDER_COLORS = {
@@ -55,6 +56,7 @@ export default function ComparisonMode({ chatApi, providerModels = {} }) {
 
   const [prompt, setPrompt] = useState('');
   const [preferredIndex, setPreferredIndex] = useState(null);
+  const [showComparisonModal, setShowComparisonModal] = useState(false);
   
   // Convert providerModels to flat list with colors
   const allAvailableModels = useMemo(() => {
@@ -141,8 +143,25 @@ export default function ComparisonMode({ chatApi, providerModels = {} }) {
       {streamingResults.length > 0 && (
         <div className="comparison-results">
           <div className="results-header">
-            <h2>Comparison Results {isStreaming && '(Streaming...)'}</h2>
-            <p className="prompt-display">"{prompt}"</p>
+            <div className="results-header-text">
+              <h2>Comparison Results {isStreaming && '(Streaming...)'}</h2>
+              <p className="prompt-display">"{prompt}"</p>
+            </div>
+            <div className="results-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowComparisonModal(true)}
+                disabled={
+                  isStreaming ||
+                  streamingResults.filter(
+                    (result) =>
+                      !result.error && result.response && result.response.trim().length > 0,
+                  ).length < 2
+                }
+              >
+                Compare Outputs
+              </button>
+            </div>
           </div>
           
           <div 
@@ -181,6 +200,14 @@ export default function ComparisonMode({ chatApi, providerModels = {} }) {
           <p>Select 2-4 models above and enter a prompt to see how different models respond</p>
           <p className="streaming-info">✨ Real-time streaming enabled - see responses as they're generated!</p>
         </div>
+      )}
+
+      {showComparisonModal && (
+        <OutputComparisonModal
+          results={streamingResults}
+          prompt={prompt}
+          onClose={() => setShowComparisonModal(false)}
+        />
       )}
     </div>
   );
