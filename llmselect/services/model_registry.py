@@ -513,8 +513,16 @@ class ModelRegistryService:
         if not available_ids:
             # If API query failed, return all static models as fallback
             return static_models
-        
-        return [m for m in static_models if m["id"] in available_ids]
+
+        available_set = set(available_ids)
+        annotated_models: List[Dict] = []
+        for model in static_models:
+            # Preserve legacy/static definitions even when the remote API omits them
+            model_copy = model.copy()
+            model_copy["available"] = model["id"] in available_set
+            annotated_models.append(model_copy)
+
+        return annotated_models
 
     def get_models_with_verification(
         self, provider: str, api_key: Optional[str] = None
