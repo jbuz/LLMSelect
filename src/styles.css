@@ -916,6 +916,18 @@ textarea:focus-visible {
   grid-template-columns: repeat(2, 1fr);
 }
 
+.comparison-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.comparison-footer .btn {
+  min-width: 260px;
+  font-size: 0.95rem;
+  padding: 12px 24px;
+}
+
 @media (max-width: 1200px) {
   .results-grid {
     grid-template-columns: 1fr !important;

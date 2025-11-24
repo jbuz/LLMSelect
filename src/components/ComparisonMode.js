@@ -84,6 +84,14 @@ export default function ComparisonMode({ chatApi, providerModels = {} }) {
     startStreaming,
     cancelStreaming,
   } = useStreamingComparison(chatApi);
+
+  const completedResults = useMemo(
+    () =>
+      streamingResults.filter(
+        (result) => !result.error && result.response && result.response.trim().length > 0,
+      ),
+    [streamingResults],
+  );
   
   const handleCompare = async (content) => {
     setPrompt(content);
@@ -152,11 +160,7 @@ export default function ComparisonMode({ chatApi, providerModels = {} }) {
                 className="btn btn-secondary"
                 onClick={() => setShowComparisonModal(true)}
                 disabled={
-                  isStreaming ||
-                  streamingResults.filter(
-                    (result) =>
-                      !result.error && result.response && result.response.trim().length > 0,
-                  ).length < 2
+                  isStreaming || completedResults.length < 2
                 }
               >
                 Compare Outputs
@@ -189,6 +193,18 @@ export default function ComparisonMode({ chatApi, providerModels = {} }) {
                 index={idx}
               />
             ))}
+          </div>
+
+          <div className="comparison-footer">
+            <button
+              className="btn btn-primary"
+              onClick={() => setShowComparisonModal(true)}
+              disabled={
+                isStreaming || completedResults.length < 2
+              }
+            >
+              Show comparison of {completedResults.length} outputs
+            </button>
           </div>
         </div>
       )}
