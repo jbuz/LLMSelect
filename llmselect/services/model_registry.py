@@ -18,13 +18,57 @@ from ..utils.errors import AppError
 
 # Static model definitions for providers
 OPENAI_MODELS = [
-    # GPT-5 Series (2025)
+    # GPT-5.2 Series (2025 - latest)
+    {
+        "id": "gpt-5.2-pro",
+        "name": "GPT-5.2 Pro",
+        "provider": "openai",
+        "contextWindow": 250000,
+        "maxTokens": 20000,
+    },
+    {
+        "id": "gpt-5.2",
+        "name": "GPT-5.2",
+        "provider": "openai",
+        "contextWindow": 250000,
+        "maxTokens": 20000,
+    },
+    # GPT-5.1 Series (2025)
     {
         "id": "gpt-5.1",
         "name": "GPT-5.1",
         "provider": "openai",
         "contextWindow": 250000,
         "maxTokens": 20000,
+    },
+    # GPT-5 Series (2025)
+    {
+        "id": "gpt-5-pro",
+        "name": "GPT-5 Pro",
+        "provider": "openai",
+        "contextWindow": 250000,
+        "maxTokens": 20000,
+    },
+    {
+        "id": "gpt-5",
+        "name": "GPT-5",
+        "provider": "openai",
+        "contextWindow": 250000,
+        "maxTokens": 20000,
+    },
+    {
+        "id": "gpt-5-mini",
+        "name": "GPT-5 Mini",
+        "provider": "openai",
+        "contextWindow": 250000,
+        "maxTokens": 16384,
+    },
+    {
+        "id": "gpt-5-nano",
+        "name": "GPT-5 Nano",
+        "provider": "openai",
+        "contextWindow": 250000,
+        "maxTokens": 16384,
     },
     # GPT-4.1 Series (2025)
     {
@@ -48,7 +92,14 @@ OPENAI_MODELS = [
         "contextWindow": 150000,
         "maxTokens": 4096,
     },
-    # o3/o4 Series (2025 reasoning models)
+    # Reasoning Models (o-series)
+    {
+        "id": "o3-pro",
+        "name": "o3 Pro",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 100000,
+    },
     {
         "id": "o3",
         "name": "o3",
@@ -58,46 +109,53 @@ OPENAI_MODELS = [
     },
     {
         "id": "o3-mini",
-        "name": "o3-mini",
+        "name": "o3 Mini",
         "provider": "openai",
         "contextWindow": 200000,
         "maxTokens": 65536,
     },
     {
-        "id": "o3-pro",
-        "name": "o3-pro",
+        "id": "o4-mini",
+        "name": "o4 Mini",
+        "provider": "openai",
+        "contextWindow": 200000,
+        "maxTokens": 65536,
+    },
+    {
+        "id": "o1-pro",
+        "name": "o1 Pro",
         "provider": "openai",
         "contextWindow": 200000,
         "maxTokens": 100000,
     },
     {
-        "id": "o4-mini",
-        "name": "o4-mini",
+        "id": "o1",
+        "name": "o1",
         "provider": "openai",
         "contextWindow": 200000,
-        "maxTokens": 65536,
+        "maxTokens": 100000,
     },
     {
         "id": "o3-deep-research",
-        "name": "o3-deep-research",
+        "name": "o3 Deep Research",
         "provider": "openai",
         "contextWindow": 200000,
         "maxTokens": 100000,
     },
     {
         "id": "o4-mini-deep-research",
-        "name": "o4-mini-deep-research",
+        "name": "o4 Mini Deep Research",
         "provider": "openai",
         "contextWindow": 200000,
         "maxTokens": 65536,
     },
-    # GPT-4 Series (2024 - legacy but still supported)
+    # GPT-4 Series (legacy, still supported)
     {
         "id": "gpt-4o",
         "name": "GPT-4o",
         "provider": "openai",
         "contextWindow": 128000,
-        "maxTokens": 4096,
+        "maxTokens": 16384,
     },
     {
         "id": "gpt-4o-mini",
@@ -105,20 +163,6 @@ OPENAI_MODELS = [
         "provider": "openai",
         "contextWindow": 128000,
         "maxTokens": 16384,
-    },
-    {
-        "id": "o1-preview",
-        "name": "o1 Preview",
-        "provider": "openai",
-        "contextWindow": 128000,
-        "maxTokens": 32768,
-    },
-    {
-        "id": "o1-mini",
-        "name": "o1 Mini",
-        "provider": "openai",
-        "contextWindow": 128000,
-        "maxTokens": 65536,
     },
     {
         "id": "gpt-4-turbo",
@@ -144,17 +188,17 @@ OPENAI_MODELS = [
 ]
 
 ANTHROPIC_MODELS = [
-    # Claude 4 Series (2025)
+    # Claude Opus Series (2025)
     {
-        "id": "claude-sonnet-4-5-20250929",
-        "name": "Claude Sonnet 4.5",
+        "id": "claude-opus-4-6",
+        "name": "Claude Opus 4.6",
         "provider": "anthropic",
         "contextWindow": 200000,
         "maxTokens": 8192,
     },
     {
-        "id": "claude-haiku-4-5-20251001",
-        "name": "Claude Haiku 4.5",
+        "id": "claude-opus-4-5-20251101",
+        "name": "Claude Opus 4.5",
         "provider": "anthropic",
         "contextWindow": 200000,
         "maxTokens": 8192,
@@ -166,20 +210,50 @@ ANTHROPIC_MODELS = [
         "contextWindow": 200000,
         "maxTokens": 8192,
     },
-    # Claude 3 Series (2024 - legacy but still supported)
     {
-        "id": "claude-3-5-sonnet-20241022",
-        "name": "Claude 3.5 Sonnet",
+        "id": "claude-opus-4-20250514",
+        "name": "Claude Opus 4",
+        "provider": "anthropic",
+        "contextWindow": 200000,
+        "maxTokens": 8192,
+    },
+    # Claude Sonnet Series (2025)
+    {
+        "id": "claude-sonnet-4-5-20250929",
+        "name": "Claude Sonnet 4.5",
         "provider": "anthropic",
         "contextWindow": 200000,
         "maxTokens": 8192,
     },
     {
-        "id": "claude-3-opus-20240229",
-        "name": "Claude 3 Opus",
+        "id": "claude-sonnet-4-20250514",
+        "name": "Claude Sonnet 4",
         "provider": "anthropic",
         "contextWindow": 200000,
-        "maxTokens": 4096,
+        "maxTokens": 8192,
+    },
+    # Claude Haiku Series (2025)
+    {
+        "id": "claude-haiku-4-5-20251001",
+        "name": "Claude Haiku 4.5",
+        "provider": "anthropic",
+        "contextWindow": 200000,
+        "maxTokens": 8192,
+    },
+    # Claude 3 Series (legacy, still supported)
+    {
+        "id": "claude-3-7-sonnet-20250219",
+        "name": "Claude 3.7 Sonnet",
+        "provider": "anthropic",
+        "contextWindow": 200000,
+        "maxTokens": 8192,
+    },
+    {
+        "id": "claude-3-5-haiku-20241022",
+        "name": "Claude 3.5 Haiku",
+        "provider": "anthropic",
+        "contextWindow": 200000,
+        "maxTokens": 8192,
     },
     {
         "id": "claude-3-haiku-20240307",
@@ -196,90 +270,115 @@ GEMINI_MODELS = [
         "id": "gemini-3-pro-preview",
         "name": "Gemini 3 Pro (Preview)",
         "provider": "gemini",
-        "contextWindow": 2000000,
-        "maxTokens": 8192,
+        "contextWindow": 1048576,
+        "maxTokens": 65536,
+    },
+    {
+        "id": "gemini-3-flash-preview",
+        "name": "Gemini 3 Flash (Preview)",
+        "provider": "gemini",
+        "contextWindow": 1048576,
+        "maxTokens": 65536,
     },
     # Gemini 2.5 Series (2025)
     {
         "id": "gemini-2.5-pro",
         "name": "Gemini 2.5 Pro",
         "provider": "gemini",
-        "contextWindow": 2000000,
-        "maxTokens": 8192,
+        "contextWindow": 1048576,
+        "maxTokens": 65536,
     },
     {
         "id": "gemini-2.5-flash",
         "name": "Gemini 2.5 Flash",
         "provider": "gemini",
-        "contextWindow": 1000000,
-        "maxTokens": 8192,
+        "contextWindow": 1048576,
+        "maxTokens": 65536,
     },
     {
         "id": "gemini-2.5-flash-lite",
         "name": "Gemini 2.5 Flash-Lite",
         "provider": "gemini",
-        "contextWindow": 1000000,
-        "maxTokens": 8192,
+        "contextWindow": 1048576,
+        "maxTokens": 65536,
     },
-    # Gemini 2.0 Series (2024 - legacy but still supported)
+    # Gemini 2.0 Series (2024)
     {
-        "id": "gemini-2.0-flash-exp",
-        "name": "Gemini 2.0 Flash (Experimental)",
+        "id": "gemini-2.0-flash",
+        "name": "Gemini 2.0 Flash",
         "provider": "gemini",
-        "contextWindow": 1000000,
-        "maxTokens": 8192,
-    },
-    # Gemini 1.5 Series (2024 - legacy but still supported)
-    {
-        "id": "gemini-1.5-pro",
-        "name": "Gemini 1.5 Pro",
-        "provider": "gemini",
-        "contextWindow": 2000000,
+        "contextWindow": 1048576,
         "maxTokens": 8192,
     },
     {
-        "id": "gemini-1.5-flash",
-        "name": "Gemini 1.5 Flash",
+        "id": "gemini-2.0-flash-lite",
+        "name": "Gemini 2.0 Flash-Lite",
         "provider": "gemini",
-        "contextWindow": 1000000,
+        "contextWindow": 1048576,
         "maxTokens": 8192,
-    },
-    {
-        "id": "gemini-pro",
-        "name": "Gemini Pro",
-        "provider": "gemini",
-        "contextWindow": 32760,
-        "maxTokens": 2048,
-    },
-    {
-        "id": "gemini-pro-vision",
-        "name": "Gemini Pro Vision",
-        "provider": "gemini",
-        "contextWindow": 16384,
-        "maxTokens": 2048,
     },
 ]
 
 MISTRAL_MODELS = [
+    # Mistral Flagship Models
     {
         "id": "mistral-large-latest",
         "name": "Mistral Large",
         "provider": "mistral",
-        "contextWindow": 128000,
+        "contextWindow": 262144,
         "maxTokens": 4096,
     },
     {
         "id": "mistral-medium-latest",
         "name": "Mistral Medium",
         "provider": "mistral",
-        "contextWindow": 32000,
+        "contextWindow": 131072,
         "maxTokens": 4096,
     },
     {
         "id": "mistral-small-latest",
         "name": "Mistral Small",
         "provider": "mistral",
-        "contextWindow": 32000,
+        "contextWindow": 131072,
+        "maxTokens": 4096,
+    },
+    # Magistral (Reasoning Models)
+    {
+        "id": "magistral-medium-latest",
+        "name": "Magistral Medium",
+        "provider": "mistral",
+        "contextWindow": 131072,
+        "maxTokens": 4096,
+    },
+    {
+        "id": "magistral-small-latest",
+        "name": "Magistral Small",
+        "provider": "mistral",
+        "contextWindow": 131072,
+        "maxTokens": 4096,
+    },
+    # Ministral (Lightweight Models)
+    {
+        "id": "ministral-8b-latest",
+        "name": "Ministral 8B",
+        "provider": "mistral",
+        "contextWindow": 262144,
+        "maxTokens": 4096,
+    },
+    # Pixtral (Multimodal)
+    {
+        "id": "pixtral-large-latest",
+        "name": "Pixtral Large",
+        "provider": "mistral",
+        "contextWindow": 131072,
+        "maxTokens": 4096,
+    },
+    # Open Source
+    {
+        "id": "open-mistral-nemo",
+        "name": "Mistral Nemo",
+        "provider": "mistral",
+        "contextWindow": 131072,
         "maxTokens": 4096,
     },
 ]
@@ -380,8 +479,12 @@ class ModelRegistryService:
             else:
                 models = static_models
         elif provider == "anthropic":
-            # Anthropic doesn't have a models API endpoint
-            models = ANTHROPIC_MODELS.copy()
+            static_models = ANTHROPIC_MODELS.copy()
+            if env_api_key:
+                available_ids = self._fetch_anthropic_models_from_api(env_api_key)
+                models = self._filter_available_models(static_models, available_ids)
+            else:
+                models = static_models
         else:
             raise AppError(f"Unsupported provider: {provider}")
 
@@ -447,6 +550,30 @@ class ModelRegistryService:
                 if "gpt" in m["id"].lower() or m["id"].startswith("o")
             ]
             return models
+        except Exception:
+            return []
+
+    def _fetch_anthropic_models_from_api(self, api_key: str) -> List[str]:
+        """Fetch available Anthropic models from the API.
+
+        Args:
+            api_key: Anthropic API key
+
+        Returns:
+            List of available model IDs
+        """
+        try:
+            response = self.session.get(
+                "https://api.anthropic.com/v1/models",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                },
+                timeout=10,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return [m["id"] for m in data.get("data", [])]
         except Exception:
             return []
 
@@ -569,8 +696,12 @@ class ModelRegistryService:
             else:
                 models = static_models
         elif provider == "anthropic":
-            # Anthropic doesn't have a models API endpoint
-            models = ANTHROPIC_MODELS.copy()
+            static_models = ANTHROPIC_MODELS.copy()
+            if api_key:
+                available_ids = self._fetch_anthropic_models_from_api(api_key)
+                models = self._filter_available_models(static_models, available_ids)
+            else:
+                models = static_models
         else:
             raise AppError(f"Unsupported provider: {provider}")
         

@@ -7,7 +7,7 @@ Secure multi-provider LLM comparison tool built with Flask and React. LLMSelect 
 
 ## Highlights
 - **Side-by-side model comparison** for 2-4 LLM models simultaneously
-- **Per-user encrypted API keys** stored in the database using Fernet encryption with a master key supplied via environment variables.
+- **Flexible API key management** with system-wide keys in `.env` and optional per-user encrypted keys stored in the database using Fernet encryption.
 - **Session-based authentication** powered by JWT cookies with automatic CSRF protection and refresh token rotation.
 - **Zero-trust defaults** including strict rate limiting, request sanitisation, structured error responses, and hardened HTTP security headers.
 - **Comprehensive logging** with JSON-formatted request/response traces and retry logic for outbound LLM requests.
@@ -67,6 +67,19 @@ The service will start on `http://localhost:3044` by default.
 | `ALLOW_OPEN_REGISTRATION` | ❌ | When `true`, any user can self-register. Defaults to `false`. |
 | `REGISTRATION_TOKEN` | ❌ | Optional shared secret required during registration when open registration is disabled. |
 
+### Provider API Keys (Optional)
+
+System-wide API keys can be set in `.env` so all users share a single set of credentials. Individual users can also store their own keys via the UI, optionally overriding the system key for a given provider.
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | ❌ | System-wide OpenAI API key. |
+| `ANTHROPIC_API_KEY` | ❌ | System-wide Anthropic API key. |
+| `GEMINI_API_KEY` | ❌ | System-wide Google Gemini API key (also checks `GOOGLE_API_KEY`). |
+| `MISTRAL_API_KEY` | ❌ | System-wide Mistral API key. |
+
+**Key resolution priority:** user key with override flag → system `.env` key → user key as fallback.
+
 ### Azure AI Foundry Integration (Optional)
 
 LLMSelect can optionally route all provider APIs (OpenAI, Anthropic, Gemini, Mistral) through **Azure AI Foundry** for centralized billing and enterprise governance. See [`AZURE_QUICK_REFERENCE.md`](AZURE_QUICK_REFERENCE.md) for quick setup.
@@ -87,19 +100,16 @@ LLMSelect can optionally route all provider APIs (OpenAI, Anthropic, Gemini, Mis
 
 **Documentation:**
 - 🚀 **Quick Start**: [`AZURE_QUICK_REFERENCE.md`](AZURE_QUICK_REFERENCE.md) - 3-step setup guide
-- 📖 **Full Setup**: [`AZURE_FOUNDRY_SETUP.md`](AZURE_FOUNDRY_SETUP.md) - Azure resource creation with CLI
-- 🔧 **Integration**: [`AZURE_INTEGRATION_GUIDE.md`](AZURE_INTEGRATION_GUIDE.md) - Configuration and testing
-- 💻 **Implementation**: [`AZURE_IMPLEMENTATION_SUMMARY.md`](AZURE_IMPLEMENTATION_SUMMARY.md) - Technical details
+- � **Integration**: [`AZURE_INTEGRATION_GUIDE.md`](AZURE_INTEGRATION_GUIDE.md) - Configuration and testing
 
 **Note:** Azure integration is **completely optional**. LLMSelect works perfectly with direct provider APIs (default behavior).
 
-> ⚠️ API keys for LLM providers are **no longer read from environment variables**. They are securely stored per user inside the database and encrypted with the master key.
-
 ## Authentication & API Key Flow
 1. Users create an account (subject to the registration policy above) and sign in through the SPA. JWT cookies are issued with CSRF protection enabled.
-2. Each user can upload provider credentials via the “API Keys” dialog. Keys are encrypted before touching the database and never returned to the frontend.
-3. Chat requests require an authenticated session. Incoming payloads are validated and sanitised before invoking provider APIs.
-4. Rate limiting ensures that chat and comparison endpoints cannot be abused (`60 per minute` by default).
+2. System-wide API keys can be configured in `.env` for shared use. Individual users may also upload their own provider credentials via the "API Keys" dialog; these are encrypted before touching the database and never returned to the frontend.
+3. When a user makes a request, the system resolves the API key using the priority chain: user override key → system `.env` key → user fallback key.
+4. Chat requests require an authenticated session. Incoming payloads are validated and sanitised before invoking provider APIs.
+5. Rate limiting ensures that chat and comparison endpoints cannot be abused (`60 per minute` by default).
 
 ## API Surface
 

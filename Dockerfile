@@ -8,17 +8,17 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js for building React frontend
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+# Install Node.js 20 LTS for building React frontend
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
 # Copy Python requirements
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy package.json for frontend dependencies
-COPY package.json ./
-RUN npm install
+# Copy package.json and lock file for frontend dependencies
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # Copy application files
 COPY . .
@@ -31,6 +31,3 @@ EXPOSE 3044
 
 # Run the application
 CMD ["python", "app.py"]
-
-
-# webpack.config.js

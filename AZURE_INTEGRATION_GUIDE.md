@@ -27,7 +27,7 @@ Before enabling Azure integration, you need:
 3. **Model deployments** for each model you want to use
 4. **Azure API key** and endpoint URL
 
-See [`AZURE_FOUNDRY_SETUP.md`](./AZURE_FOUNDRY_SETUP.md) for detailed Azure setup instructions.
+See the [Azure AI Foundry documentation](https://learn.microsoft.com/azure/ai-services/openai/) for detailed Azure setup instructions.
 
 ## 🚀 Quick Start
 
@@ -119,7 +119,7 @@ python3 app.py
 
 **Check logs on startup:**
 ```bash
-docker-compose logs -f app
+docker-compose logs -f llm-chat
 ```
 
 You should see Azure configuration loaded (if enabled).
@@ -292,7 +292,7 @@ cat .env | grep USE_AZURE_FOUNDRY
 
 **Method 2: Check app logs**
 ```bash
-docker-compose logs app | grep -i azure
+docker-compose logs llm-chat | grep -i azure
 ```
 
 **Method 3: Check config at runtime**
@@ -419,7 +419,6 @@ az consumption budget create \
 
 ## 📚 Additional Resources
 
-- **Detailed Setup:** [`AZURE_FOUNDRY_SETUP.md`](./AZURE_FOUNDRY_SETUP.md)
 - **Azure AI Foundry Docs:** https://learn.microsoft.com/azure/ai-services/
 - **OpenAI on Azure:** https://learn.microsoft.com/azure/ai-services/openai/
 - **Azure Monitor:** https://learn.microsoft.com/azure/azure-monitor/
@@ -429,8 +428,7 @@ az consumption budget create \
 If you encounter issues:
 
 1. Check this guide's troubleshooting section
-2. Review [`AZURE_FOUNDRY_SETUP.md`](./AZURE_FOUNDRY_SETUP.md)
-3. Check application logs: `docker-compose logs app`
+2. Check application logs: `docker-compose logs llm-chat`
 4. Verify Azure resources: `az cognitiveservices account show ...`
 5. Test Azure endpoint directly with `curl`
 

@@ -214,9 +214,7 @@ docker-compose restart
 
 ## 📚 Documentation Links
 
-- **Full Setup Guide:** `AZURE_FOUNDRY_SETUP.md`
 - **Integration Guide:** `AZURE_INTEGRATION_GUIDE.md`
-- **Implementation Details:** `AZURE_IMPLEMENTATION_SUMMARY.md`
 - **Azure AI Foundry Docs:** https://learn.microsoft.com/azure/ai-services/
 
 ## 🆘 Get Help
@@ -251,7 +249,7 @@ curl -X POST "${AZURE_AI_FOUNDRY_ENDPOINT}/openai/deployments/<deployment>/chat/
 docker-compose restart
 
 # 4. Check logs
-docker-compose logs -f app
+docker-compose logs -f llm-chat
 
 # 5. Test in browser
 # Navigate to http://localhost:3044 and send a message
@@ -260,6 +258,4 @@ docker-compose logs -f app
 ---
 
 **Need More Help?** Check the comprehensive guides:
-- Setup: `AZURE_FOUNDRY_SETUP.md`
 - Integration: `AZURE_INTEGRATION_GUIDE.md`
-- Implementation: `AZURE_IMPLEMENTATION_SUMMARY.md`

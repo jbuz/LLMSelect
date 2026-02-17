@@ -406,7 +406,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Version History Summary
 
 - **v1.0.0** (2025-10-31): Initial production release with core authentication, multi-provider chat, and security features
-- **Unreleased**: Security infrastructure, documentation, and CI/CD automation
+- **Unreleased**: Phases 2–6 — Comparison UI, streaming, frontend refactor, testing, Azure integration, performance, caching, conversation management
 
 ---
 
@@ -434,54 +434,13 @@ Breaking changes will be clearly marked with **BREAKING CHANGE** in the descript
 
 ---
 
-## Future Releases (Planned)
-
-### [2.0.0] - Comparison Mode UI
-- Side-by-side response comparison interface
-- Multi-model selector component
-- Response metadata display (time, tokens, cost)
-- Comparison result persistence
-- Vote/rating system for responses
-- Streaming response support (SSE)
-- Real-time token-by-token rendering
-- Request cancellation
-
-### [2.1.0] - Frontend Architecture Improvements
-- Custom React hooks (useAuth, useChat, useComparison)
-- Context API for global state management
-- Component refactoring (extract smaller components)
-- Markdown rendering for messages
-- Syntax highlighting for code blocks
-- Copy buttons for messages and code blocks
-
-### [2.2.0] - Testing & Quality
-- Frontend test suite (Jest + React Testing Library)
-- Expanded backend test coverage (90%+ target)
-- E2E tests (Playwright)
-- CI/CD pipeline with comprehensive testing
-- Code coverage reporting
-
-### [2.3.0] - Conversation Management
-- Conversation history sidebar
-- Conversation search and filtering
-- Conversation export (Markdown, PDF, JSON)
-- Conversation deletion and renaming
-- Conversation organization (folders, tags, pinning)
-
-### [2.4.0] - Performance & Optimization
-- Response caching (Redis)
-- Bundle optimization and code splitting
-- Performance monitoring
-- Lighthouse score optimization
-- PWA support
+## Planned
 
 ### [3.0.0] - UX Polish
 - Accessibility improvements (WCAG AA compliance)
 - Mobile responsiveness
 - Dark/light theme toggle
-- Keyboard shortcuts
 - Loading skeletons and animations
-- Design system documentation
 
 ---
 

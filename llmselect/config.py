@@ -3,6 +3,10 @@ from datetime import timedelta
 from typing import List
 
 from cryptography.fernet import Fernet, InvalidToken
+from dotenv import load_dotenv
+
+# Load .env before any os.getenv() calls at module/class level
+load_dotenv()
 
 
 class ConfigError(Exception):
